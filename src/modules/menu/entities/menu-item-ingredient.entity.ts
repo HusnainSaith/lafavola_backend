@@ -1,13 +1,12 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { MenuItem } from './menu-item.entity';
 import { Ingredient } from '../../ingredients/entities/ingredient.entity';
+import { MenuItem } from './menu-item.entity';
 
 @Entity('menu_item_ingredients')
 export class MenuItemIngredient {

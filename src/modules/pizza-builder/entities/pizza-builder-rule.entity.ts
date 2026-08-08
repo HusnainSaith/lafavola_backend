@@ -1,14 +1,13 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 import { MenuItem } from '../../menu/entities/menu-item.entity';
 import { OptionGroup } from '../../option-groups/entities/option-group.entity';
+import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 
 @Entity('pizza_builder_rules')
 export class PizzaBuilderRule {

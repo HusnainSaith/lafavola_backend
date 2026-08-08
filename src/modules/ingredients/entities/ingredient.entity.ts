@@ -1,14 +1,13 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
+import { MediaAsset } from '../../media/entities/media-asset.entity';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 import { IngredientCategory } from './ingredient-category.entity';
-import { MediaAsset } from '../../media/entities/media-asset.entity';
 
 @Entity('ingredients')
 export class Ingredient {

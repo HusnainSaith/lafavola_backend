@@ -1,10 +1,10 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
+  Entity,
+  JoinColumn,
   ManyToOne,
   OneToOne,
-  JoinColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Order } from '../../orders/entities/order.entity';
 import { DeliveryAssignment } from './delivery-assignment.entity';

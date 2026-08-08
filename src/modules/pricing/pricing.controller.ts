@@ -1,8 +1,9 @@
 ﻿import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { PricingService } from './pricing.service';
 import { CalculatePriceDto } from './dto/calculate-price.dto';
+import { PriceBreakdownDto } from './dto/price-breakdown.dto';
+import { PricingService } from './pricing.service';
 
 @ApiTags('Pricing')
 @Controller('pricing')
@@ -21,6 +22,7 @@ export class PricingController {
   @ApiResponse({
     status: 201,
     description: 'Price calculated successfully',
+    type: PriceBreakdownDto,
   })
   @ApiResponse({
     status: 400,

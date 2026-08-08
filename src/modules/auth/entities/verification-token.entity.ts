@@ -1,10 +1,9 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
@@ -26,7 +25,7 @@ export class VerificationToken {
   @Column({ name: 'token_hash', type: 'varchar', length: 255, unique: true })
   tokenHash: string;
 
-  @Column({ name: 'attempts', type: 'integer' })
+  @Column({ name: 'attempts', type: 'integer', default: 0 })
   attempts: number;
 
   @Column({ name: 'expires_at', type: 'timestamptz' })
@@ -35,6 +34,10 @@ export class VerificationToken {
   @Column({ name: 'consumed_at', type: 'timestamptz', nullable: true })
   consumedAt?: Date;
 
-  @Column({ name: 'created_at', type: 'timestamptz' })
+  @Column({
+    name: 'created_at',
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   createdAt: Date;
 }

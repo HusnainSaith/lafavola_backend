@@ -1,9 +1,9 @@
 ﻿import { Injectable } from '@nestjs/common';
-import { FaqArticleRepository } from './repositories/faq-article.repository';
-import { FaqArticle } from './entities/faq-article.entity';
+import { requireEntity } from '../../common/utils/service-errors.util';
 import { CreateFaqDto } from './dto/create-faq.dto';
 import { UpdateFaqDto } from './dto/update-faq.dto';
-import { requireEntity } from '../../common/utils/service-errors.util';
+import { FaqArticle } from './entities/faq-article.entity';
+import { FaqArticleRepository } from './repositories/faq-article.repository';
 
 @Injectable()
 export class FaqService {

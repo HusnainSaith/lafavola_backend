@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
-import { UsersService } from './users.service';
-import { UsersController } from './users.controller';
-import { User } from './entities/user.entity';
-import { UserPermission } from './entities/user-permission.entity';
-import { Role } from '../roles/entities/role.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { GuardsModule } from '../../common/modules/guards.module';
+import { TokenUtil } from '../../common/utils/jwt.util';
 import { Permission } from '../permissions/entities/permission.entity';
 import { RolePermission } from '../role-permissions/entities/role-permission.entity';
-import { TokenUtil } from 'src/common/utils/jwt.util';
+import { Role } from '../roles/entities/role.entity';
 import { SharedModule } from '../shared/shared.module';
-import { GuardsModule } from '../../common/modules/guards.module';
+import { UserPermission } from './entities/user-permission.entity';
+import { User } from './entities/user.entity';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
 
 @Module({
   imports: [

@@ -1,10 +1,10 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
-  BadRequestException,
 } from '@nestjs/common';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { ConfigService } from '@nestjs/config';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { SafeLogger } from 'src/common/utils/logger.util';
 
 @Injectable()

@@ -1,13 +1,12 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 import { Promotion } from '../../promotions/entities/promotion.entity';
+import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 
 @Entity('coupons')
 export class Coupon {

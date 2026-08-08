@@ -1,15 +1,14 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+import { Coupon } from '../../coupons/entities/coupon.entity';
 import { Order } from '../../orders/entities/order.entity';
 import { Promotion } from '../../promotions/entities/promotion.entity';
-import { Coupon } from '../../coupons/entities/coupon.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('notifications')
 export class Notification {
@@ -55,6 +54,9 @@ export class Notification {
 
   @Column({ name: 'payload', type: 'jsonb' })
   payload: Record<string, unknown>;
+
+  @Column({ name: 'event_key', type: 'varchar', length: 255, nullable: true })
+  eventKey?: string;
 
   @Column({ name: 'read_at', type: 'timestamptz', nullable: true })
   readAt?: Date;

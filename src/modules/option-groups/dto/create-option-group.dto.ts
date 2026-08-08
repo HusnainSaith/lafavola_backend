@@ -1,4 +1,5 @@
-﻿import {
+﻿import { Type } from 'class-transformer';
+import {
   IsArray,
   IsBoolean,
   IsEnum,
@@ -10,7 +11,6 @@
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { OptionType } from '../enums/option-type.enum';
 import { CreateOptionChoiceDto } from './create-option-choice.dto';
 

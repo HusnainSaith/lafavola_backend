@@ -1,7 +1,7 @@
 import {
-  ExceptionFilter,
-  Catch,
   ArgumentsHost,
+  Catch,
+  ExceptionFilter,
   HttpException,
   HttpStatus,
   Logger,
@@ -17,6 +17,7 @@ interface ErrorResponse {
   timestamp: string;
   path: string;
   details?: string[] | Record<string, unknown>;
+  requestId?: string;
 }
 
 @Catch()
@@ -29,6 +30,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     const errorResponse = this.buildErrorResponse(exception, request);
+    const requestId = request.headers['x-request-id'];
+    if (typeof requestId === 'string') errorResponse.requestId = requestId;
 
     this.logError(exception, request, errorResponse);
     response.status(errorResponse.statusCode).json(errorResponse);
@@ -99,19 +102,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     path: string,
     timestamp: string,
   ): ErrorResponse {
-    const isDuplicateError =
-      exception.message.includes('duplicate key') ||
-      exception.message.includes('UNIQUE constraint');
+    const code = (
+      exception as QueryFailedError & { driverError?: { code?: string } }
+    ).driverError?.code;
 
-    const isForeignKeyError =
-      exception.message.includes('foreign key') ||
-      exception.message.includes('FOREIGN KEY constraint');
-
-    const isNotNullError =
-      exception.message.includes('NOT NULL') ||
-      exception.message.includes('null value');
-
-    if (isDuplicateError) {
+    if (code === '23505') {
       return {
         success: false,
         message: 'Resource already exists',
@@ -122,21 +117,21 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       };
     }
 
-    if (isForeignKeyError) {
+    if (code === '23503') {
       return {
         success: false,
-        message: 'Referenced resource not found',
-        error: 'Bad Request',
-        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'The operation conflicts with a referenced resource',
+        error: 'Conflict',
+        statusCode: HttpStatus.CONFLICT,
         timestamp,
         path,
       };
     }
 
-    if (isNotNullError) {
+    if (code === '23502' || code === '23514') {
       return {
         success: false,
-        message: 'Required field is missing',
+        message: 'The data violates a database constraint',
         error: 'Bad Request',
         statusCode: HttpStatus.BAD_REQUEST,
         timestamp,
@@ -146,9 +141,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     return {
       success: false,
-      message: 'Operation could not be completed',
-      error: 'Bad Request',
-      statusCode: HttpStatus.BAD_REQUEST,
+      message: 'Internal server error',
+      error: 'Internal Server Error',
+      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       timestamp,
       path,
     };
@@ -159,58 +154,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     path: string,
     timestamp: string,
   ): ErrorResponse {
-    const isValidationError =
-      exception.message.includes('validation') ||
-      exception.message.includes('invalid') ||
-      exception.message.includes('required');
-
-    const isAuthError =
-      exception.message.includes('unauthorized') ||
-      exception.message.includes('forbidden') ||
-      exception.message.includes('token');
-
-    const isNotFoundError =
-      exception.message.includes('not found') ||
-      exception.message.includes('does not exist');
-
-    if (isValidationError) {
-      return {
-        success: false,
-        message: exception.message,
-        error: 'Bad Request',
-        statusCode: HttpStatus.BAD_REQUEST,
-        timestamp,
-        path,
-      };
-    }
-
-    if (isAuthError) {
-      return {
-        success: false,
-        message: exception.message,
-        error: 'Unauthorized',
-        statusCode: HttpStatus.UNAUTHORIZED,
-        timestamp,
-        path,
-      };
-    }
-
-    if (isNotFoundError) {
-      return {
-        success: false,
-        message: exception.message,
-        error: 'Not Found',
-        statusCode: HttpStatus.NOT_FOUND,
-        timestamp,
-        path,
-      };
-    }
-
     return {
       success: false,
-      message: 'Request could not be processed',
-      error: 'Bad Request',
-      statusCode: HttpStatus.BAD_REQUEST,
+      message: 'Internal server error',
+      error: 'Internal Server Error',
+      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       timestamp,
       path,
     };
@@ -219,9 +167,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   private handleUnknownError(path: string, timestamp: string): ErrorResponse {
     return {
       success: false,
-      message: 'Request could not be processed',
-      error: 'Bad Request',
-      statusCode: HttpStatus.BAD_REQUEST,
+      message: 'Internal server error',
+      error: 'Internal Server Error',
+      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       timestamp,
       path,
     };
@@ -232,24 +180,20 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     request: Request,
     errorResponse: ErrorResponse,
   ): void {
-    const { method, url, ip, headers } = request;
+    const { method, url, headers } = request;
     const userAgent = headers['user-agent'] || 'Unknown';
 
     const logContext = {
       method,
       url,
-      ip,
       userAgent,
       statusCode: errorResponse.statusCode,
       timestamp: errorResponse.timestamp,
-      originalError:
-        exception instanceof Error ? exception.message : String(exception),
     };
 
     // Log all errors as warnings with full context for debugging
     this.logger.warn(
       `${method} ${url} - ${errorResponse.statusCode} - ${errorResponse.message}`,
-      exception instanceof Error ? exception.stack : String(exception),
       JSON.stringify(logContext),
     );
   }

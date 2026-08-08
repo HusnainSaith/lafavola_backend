@@ -1,4 +1,5 @@
-﻿import {
+﻿import { Type } from 'class-transformer';
+import {
   IsArray,
   IsInt,
   IsOptional,
@@ -8,7 +9,6 @@
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class CartItemOptionDto {
   @IsOptional() @IsUUID() optionGroupId?: string;

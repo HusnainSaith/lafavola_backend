@@ -1,12 +1,12 @@
 ﻿import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
-import { CustomersService } from './customers.service';
-import { UpdateCustomerProfileDto } from './dto/update-customer-profile.dto';
-import { UpdateCustomerPreferencesDto } from './dto/update-customer-preferences.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CustomersService } from './customers.service';
+import { UpdateCustomerPreferencesDto } from './dto/update-customer-preferences.dto';
+import { UpdateCustomerProfileDto } from './dto/update-customer-profile.dto';
 
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 @ApiTags('Customers')
 @Controller('customers/me')
 @UseGuards(JwtAuthGuard)
@@ -16,7 +16,10 @@ export class CustomersController {
   @Get('profile')
   @ApiOperation({ summary: 'Profile' })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   profile(@CurrentUser() user: AuthenticatedUser) {
     return this.service.profile(user.id);
@@ -26,7 +29,10 @@ export class CustomersController {
   @ApiOperation({ summary: 'Update Profile' })
   @ApiBody({ type: UpdateCustomerProfileDto })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   updateProfile(
     @CurrentUser() user: AuthenticatedUser,
@@ -38,7 +44,10 @@ export class CustomersController {
   @Get('preferences')
   @ApiOperation({ summary: 'Preferences' })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   preferences(@CurrentUser() user: AuthenticatedUser) {
     return this.service.preferences(user.id);
@@ -48,7 +57,10 @@ export class CustomersController {
   @ApiOperation({ summary: 'Update Preferences' })
   @ApiBody({ type: UpdateCustomerPreferencesDto })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   updatePreferences(
     @CurrentUser() user: AuthenticatedUser,

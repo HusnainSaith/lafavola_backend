@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { RestaurantRepository } from './repositories/restaurant.repository';
-import { Restaurant } from './entities/restaurant.entity';
+import { requireEntity } from '../../common/utils/service-errors.util';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
-import { requireEntity } from '../../common/utils/service-errors.util';
+import { Restaurant } from './entities/restaurant.entity';
+import { RestaurantRepository } from './repositories/restaurant.repository';
 
 @Injectable()
 export class RestaurantsService {

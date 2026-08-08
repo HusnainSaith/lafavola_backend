@@ -8,14 +8,20 @@
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AddressesService } from './addresses.service';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
 
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 @ApiTags('Addresses')
 @Controller('customers/me/addresses')
 @UseGuards(JwtAuthGuard)
@@ -25,7 +31,10 @@ export class AddressesController {
   @Get()
   @ApiOperation({ summary: 'List' })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   list(@CurrentUser() user: AuthenticatedUser) {
     return this.service.list(user.id);
@@ -35,7 +44,10 @@ export class AddressesController {
   @ApiOperation({ summary: 'Create' })
   @ApiBody({ type: CreateAddressDto })
   @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   create(
     @CurrentUser() user: AuthenticatedUser,
@@ -49,7 +61,10 @@ export class AddressesController {
   @ApiBody({ type: UpdateAddressDto })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   update(
     @CurrentUser() user: AuthenticatedUser,
@@ -63,7 +78,10 @@ export class AddressesController {
   @ApiOperation({ summary: 'Remove' })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async remove(
     @CurrentUser() user: AuthenticatedUser,

@@ -1,11 +1,12 @@
 ﻿import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { MenuItemRepository } from './repositories/menu-item.repository';
-import { MenuItem } from './entities/menu-item.entity';
-import { MenuItemSize } from './entities/menu-item-size.entity';
+import { requireEntity } from '../../common/utils/service-errors.util';
 import { CreateMenuItemDto } from './dto/create-menu-item.dto';
 import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
-import { requireEntity } from '../../common/utils/service-errors.util';
+import { MenuQueryDto } from './dto/menu-query.dto';
+import { MenuItemSize } from './entities/menu-item-size.entity';
+import { MenuItem } from './entities/menu-item.entity';
+import { MenuItemRepository } from './repositories/menu-item.repository';
 
 @Injectable()
 export class MenuService {
@@ -14,14 +15,8 @@ export class MenuService {
     private readonly items: MenuItemRepository,
   ) {}
 
-  list(restaurantId?: string): Promise<MenuItem[]> {
-    return this.items.findMany({
-      where: restaurantId
-        ? { restaurantId, isActive: true }
-        : { isActive: true },
-      relations: { category: true, imageAsset: true },
-      order: { popularityScore: 'DESC', createdAt: 'DESC' },
-    });
+  list(query: MenuQueryDto) {
+    return this.items.findPublicMenu(query);
   }
 
   search(restaurantId: string, query: string): Promise<MenuItem[]> {
@@ -34,8 +29,19 @@ export class MenuService {
       relations: {
         category: true,
         imageAsset: true,
+        restaurant: true,
+        sizes: true,
+        ingredients: { ingredient: true },
       },
     });
+    if (
+      item &&
+      (!item.restaurant?.isActive ||
+        (item.availableFrom && item.availableFrom > new Date()) ||
+        (item.availableUntil && item.availableUntil <= new Date()))
+    ) {
+      throw new NotFoundException('Menu item not found');
+    }
     return requireEntity(item, 'Menu item not found');
   }
 

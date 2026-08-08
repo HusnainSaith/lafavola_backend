@@ -1,15 +1,19 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { DataSource } from 'typeorm';
-import { CartRepository } from './repositories/cart.repository';
-import { Cart } from './entities/cart.entity';
-import { CartItem } from './entities/cart-item.entity';
-import { CartItemOption } from './entities/cart-item-option.entity';
-import { MenuItem } from '../menu/entities/menu-item.entity';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { DataSource, EntityManager, In } from 'typeorm';
 import { MenuItemSize } from '../menu/entities/menu-item-size.entity';
+import { MenuItem } from '../menu/entities/menu-item.entity';
 import { OptionChoice } from '../option-groups/entities/option-choice.entity';
+import { PricingService } from '../pricing/pricing.service';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
-import { PricingService } from '../pricing/pricing.service';
+import { CartItemOption } from './entities/cart-item-option.entity';
+import { CartItem } from './entities/cart-item.entity';
+import { Cart } from './entities/cart.entity';
+import { CartRepository } from './repositories/cart.repository';
 
 @Injectable()
 export class CartsService {
@@ -80,11 +84,7 @@ export class CartsService {
     return { cart, items, options, subtotalMinor };
   }
 
-  async addItem(
-    customerId: string,
-    restaurantId: string,
-    dto: AddCartItemDto,
-  ) {
+  async addItem(customerId: string, restaurantId: string, dto: AddCartItemDto) {
     const cart = await this.getActive(customerId, restaurantId);
     const itemRepo = this.dataSource.getRepository(MenuItem);
     const sizeRepo = this.dataSource.getRepository(MenuItemSize);
@@ -124,6 +124,7 @@ export class CartsService {
       menuItemId: dto.menuItemId,
       sizeId: dto.menuItemSizeId,
       optionChoiceIds,
+      options: dto.options,
       quantity: dto.quantity,
     });
 
@@ -201,9 +202,7 @@ export class CartsService {
           action: option.action ?? 'add',
           quantity: option.quantity ?? 1,
         }))
-        .sort((a, b) =>
-          JSON.stringify(a).localeCompare(JSON.stringify(b)),
-        ),
+        .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))),
     });
 
     let hash = 2166136261;
@@ -215,11 +214,7 @@ export class CartsService {
     return (hash >>> 0).toString(16).padStart(8, '0');
   }
 
-  async updateItem(
-    customerId: string,
-    itemId: string,
-    dto: UpdateCartItemDto,
-  ) {
+  async updateItem(customerId: string, itemId: string, dto: UpdateCartItemDto) {
     const repo = this.dataSource.getRepository(CartItem);
     const item = await repo.findOne({
       where: { id: itemId },
@@ -259,7 +254,192 @@ export class CartsService {
     await repo.delete(item.id);
   }
 
-  async clear(cartId: string): Promise<void> {
-    await this.dataSource.getRepository(CartItem).delete({ cartId });
+  async clear(customerId: string, restaurantId: string): Promise<void> {
+    const cart = await this.carts.findOne({
+      where: { customerId, restaurantId, status: 'active' },
+    });
+    if (cart) {
+      await this.dataSource.getRepository(CartItem).delete({ cartId: cart.id });
+    }
+  }
+
+  async addItemsAtomic(
+    customerId: string,
+    restaurantId: string,
+    additions: AddCartItemDto[],
+  ) {
+    return this.dataSource.transaction(async (manager) => {
+      const menuItemIds = [
+        ...new Set(additions.map((item) => item.menuItemId)),
+      ];
+      const sizeIds = [
+        ...new Set(
+          additions
+            .map((item) => item.menuItemSizeId)
+            .filter((id): id is string => Boolean(id)),
+        ),
+      ];
+      const choiceIds = [
+        ...new Set(
+          additions.flatMap((item) =>
+            (item.options ?? [])
+              .map((option) => option.optionChoiceId)
+              .filter((id): id is string => Boolean(id)),
+          ),
+        ),
+      ];
+      const ingredientIds = [
+        ...new Set(
+          additions.flatMap((item) =>
+            (item.options ?? [])
+              .map((option) => option.ingredientId)
+              .filter((id): id is string => Boolean(id)),
+          ),
+        ),
+      ];
+      await manager.query(
+        'SELECT id FROM menu_items WHERE id = ANY($1::uuid[]) FOR UPDATE',
+        [menuItemIds],
+      );
+      if (sizeIds.length)
+        await manager.query(
+          'SELECT id FROM menu_item_sizes WHERE id = ANY($1::uuid[]) FOR UPDATE',
+          [sizeIds],
+        );
+      if (choiceIds.length)
+        await manager.query(
+          'SELECT id FROM option_choices WHERE id = ANY($1::uuid[]) FOR UPDATE',
+          [choiceIds],
+        );
+      if (ingredientIds.length)
+        await manager.query(
+          'SELECT id FROM ingredients WHERE id = ANY($1::uuid[]) FOR UPDATE',
+          [ingredientIds],
+        );
+      await manager.query(
+        'SELECT id FROM menu_item_option_groups WHERE menu_item_id = ANY($1::uuid[]) FOR UPDATE',
+        [menuItemIds],
+      );
+
+      const menuItems = await manager.getRepository(MenuItem).findBy({
+        id: In(menuItemIds),
+        restaurantId,
+        isActive: true,
+      });
+      const menuById = new Map(menuItems.map((item) => [item.id, item]));
+      const sizes = sizeIds.length
+        ? await manager.getRepository(MenuItemSize).findBy({ id: In(sizeIds) })
+        : [];
+      const sizeById = new Map(sizes.map((size) => [size.id, size]));
+      const choices = choiceIds.length
+        ? await manager
+            .getRepository(OptionChoice)
+            .findBy({ id: In(choiceIds) })
+        : [];
+      const choiceById = new Map(choices.map((choice) => [choice.id, choice]));
+      const priced: Array<{
+        dto: AddCartItemDto;
+        price: Awaited<ReturnType<PricingService['calculate']>>;
+      }> = [];
+      for (const dto of additions) {
+        const price = await this.pricing.calculate({
+          menuItemId: dto.menuItemId,
+          sizeId: dto.menuItemSizeId,
+          quantity: dto.quantity,
+          options: dto.options,
+        });
+        priced.push({ dto, price });
+      }
+
+      const cartRepo = manager.getRepository(Cart);
+      let cart = await cartRepo
+        .createQueryBuilder('cart')
+        .setLock('pessimistic_write')
+        .where('cart.customer_id = :customerId', { customerId })
+        .andWhere('cart.restaurant_id = :restaurantId', { restaurantId })
+        .andWhere('cart.status = :status', { status: 'active' })
+        .getOne();
+      if (!cart) {
+        cart = await cartRepo.save(
+          cartRepo.create({
+            customerId,
+            restaurantId,
+            status: 'active',
+            currency: 'EUR',
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          }),
+        );
+      }
+      const itemRepo = manager.getRepository(CartItem);
+      const optionRepo = manager.getRepository(CartItemOption);
+      for (const { dto, price } of priced) {
+        const menuItem = menuById.get(dto.menuItemId);
+        if (!menuItem)
+          throw new BadRequestException('Menu item is unavailable');
+        const size = dto.menuItemSizeId
+          ? sizeById.get(dto.menuItemSizeId)
+          : undefined;
+        const item = await itemRepo.save(
+          itemRepo.create({
+            cartId: cart.id,
+            menuItemId: dto.menuItemId,
+            menuItemSizeId: dto.menuItemSizeId,
+            quantity: dto.quantity,
+            itemNameSnapshot: menuItem.name,
+            sizeNameSnapshot: size?.displayName,
+            baseUnitPriceMinor: price.basePriceMinor,
+            optionsUnitPriceMinor: price.optionAdjustmentsMinor,
+            unitPriceMinor: price.unitPriceMinor,
+            lineTotalMinor: price.lineTotalMinor,
+            specialInstructions: dto.specialInstructions,
+            configurationHash: this.configurationHash(dto),
+          }),
+        );
+        if (dto.options?.length) {
+          await optionRepo.save(
+            dto.options.map((option) => {
+              const choice = option.optionChoiceId
+                ? choiceById.get(option.optionChoiceId)
+                : undefined;
+              const quantity = option.quantity ?? 1;
+              const adjustment = Number(choice?.priceAdjustmentMinor ?? 0);
+              return optionRepo.create({
+                cartItemId: item.id,
+                optionGroupId: option.optionGroupId,
+                optionChoiceId: option.optionChoiceId,
+                ingredientId: option.ingredientId,
+                action: option.action ?? 'add',
+                optionNameSnapshot: choice?.name ?? 'Custom option',
+                quantity: String(quantity),
+                unitPriceAdjustmentMinor: adjustment,
+                totalPriceAdjustmentMinor: adjustment * quantity,
+              });
+            }),
+          );
+        }
+      }
+      return this.loadCartWithManager(manager, cart);
+    });
+  }
+
+  private async loadCartWithManager(manager: EntityManager, cart: Cart) {
+    const items = await manager.getRepository(CartItem).find({
+      where: { cartId: cart.id },
+      order: { createdAt: 'ASC' },
+    });
+    const options = items.length
+      ? await manager.getRepository(CartItemOption).findBy({
+          cartItemId: In(items.map((item) => item.id)),
+        })
+      : [];
+    return {
+      cart,
+      items,
+      options,
+      subtotalMinor: items.reduce(
+        (sum, item) => sum + Number(item.lineTotalMinor),
+        0,
+      ),
+    };
   }
 }

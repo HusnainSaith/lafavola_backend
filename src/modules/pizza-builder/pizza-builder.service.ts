@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PizzaBuilderRuleRepository } from './repositories/pizza-builder-rule.repository';
-import { BuildPizzaDto } from './dto/build-pizza.dto';
 import { PricingService } from '../pricing/pricing.service';
+import { BuildPizzaDto } from './dto/build-pizza.dto';
+import { PizzaBuilderRuleRepository } from './repositories/pizza-builder-rule.repository';
 
 @Injectable()
 export class PizzaBuilderService {
@@ -16,9 +16,7 @@ export class PizzaBuilderService {
     });
 
     if (!rule) {
-      throw new NotFoundException(
-        'Pizza builder configuration not found',
-      );
+      throw new NotFoundException('Pizza builder configuration not found');
     }
 
     return rule;

@@ -1,11 +1,11 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
   IsEnum,
+  IsNotEmpty,
   IsOptional,
   IsString,
-  IsNotEmpty,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 import { PermissionActionEnum } from '../../../common/enums/permission-actions.enum';
 
 export enum AssignmentActionEnum {

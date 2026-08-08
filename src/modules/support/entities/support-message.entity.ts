@@ -1,13 +1,12 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { SupportTicket } from './support-ticket.entity';
 import { User } from '../../users/entities/user.entity';
+import { SupportTicket } from './support-ticket.entity';
 
 @Entity('support_messages')
 export class SupportMessage {

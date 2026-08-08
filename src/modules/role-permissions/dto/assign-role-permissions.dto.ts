@@ -1,11 +1,11 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
   IsEnum,
+  IsNotEmpty,
   IsOptional,
   IsUUID,
-  IsNotEmpty,
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PermissionActionEnum } from 'src/common/enums/permission-actions.enum';
 
 export class AssignRolePermissionsDto {

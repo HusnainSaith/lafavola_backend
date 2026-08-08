@@ -8,16 +8,23 @@
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { OptionGroupsService } from './option-groups.service';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RoleEnum } from '../roles/role.enum';
+import { CreateOptionChoiceDto } from './dto/create-option-choice.dto';
 import { CreateOptionGroupDto } from './dto/create-option-group.dto';
 import { UpdateOptionGroupDto } from './dto/update-option-group.dto';
-import { CreateOptionChoiceDto } from './dto/create-option-choice.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { RoleEnum } from '../roles/role.enum';
+import { OptionGroupsService } from './option-groups.service';
 
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 @ApiTags('Option Groups')
 @Controller('option-groups')
 export class OptionGroupsController {
@@ -27,7 +34,10 @@ export class OptionGroupsController {
   @ApiOperation({ summary: 'List' })
   @ApiQuery({ name: 'restaurantId', required: false, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   list(@Query('restaurantId') restaurantId?: string) {
     return this.service.list(restaurantId);
@@ -37,7 +47,10 @@ export class OptionGroupsController {
   @ApiOperation({ summary: 'Detail' })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   detail(@Param('id') id: string) {
     return this.service.detail(id);
@@ -47,7 +60,10 @@ export class OptionGroupsController {
   @ApiOperation({ summary: 'Create' })
   @ApiBody({ type: CreateOptionGroupDto })
   @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
@@ -60,7 +76,10 @@ export class OptionGroupsController {
   @ApiBody({ type: UpdateOptionGroupDto })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
@@ -73,7 +92,10 @@ export class OptionGroupsController {
   @ApiBody({ type: CreateOptionChoiceDto })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)

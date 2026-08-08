@@ -1,15 +1,14 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsEmail,
-  IsString,
-  MinLength,
-  MaxLength,
-  IsUUID,
-  IsOptional,
   IsNotEmpty,
+  IsOptional,
+  IsString,
   Matches,
+  MaxLength,
+  MinLength,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class RegisterDto {
   @ApiProperty({
@@ -56,11 +55,10 @@ export class RegisterDto {
   })
   fullName: string;
 
-  @ApiPropertyOptional({
-    description: 'Role ID associated with the user (UUID v4)',
-    example: '550e8400-e29b-41d4-a716-446655440000',
-  })
+  @ApiPropertyOptional({ example: '+393331234567' })
   @IsOptional()
-  @IsUUID(4, { message: 'Role ID must be a valid UUID' })
-  roleId?: string;
+  @IsString()
+  @MaxLength(32)
+  @Matches(/^\+?[1-9]\d{6,14}$/, { message: 'Phone number is invalid' })
+  phone?: string;
 }

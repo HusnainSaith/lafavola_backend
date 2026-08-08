@@ -1,10 +1,9 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Notification } from './notification.entity';
 
@@ -19,6 +18,9 @@ export class NotificationDelivery {
   @ManyToOne(() => Notification, { onDelete: 'CASCADE', nullable: false })
   @JoinColumn({ name: 'notification_id' })
   notification: Notification;
+
+  @Column({ name: 'device_token_id', type: 'uuid', nullable: true })
+  deviceTokenId?: string;
 
   @Column({ name: 'channel', type: 'varchar', length: 20 })
   channel: string;

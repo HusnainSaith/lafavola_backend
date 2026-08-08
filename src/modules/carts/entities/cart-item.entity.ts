@@ -1,14 +1,13 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Cart } from './cart.entity';
-import { MenuItem } from '../../menu/entities/menu-item.entity';
 import { MenuItemSize } from '../../menu/entities/menu-item-size.entity';
+import { MenuItem } from '../../menu/entities/menu-item.entity';
+import { Cart } from './cart.entity';
 
 @Entity('cart_items')
 export class CartItem {

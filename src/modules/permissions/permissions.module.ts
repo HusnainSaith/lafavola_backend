@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PermissionsService } from './permissions.service';
-import { PermissionsController } from './permissions.controller';
-import { Permission } from './entities/permission.entity';
-import { User } from '../users/entities/user.entity';
-import { SharedModule } from '../shared/shared.module';
 import { GuardsModule } from '../../common/modules/guards.module';
+import { SharedModule } from '../shared/shared.module';
+import { User } from '../users/entities/user.entity';
+import { Permission } from './entities/permission.entity';
+import { PermissionsController } from './permissions.controller';
+import { PermissionsService } from './permissions.service';
 
 @Module({
   imports: [

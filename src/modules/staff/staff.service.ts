@@ -1,6 +1,6 @@
 ﻿import { Injectable, NotFoundException } from '@nestjs/common';
-import { StaffMemberRepository } from './repositories/staff-member.repository';
 import { CreateStaffMemberDto } from './dto/create-staff-member.dto';
+import { StaffMemberRepository } from './repositories/staff-member.repository';
 
 @Injectable()
 export class StaffService {

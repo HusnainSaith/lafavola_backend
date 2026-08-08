@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CouponRepository } from './repositories/coupon.repository';
-import { Coupon } from './entities/coupon.entity';
+import { requireEntity } from '../../common/utils/service-errors.util';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
-import { requireEntity } from '../../common/utils/service-errors.util';
+import { Coupon } from './entities/coupon.entity';
+import { CouponRepository } from './repositories/coupon.repository';
 
 @Injectable()
 export class CouponsService {
@@ -33,12 +33,8 @@ export class CouponsService {
         discountValue: dto.discountValue ?? 0,
         minOrderMinor: dto.minOrderMinor ?? 0,
         maxDiscountMinor: dto.maxDiscountMinor,
-        startsAt: dto.startsAt
-          ? new Date(dto.startsAt)
-          : undefined,
-        expiresAt: dto.expiresAt
-          ? new Date(dto.expiresAt)
-          : undefined,
+        startsAt: dto.startsAt ? new Date(dto.startsAt) : undefined,
+        expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : undefined,
         totalUsageLimit: dto.totalUsageLimit,
         perCustomerLimit: dto.perCustomerLimit,
         isActive: dto.isActive ?? true,
@@ -46,23 +42,14 @@ export class CouponsService {
     );
   }
 
-  async update(
-    id: string,
-    dto: UpdateCouponDto,
-  ): Promise<Coupon> {
+  async update(id: string, dto: UpdateCouponDto): Promise<Coupon> {
     const entity = await this.findById(id);
 
     Object.assign(entity, {
       ...dto,
-      code: dto.code
-        ? dto.code.trim().toUpperCase()
-        : entity.code,
-      startsAt: dto.startsAt
-        ? new Date(dto.startsAt)
-        : entity.startsAt,
-      expiresAt: dto.expiresAt
-        ? new Date(dto.expiresAt)
-        : entity.expiresAt,
+      code: dto.code ? dto.code.trim().toUpperCase() : entity.code,
+      startsAt: dto.startsAt ? new Date(dto.startsAt) : entity.startsAt,
+      expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : entity.expiresAt,
     });
 
     return this.repository.save(entity);

@@ -1,15 +1,14 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { OrderItem } from './order-item.entity';
-import { OptionGroup } from '../../option-groups/entities/option-group.entity';
-import { OptionChoice } from '../../option-groups/entities/option-choice.entity';
 import { Ingredient } from '../../ingredients/entities/ingredient.entity';
+import { OptionChoice } from '../../option-groups/entities/option-choice.entity';
+import { OptionGroup } from '../../option-groups/entities/option-group.entity';
+import { OrderItem } from './order-item.entity';
 
 @Entity('order_item_options')
 export class OrderItemOption {

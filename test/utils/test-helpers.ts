@@ -1,5 +1,3 @@
-import { Repository } from 'typeorm';
-
 export const mockRepository = () => ({
   find: jest.fn(),
   findOne: jest.fn(),

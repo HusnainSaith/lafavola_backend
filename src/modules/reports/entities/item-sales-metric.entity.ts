@@ -1,13 +1,12 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 import { MenuItem } from '../../menu/entities/menu-item.entity';
+import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 
 @Entity('item_sales_metrics')
 export class ItemSalesMetric {

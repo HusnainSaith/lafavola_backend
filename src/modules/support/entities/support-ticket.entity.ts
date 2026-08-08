@@ -1,13 +1,12 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
 import { Order } from '../../orders/entities/order.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('support_tickets')
 export class SupportTicket {
@@ -34,6 +33,28 @@ export class SupportTicket {
   @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'assigned_staff_user_id' })
   assignedStaffUser?: User;
+
+  @Column({ name: 'assigned_at', type: 'timestamptz', nullable: true })
+  assignedAt?: Date;
+
+  @Column({ name: 'last_message_at', type: 'timestamptz', nullable: true })
+  lastMessageAt?: Date;
+
+  @Column({
+    name: 'customer_last_read_at',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  customerLastReadAt?: Date;
+
+  @Column({ name: 'staff_last_read_at', type: 'timestamptz', nullable: true })
+  staffLastReadAt?: Date;
+
+  @Column({ name: 'customer_unread_count', type: 'integer' })
+  customerUnreadCount: number;
+
+  @Column({ name: 'staff_unread_count', type: 'integer' })
+  staffUnreadCount: number;
 
   @Column({ name: 'category', type: 'varchar', length: 30 })
   category: string;

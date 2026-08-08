@@ -1,9 +1,9 @@
 ﻿import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { CustomerAddressRepository } from './repositories/customer-address.repository';
-import { CustomerAddress } from './entities/customer-address.entity';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
+import { CustomerAddress } from './entities/customer-address.entity';
+import { CustomerAddressRepository } from './repositories/customer-address.repository';
 
 @Injectable()
 export class AddressesService {

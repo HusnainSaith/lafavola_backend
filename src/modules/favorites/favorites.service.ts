@@ -1,7 +1,7 @@
 ﻿import { Injectable } from '@nestjs/common';
-import { FavoriteRepository } from './repositories/favorite.repository';
-import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { requireEntity } from '../../common/utils/service-errors.util';
+import { CreateFavoriteDto } from './dto/create-favorite.dto';
+import { FavoriteRepository } from './repositories/favorite.repository';
 
 @Injectable()
 export class FavoritesService {

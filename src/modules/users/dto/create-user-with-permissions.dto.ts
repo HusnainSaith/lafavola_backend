@@ -1,17 +1,17 @@
 // DTO for creating user with permissions
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
-  IsString,
+  IsArray,
   IsEmail,
   IsNotEmpty,
   IsOptional,
-  IsArray,
+  IsString,
   IsUUID,
-  MinLength,
-  MaxLength,
   Matches,
+  MaxLength,
+  MinLength,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateUserWithPermissionsDto {
   @ApiProperty({

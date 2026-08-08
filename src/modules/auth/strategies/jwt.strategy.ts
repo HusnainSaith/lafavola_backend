@@ -1,7 +1,8 @@
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { UserStatus } from '../../users/enums/user-status.enum';
 import { UsersService } from '../../users/users.service';
 
 @Injectable()
@@ -22,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       // Use findById instead of findOneWithPermissions
       const user = await this.usersService.findById(payload.sub);
 
-      if (!user) {
+      if (!user || user.status !== UserStatus.ACTIVE || user.archivedAt) {
         throw new UnauthorizedException('Invalid token - user not found');
       }
 

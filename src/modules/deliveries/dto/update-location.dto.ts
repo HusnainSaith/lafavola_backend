@@ -1,6 +1,5 @@
 import {
   IsDateString,
-  IsEnum,
   IsInt,
   IsLatitude,
   IsLongitude,
@@ -8,7 +7,6 @@ import {
   IsOptional,
   Min,
 } from 'class-validator';
-import { DeliveryTrackingStatus } from '../enums/delivery-tracking-status.enum';
 
 export class UpdateLocationDto {
   @IsLatitude()
@@ -34,8 +32,4 @@ export class UpdateLocationDto {
   @IsOptional()
   @IsDateString()
   estimatedArrivalAt?: string;
-
-  @IsOptional()
-  @IsEnum(DeliveryTrackingStatus)
-  status?: DeliveryTrackingStatus;
 }

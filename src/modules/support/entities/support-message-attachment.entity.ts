@@ -1,13 +1,12 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { SupportMessage } from './support-message.entity';
 import { MediaAsset } from '../../media/entities/media-asset.entity';
+import { SupportMessage } from './support-message.entity';
 
 @Entity('support_message_attachments')
 export class SupportMessageAttachment {

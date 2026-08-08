@@ -12,8 +12,14 @@ export class RefreshToken {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 512, unique: true })
-  token: string;
+  @Column({
+    name: 'token',
+    type: 'varchar',
+    length: 512,
+    unique: true,
+    select: false,
+  })
+  tokenHash: string;
 
   @Column({ name: 'user_id', type: 'uuid' })
   userId: string;

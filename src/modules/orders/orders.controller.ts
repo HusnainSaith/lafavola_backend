@@ -8,16 +8,24 @@
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { OrdersService } from './orders.service';
-import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
-import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RoleEnum } from '../roles/role.enum';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { OrderHistoryQueryDto } from './dto/order-history-query.dto';
+import { OrdersService } from './orders.service';
 
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 @ApiTags('Orders')
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
@@ -27,28 +35,56 @@ export class OrdersController {
   @Get('me')
   @ApiOperation({ summary: 'History' })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  history(@CurrentUser() user: AuthenticatedUser) {
-    return this.service.customerHistory(user.id);
+  history(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: OrderHistoryQueryDto,
+  ) {
+    return this.service.customerHistory(user.id, query);
   }
 
   @Get('me/:id')
   @ApiOperation({ summary: 'Detail' })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   detail(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     return this.service.customerDetail(user.id, id);
   }
 
+  @Post('me/:id/reorder')
+  @ApiOperation({
+    summary: 'Revalidate an earlier order and add it to the active cart',
+  })
+  @ApiParam({ name: 'id', required: true, type: String })
+  @ApiResponse({ status: 201, description: 'Current cart after reorder' })
+  @ApiResponse({
+    status: 422,
+    description: 'One or more configurations are unavailable',
+  })
+  reorder(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.service.reorder(user.id, id);
+  }
+
   @Post('me/:id/cancel')
   @ApiOperation({ summary: 'Cancel' })
-  @ApiBody({ schema: { type: 'object', properties: { reason: { type: 'string' } } } })
+  @ApiBody({
+    schema: { type: 'object', properties: { reason: { type: 'string' } } },
+  })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   cancel(
     @CurrentUser() user: AuthenticatedUser,
@@ -63,7 +99,10 @@ export class OrdersController {
   @ApiQuery({ name: 'restaurantId', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(RolesGuard)
   @Roles(RoleEnum.ADMIN)
@@ -79,7 +118,10 @@ export class OrdersController {
   @ApiBody({ type: UpdateOrderStatusDto })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(RolesGuard)
   @Roles(RoleEnum.ADMIN)

@@ -1,6 +1,5 @@
-
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Controller } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Audit')
 @Controller()

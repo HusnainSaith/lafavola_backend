@@ -1,3 +1,4 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ArrayUnique,
   IsArray,
@@ -5,8 +6,20 @@ import {
   IsOptional,
   IsPositive,
   IsUUID,
+  IsIn,
+  Min,
+  ValidateNested,
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+
+export class PricingOptionSelectionDto {
+  @IsOptional() @IsUUID() optionGroupId?: string;
+  @IsOptional() @IsUUID() optionChoiceId?: string;
+  @IsOptional() @IsUUID() ingredientId?: string;
+  @IsOptional() @IsIn(['add', 'remove', 'replace']) action?:
+    'add' | 'remove' | 'replace';
+  @IsOptional() @Min(0.01) quantity?: number;
+}
 
 export class CalculatePriceDto {
   @ApiProperty({
@@ -37,6 +50,13 @@ export class CalculatePriceDto {
   @ArrayUnique()
   @IsUUID('4', { each: true })
   optionChoiceIds?: string[];
+
+  @ApiPropertyOptional({ type: [PricingOptionSelectionDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PricingOptionSelectionDto)
+  options?: PricingOptionSelectionDto[];
 
   @ApiPropertyOptional({
     description: 'Quantity',

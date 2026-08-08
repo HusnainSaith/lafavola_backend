@@ -1,25 +1,25 @@
 import {
+  BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
-  ConflictException,
-  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
-import { Role } from '../roles/entities/role.entity';
+import { ServiceResponse } from '../../common/interfaces/service-response.interface';
+import { SecurityUtil } from '../../common/utils/security.util';
 import { Permission } from '../permissions/entities/permission.entity';
-import { UserPermission } from './entities/user-permission.entity';
-import { CreateUserDto } from './dto/create-user.dto';
-import { CreateUserWithPermissionsDto } from './dto/create-user-with-permissions.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Role } from '../roles/entities/role.entity';
 import {
   AssignmentActionEnum,
   AssignPermissionsDto,
 } from './dto/assign-permissions.dto';
-import { SecurityUtil } from '../../common/utils/security.util';
-import { ServiceResponse } from '../../common/interfaces/service-response.interface';
-import * as bcrypt from 'bcryptjs';
+import { CreateUserWithPermissionsDto } from './dto/create-user-with-permissions.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserPermission } from './entities/user-permission.entity';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {

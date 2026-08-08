@@ -6,9 +6,9 @@
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
-import { RolePermission } from '../../role-permissions/entities/role-permission.entity';
 import { Permission } from '../../permissions/entities/permission.entity';
+import { RolePermission } from '../../role-permissions/entities/role-permission.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('roles')
 export class Role {

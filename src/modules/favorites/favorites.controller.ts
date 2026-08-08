@@ -7,13 +7,19 @@
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { FavoritesService } from './favorites.service';
-import { CreateFavoriteDto } from './dto/create-favorite.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CreateFavoriteDto } from './dto/create-favorite.dto';
+import { FavoritesService } from './favorites.service';
 
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 @ApiTags('Favorites')
 @Controller('favorites')
 @UseGuards(JwtAuthGuard)
@@ -23,7 +29,10 @@ export class FavoritesController {
   @Get()
   @ApiOperation({ summary: 'List' })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   list(@CurrentUser() user: AuthenticatedUser) {
     return this.service.list(user.id);
@@ -33,7 +42,10 @@ export class FavoritesController {
   @ApiOperation({ summary: 'Create' })
   @ApiBody({ type: CreateFavoriteDto })
   @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   create(
     @CurrentUser() user: AuthenticatedUser,
@@ -46,7 +58,10 @@ export class FavoritesController {
   @ApiOperation({ summary: 'Remove' })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async remove(
     @CurrentUser() user: AuthenticatedUser,

@@ -1,20 +1,28 @@
 ﻿import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { NotificationsService } from './notifications.service';
+import { Throttle } from '@nestjs/throttler';
+import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RegisterDeviceTokenDto } from './dto/register-device-token.dto';
 import { UpdateNotificationPreferencesDto } from './dto/update-notification-preferences.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
+import { NotificationsService } from './notifications.service';
 
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 @ApiTags('Notifications')
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
@@ -24,7 +32,10 @@ export class NotificationsController {
   @Get()
   @ApiOperation({ summary: 'List' })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   list(@CurrentUser() user: AuthenticatedUser) {
     return this.service.list(user.id);
@@ -33,7 +44,10 @@ export class NotificationsController {
   @Get('unread-count')
   @ApiOperation({ summary: 'Unread' })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async unread(@CurrentUser() user: AuthenticatedUser) {
     return { count: await this.service.unreadCount(user.id) };
@@ -43,17 +57,24 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Mark Read' })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   markRead(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     return this.service.markRead(user.id, id);
   }
 
   @Post('devices')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: 'Register Device' })
   @ApiBody({ type: RegisterDeviceTokenDto })
   @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   registerDevice(
     @CurrentUser() user: AuthenticatedUser,
@@ -62,10 +83,23 @@ export class NotificationsController {
     return this.service.registerDevice(user.id, dto);
   }
 
+  @Delete('devices/:id')
+  @ApiOperation({ summary: 'Deactivate an owned push device token' })
+  @ApiParam({ name: 'id', type: String })
+  deactivateDevice(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    return this.service.deactivateDevice(user.id, id);
+  }
+
   @Get('preferences/me')
   @ApiOperation({ summary: 'Preferences' })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   preferences(@CurrentUser() user: AuthenticatedUser) {
     return this.service.preferences(user.id);
@@ -75,7 +109,10 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Update Preferences' })
   @ApiBody({ type: UpdateNotificationPreferencesDto })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   updatePreferences(
     @CurrentUser() user: AuthenticatedUser,

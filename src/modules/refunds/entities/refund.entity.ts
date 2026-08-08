@@ -1,10 +1,9 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Order } from '../../orders/entities/order.entity';
 import { PaymentTransaction } from '../../payments/entities/payment-transaction.entity';
@@ -43,6 +42,14 @@ export class Refund {
     nullable: true,
   })
   providerRefundId?: string;
+
+  @Column({
+    name: 'idempotency_key',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  idempotencyKey?: string;
 
   @Column({ name: 'amount_minor', type: 'integer' })
   amountMinor: number;

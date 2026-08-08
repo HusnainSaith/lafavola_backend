@@ -1,12 +1,11 @@
 ﻿import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { OptionGroupRepository } from './repositories/option-group.repository';
-import { OptionGroup } from './entities/option-group.entity';
-import { OptionChoice } from './entities/option-choice.entity';
+import { requireEntity } from '../../common/utils/service-errors.util';
+import { CreateOptionChoiceDto } from './dto/create-option-choice.dto';
 import { CreateOptionGroupDto } from './dto/create-option-group.dto';
 import { UpdateOptionGroupDto } from './dto/update-option-group.dto';
-import { CreateOptionChoiceDto } from './dto/create-option-choice.dto';
-import { requireEntity } from '../../common/utils/service-errors.util';
+import { OptionChoice } from './entities/option-choice.entity';
+import { OptionGroupRepository } from './repositories/option-group.repository';
 
 @Injectable()
 export class OptionGroupsService {

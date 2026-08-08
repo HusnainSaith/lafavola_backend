@@ -1,25 +1,32 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
+  Controller,
+  Delete,
+  Get,
   Param,
   Patch,
-  Delete,
+  Post,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { CreateUserWithPermissionsDto } from './dto/create-user-with-permissions.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { AssignPermissionsDto } from './dto/assign-permissions.dto';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { PermissionsGuard } from '../../common/guards/permissions.guard';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Permissions } from '../../common/decorators/permissions.decorator';
-import { SecurityUtil } from '../../common/utils/security.util';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { BaseController } from '../../common/controllers/base.controller';
+import { Permissions } from '../../common/decorators/permissions.decorator';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { SecurityUtil } from '../../common/utils/security.util';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AssignPermissionsDto } from './dto/assign-permissions.dto';
+import { CreateUserWithPermissionsDto } from './dto/create-user-with-permissions.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UsersService } from './users.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
 @ApiTags('Users')
@@ -32,7 +39,10 @@ export class UsersController extends BaseController {
   @Post()
   @ApiBody({ type: CreateUserDto })
   @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -45,7 +55,10 @@ export class UsersController extends BaseController {
   @Post('with-permissions')
   @ApiBody({ type: CreateUserWithPermissionsDto })
   @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -61,7 +74,10 @@ export class UsersController extends BaseController {
   @ApiBody({ type: AssignPermissionsDto })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -80,7 +96,10 @@ export class UsersController extends BaseController {
   @Get(':id/permissions')
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -94,7 +113,10 @@ export class UsersController extends BaseController {
   }
   @Get('available-features')
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -108,7 +130,10 @@ export class UsersController extends BaseController {
   @Get('available-features/:feature/actions')
   @ApiParam({ name: 'feature', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -122,7 +147,10 @@ export class UsersController extends BaseController {
 
   @Get()
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -135,7 +163,10 @@ export class UsersController extends BaseController {
   @Get(':id')
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -150,7 +181,10 @@ export class UsersController extends BaseController {
   @ApiBody({ type: UpdateUserDto })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -164,7 +198,10 @@ export class UsersController extends BaseController {
   @Delete(':id')
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')

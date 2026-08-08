@@ -1,14 +1,13 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Cart } from '../../carts/entities/cart.entity';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 import { User } from '../../users/entities/user.entity';
-import { Cart } from '../../carts/entities/cart.entity';
 
 @Entity('orders')
 export class Order {
@@ -67,6 +66,12 @@ export class Order {
 
   @Column({ name: 'discount_minor', type: 'integer' })
   discountMinor: number;
+
+  @Column({ name: 'promotion_discount_minor', type: 'integer' })
+  promotionDiscountMinor: number;
+
+  @Column({ name: 'coupon_discount_minor', type: 'integer' })
+  couponDiscountMinor: number;
 
   @Column({ name: 'loyalty_discount_minor', type: 'integer' })
   loyaltyDiscountMinor: number;

@@ -1,10 +1,9 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Order } from '../../orders/entities/order.entity';
 import { User } from '../../users/entities/user.entity';
@@ -54,6 +53,30 @@ export class PaymentTransaction {
   providerPaymentIntentId?: string;
 
   @Column({
+    name: 'provider_checkout_id',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  providerCheckoutId?: string;
+
+  @Column({
+    name: 'checkout_reference',
+    type: 'varchar',
+    length: 90,
+    nullable: true,
+  })
+  checkoutReference?: string;
+
+  @Column({
+    name: 'provider_transaction_id',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  providerTransactionId?: string;
+
+  @Column({
     name: 'provider_charge_id',
     type: 'varchar',
     length: 255,
@@ -77,6 +100,9 @@ export class PaymentTransaction {
     nullable: true,
   })
   idempotencyKey?: string;
+
+  @Column({ name: 'request_hash', type: 'char', length: 64, nullable: true })
+  requestHash?: string;
 
   @Column({
     name: 'failure_code',

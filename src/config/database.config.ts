@@ -14,12 +14,13 @@ const databaseConfig = (): TypeOrmModuleOptions => ({
 
   entities: [__dirname + '/../modules/**/entities/*.entity.{ts,js}'],
 
-  migrations: [__dirname + '/../../migrations/*.{ts,js}'],
+  migrations: [__dirname + '/../database/migrations/*.{ts,js}'],
 
   synchronize: false,
 
   logging: process.env.TYPEORM_LOGGING === 'true',
   namingStrategy: new SnakeNamingStrategy(),
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });
 
 export default databaseConfig;

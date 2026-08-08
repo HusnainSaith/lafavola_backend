@@ -1,15 +1,14 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
-import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 import { MenuItem } from '../../menu/entities/menu-item.entity';
 import { OrderItem } from '../../orders/entities/order-item.entity';
+import { Restaurant } from '../../restaurants/entities/restaurant.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('favorites')
 export class Favorite {

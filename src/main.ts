@@ -1,11 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { GlobalValidationPipe } from './common/pipes/global-validation.pipe';
 // import { SecurityConfig } from './config/security.config';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 
 function getAllowedOrigins() {
   // FRONTEND_URLS as comma-separated list
@@ -16,18 +14,12 @@ function getAllowedOrigins() {
 
   // Add your API/Swagger and frontend domains explicitly
   // (adjust these to your real domains)
-  const extra = [
-    'https://adminapi.labverse.org', // API+Swagger origin
-    'http://localhost:3000', // Local dev
-    'https://labverse.org',
-    'https://www.labverse.org',
-  ];
-  for (const e of extra) if (!list.includes(e)) list.push(e);
   return list;
 }
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableShutdownHooks();
 
   app.getHttpAdapter().getInstance().set('trust proxy', 1);
   // Security middleware
@@ -46,16 +38,6 @@ async function bootstrap() {
     }),
   );
 
-  // Rate limit (be gentle for Swagger)
-  app.use(
-    rateLimit({
-      windowMs: 60 * 1000,
-      limit: 300,
-      standardHeaders: true,
-      legacyHeaders: false,
-    }),
-  );
-
   const allowed = getAllowedOrigins();
   app.enableCors({
     origin: (origin, cb) => {
@@ -71,13 +53,13 @@ async function bootstrap() {
 
   // Global validation pipe with strict validation
   app.useGlobalPipes(new GlobalValidationPipe());
-  // Global exception filter
-  app.useGlobalFilters(new HttpExceptionFilter());
 
   // Swagger documentation with proper bearer auth configuration
   const config = new DocumentBuilder()
     .setTitle('La Favola Pizza Restaurant API')
-    .setDescription('Customer ordering, pizza customization, checkout, payments, delivery tracking, promotions, support, and restaurant administration API')
+    .setDescription(
+      'Customer ordering, pizza customization, checkout, payments, delivery tracking, promotions, support, and restaurant administration API',
+    )
     .setVersion('1.0')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
@@ -94,7 +76,5 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3001;
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
-  console.log(`Swagger docs available at: http://localhost:${port}/api/docs`);
 }
 bootstrap();

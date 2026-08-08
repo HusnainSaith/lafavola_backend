@@ -1,13 +1,12 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Promotion } from './promotion.entity';
 import { User } from '../../users/entities/user.entity';
+import { Promotion } from './promotion.entity';
 
 @Entity('promotion_redemptions')
 export class PromotionRedemption {

@@ -1,26 +1,34 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { PermissionsService } from './permissions.service';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { BaseController } from '../../common/controllers/base.controller';
+import { Permissions } from '../../common/decorators/permissions.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { SecurityUtil } from '../../common/utils/security.util';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RoleEnum } from '../roles/role.enum';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { PermissionsGuard } from '../../common/guards/permissions.guard';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { Permissions } from '../../common/decorators/permissions.decorator';
-import { RoleEnum } from '../roles/role.enum';
-import { SecurityUtil } from '../../common/utils/security.util';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { BaseController } from '../../common/controllers/base.controller';
+import { PermissionsService } from './permissions.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
 @ApiTags('permissions')
@@ -34,7 +42,10 @@ export class PermissionsController extends BaseController {
   @ApiOperation({ summary: 'Use Guards' })
   @ApiBody({ type: CreatePermissionDto })
   @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -48,7 +59,10 @@ export class PermissionsController extends BaseController {
   @Get()
   @ApiOperation({ summary: 'Use Guards' })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -61,7 +75,10 @@ export class PermissionsController extends BaseController {
   @Get('resources')
   @ApiOperation({ summary: 'Use Guards' })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -74,7 +91,10 @@ export class PermissionsController extends BaseController {
   @Get('actions')
   @ApiOperation({ summary: 'Use Guards' })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -88,7 +108,10 @@ export class PermissionsController extends BaseController {
   @ApiOperation({ summary: 'Use Guards' })
   @ApiQuery({ name: 'resource', required: false, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -104,7 +127,10 @@ export class PermissionsController extends BaseController {
   @ApiOperation({ summary: 'Use Guards' })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -120,7 +146,10 @@ export class PermissionsController extends BaseController {
   @ApiBody({ type: UpdatePermissionDto })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -138,7 +167,10 @@ export class PermissionsController extends BaseController {
   @ApiOperation({ summary: 'Use Guards' })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')

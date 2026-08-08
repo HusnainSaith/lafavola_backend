@@ -1,13 +1,12 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Coupon } from './coupon.entity';
 import { User } from '../../users/entities/user.entity';
+import { Coupon } from './coupon.entity';
 
 @Entity('coupon_redemptions')
 export class CouponRedemption {

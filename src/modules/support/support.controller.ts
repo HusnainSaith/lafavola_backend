@@ -1,24 +1,32 @@
-﻿import {
+import {
   Body,
   Controller,
   Get,
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { SupportService } from './support.service';
-import { CreateSupportTicketDto } from './dto/create-support-ticket.dto';
-import { CreateSupportMessageDto } from './dto/create-support-message.dto';
-import { UpdateSupportTicketDto } from './dto/update-support-ticket.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
-import { RolesGuard } from '../../common/guards/roles.guard';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RoleEnum } from '../roles/role.enum';
+import { CreateSupportMessageDto } from './dto/create-support-message.dto';
+import { CreateSupportTicketDto } from './dto/create-support-ticket.dto';
+import { UpdateSupportTicketDto } from './dto/update-support-ticket.dto';
+import { SupportService } from './support.service';
 
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 @ApiTags('Support')
 @Controller('support')
 @UseGuards(JwtAuthGuard)
@@ -26,20 +34,22 @@ export class SupportController {
   constructor(private readonly service: SupportService) {}
 
   @Get('tickets')
-  @ApiOperation({ summary: 'List' })
-  @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  list(@CurrentUser() user: AuthenticatedUser) {
-    return this.service.listCustomer(user.id);
+  @ApiOperation({ summary: 'List authenticated customer conversations' })
+  list(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('page') page = '1',
+    @Query('limit') limit = '20',
+  ) {
+    return this.service.listCustomer(
+      user.id,
+      Math.max(1, Number(page)),
+      Math.min(100, Math.max(1, Number(limit))),
+    );
   }
 
   @Post('tickets')
-  @ApiOperation({ summary: 'Create' })
+  @ApiOperation({ summary: 'Open a customer support conversation' })
   @ApiBody({ type: CreateSupportTicketDto })
-  @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   create(
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: CreateSupportTicketDto,
@@ -48,51 +58,110 @@ export class SupportController {
   }
 
   @Get('tickets/:id')
-  @ApiOperation({ summary: 'Detail' })
-  @ApiParam({ name: 'id', required: true, type: String })
-  @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiOperation({ summary: 'Get an authorized conversation and unread count' })
+  @ApiParam({ name: 'id' })
   detail(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.service.detail(user.id, id);
+    return this.service.detail(user.id, id, role(user));
+  }
+
+  @Get('tickets/:id/messages')
+  @ApiOperation({
+    summary: 'Get paginated chronological conversation messages',
+  })
+  history(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Query('page') page = '1',
+    @Query('limit') limit = '50',
+  ) {
+    return this.service.history(
+      user.id,
+      id,
+      role(user),
+      Math.max(1, Number(page)),
+      Math.min(100, Math.max(1, Number(limit))),
+    );
   }
 
   @Post('tickets/:id/messages')
-  @ApiOperation({ summary: 'Message' })
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @ApiOperation({ summary: 'Persist and enqueue a support message' })
   @ApiBody({ type: CreateSupportMessageDto })
-  @ApiParam({ name: 'id', required: true, type: String })
-  @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 409,
+    description: 'Conversation is resolved or closed',
+  })
   message(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
     @Body() dto: CreateSupportMessageDto,
   ) {
-    return this.service.addCustomerMessage(user.id, id, dto);
+    return this.service.addMessage(user.id, id, role(user), dto);
   }
 
-  @Get('admin/tickets')
-  @ApiOperation({ summary: 'Admin List' })
-  @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @UseGuards(RolesGuard)
-  @Roles(RoleEnum.ADMIN)
-  adminList() {
-    return this.service.listAdmin();
+  @Patch('tickets/:id/read')
+  @ApiOperation({ summary: 'Mark the authorized side of a conversation read' })
+  markRead(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.service.markRead(user.id, id, role(user));
   }
 
-  @Patch('admin/tickets/:id')
-  @ApiOperation({ summary: 'Admin Update' })
-  @ApiBody({ type: UpdateSupportTicketDto })
-  @ApiParam({ name: 'id', required: true, type: String })
-  @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @UseGuards(RolesGuard)
-  @Roles(RoleEnum.ADMIN)
-  adminUpdate(@Param('id') id: string, @Body() dto: UpdateSupportTicketDto) {
-    return this.service.updateAdmin(id, dto);
+  @Get('tickets/:id/realtime-authorization')
+  @ApiOperation({
+    summary:
+      'Authorize the authenticated user for a private AppSync conversation channel',
+  })
+  realtimeAuthorization(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    return this.service.realtimeAuthorization(user.id, id, role(user));
   }
+
+  @Get('agent/queue')
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.SUPPORT)
+  @ApiOperation({ summary: 'Get filtered, paginated support queue' })
+  queue(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: Record<string, string>,
+  ) {
+    return this.service.queue(user.id, {
+      page: Number(query.page) || 1,
+      limit: Math.min(100, Number(query.limit) || 20),
+      assigned: query.assigned,
+      status: query.status,
+      priority: query.priority,
+    });
+  }
+
+  @Post('agent/tickets/:id/claim')
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.SUPPORT)
+  @ApiOperation({
+    summary: 'Atomically claim an unassigned support conversation',
+  })
+  claim(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.service.claim(user.id, id);
+  }
+
+  @Patch('agent/tickets/:id/status')
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.SUPPORT)
+  @ApiOperation({
+    summary: 'Resolve, close, or update an assigned conversation',
+  })
+  status(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateSupportTicketDto,
+  ) {
+    if (!dto.status) return this.service.detail(user.id, id, role(user));
+    return this.service.changeStatus(user.id, id, role(user), dto.status);
+  }
+}
+
+function role(user: AuthenticatedUser): string {
+  return typeof user.role === 'string'
+    ? user.role
+    : (user.role?.name ?? 'customer');
 }

@@ -1,7 +1,7 @@
 ﻿import { Module } from '@nestjs/common';
+import { RestaurantRepository } from './repositories/restaurant.repository';
 import { RestaurantsController } from './restaurants.controller';
 import { RestaurantsService } from './restaurants.service';
-import { RestaurantRepository } from './repositories/restaurant.repository';
 
 @Module({
   controllers: [RestaurantsController],

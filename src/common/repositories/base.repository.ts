@@ -12,10 +12,7 @@ import {
 export abstract class BaseRepository<T extends ObjectLiteral> {
   protected readonly repository: Repository<T>;
 
-  protected constructor(
-    dataSource: DataSource,
-    entity: EntityTarget<T>,
-  ) {
+  protected constructor(dataSource: DataSource, entity: EntityTarget<T>) {
     this.repository = dataSource.getRepository(entity);
   }
 
@@ -33,7 +30,7 @@ export abstract class BaseRepository<T extends ObjectLiteral> {
 
   findById(id: string): Promise<T | null> {
     return this.repository.findOne({
-      where: ({ id } as unknown) as FindOptionsWhere<T>,
+      where: { id } as unknown as FindOptionsWhere<T>,
     });
   }
 

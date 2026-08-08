@@ -1,14 +1,16 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 import { MenuCategory } from '../../categories/entities/menu-category.entity';
 import { MediaAsset } from '../../media/entities/media-asset.entity';
+import { Restaurant } from '../../restaurants/entities/restaurant.entity';
+import { MenuItemIngredient } from './menu-item-ingredient.entity';
+import { MenuItemSize } from './menu-item-size.entity';
 
 @Entity('menu_items')
 export class MenuItem {
@@ -44,6 +46,12 @@ export class MenuItem {
   @ManyToOne(() => MediaAsset, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'image_asset_id' })
   imageAsset?: MediaAsset;
+
+  @OneToMany(() => MenuItemSize, (size) => size.menuItem)
+  sizes: MenuItemSize[];
+
+  @OneToMany(() => MenuItemIngredient, (entry) => entry.menuItem)
+  ingredients: MenuItemIngredient[];
 
   @Column({ name: 'item_type', type: 'varchar', length: 30 })
   itemType: string;

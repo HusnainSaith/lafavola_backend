@@ -1,4 +1,6 @@
-﻿import {
+﻿import { Type } from 'class-transformer';
+import {
+  IsArray,
   IsBoolean,
   IsEnum,
   IsInt,
@@ -8,9 +10,7 @@
   MaxLength,
   Min,
   ValidateNested,
-  IsArray,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { MenuItemType } from '../enums/menu-item-type.enum';
 import { CreateMenuItemSizeDto } from './create-menu-item-size.dto';
 

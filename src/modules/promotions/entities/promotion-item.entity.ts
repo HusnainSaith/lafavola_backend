@@ -1,14 +1,13 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Promotion } from './promotion.entity';
-import { MenuItem } from '../../menu/entities/menu-item.entity';
 import { MenuCategory } from '../../categories/entities/menu-category.entity';
+import { MenuItem } from '../../menu/entities/menu-item.entity';
+import { Promotion } from './promotion.entity';
 
 @Entity('promotion_items')
 export class PromotionItem {

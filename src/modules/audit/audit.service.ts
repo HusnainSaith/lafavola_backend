@@ -1,6 +1,6 @@
 ﻿import { Injectable } from '@nestjs/common';
-import { AuditLogRepository } from './repositories/audit-log.repository';
 import { AuditContext } from './interfaces/audit-context.interface';
+import { AuditLogRepository } from './repositories/audit-log.repository';
 
 @Injectable()
 export class AuditService {

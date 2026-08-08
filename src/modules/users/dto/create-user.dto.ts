@@ -1,4 +1,5 @@
-﻿import {
+﻿import { Transform } from 'class-transformer';
+import {
   IsEmail,
   IsEnum,
   IsOptional,
@@ -8,7 +9,6 @@
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
 import { UserStatus } from '../enums/user-status.enum';
 
 export class CreateUserDto {

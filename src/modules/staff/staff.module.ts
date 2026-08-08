@@ -1,7 +1,7 @@
 ﻿import { Module } from '@nestjs/common';
+import { StaffMemberRepository } from './repositories/staff-member.repository';
 import { StaffController } from './staff.controller';
 import { StaffService } from './staff.service';
-import { StaffMemberRepository } from './repositories/staff-member.repository';
 
 @Module({
   controllers: [StaffController],

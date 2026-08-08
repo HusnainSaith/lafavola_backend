@@ -1,13 +1,12 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { OptionGroup } from './option-group.entity';
 import { Ingredient } from '../../ingredients/entities/ingredient.entity';
+import { OptionGroup } from './option-group.entity';
 
 @Entity('option_choices')
 export class OptionChoice {

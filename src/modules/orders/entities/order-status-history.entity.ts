@@ -1,13 +1,12 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Order } from './order.entity';
 import { User } from '../../users/entities/user.entity';
+import { Order } from './order.entity';
 
 @Entity('order_status_history')
 export class OrderStatusHistory {

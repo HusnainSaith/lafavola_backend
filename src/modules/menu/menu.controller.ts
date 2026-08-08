@@ -9,46 +9,67 @@
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { MenuService } from './menu.service';
+import { Public } from '../../common/decorators/public.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RoleEnum } from '../roles/role.enum';
 import { CreateMenuItemDto } from './dto/create-menu-item.dto';
 import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { RoleEnum } from '../roles/role.enum';
+import { MenuQueryDto } from './dto/menu-query.dto';
+import { MenuService } from './menu.service';
 
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 @ApiTags('Menu')
 @Controller('menu')
 export class MenuController {
   constructor(private readonly service: MenuService) {}
 
   @Get()
+  @Public()
   @ApiOperation({ summary: 'List' })
   @ApiQuery({ name: 'restaurantId', required: false, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  list(@Query('restaurantId') restaurantId?: string) {
-    return this.service.list(restaurantId);
+  list(@Query() query: MenuQueryDto) {
+    return this.service.list(query);
   }
 
   @Get('search')
+  @Public()
   @ApiOperation({ summary: 'Search' })
   @ApiQuery({ name: 'restaurantId', required: false, type: String })
   @ApiQuery({ name: 'q', required: false, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   search(@Query('restaurantId') restaurantId: string, @Query('q') q: string) {
     return this.service.search(restaurantId, q ?? '');
   }
 
   @Get(':id')
+  @Public()
   @ApiOperation({ summary: 'Detail' })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   detail(@Param('id') id: string) {
     return this.service.detail(id);
@@ -58,7 +79,10 @@ export class MenuController {
   @ApiOperation({ summary: 'Create' })
   @ApiBody({ type: CreateMenuItemDto })
   @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
@@ -71,7 +95,10 @@ export class MenuController {
   @ApiBody({ type: UpdateMenuItemDto })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
@@ -83,7 +110,10 @@ export class MenuController {
   @ApiOperation({ summary: 'Archive' })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)

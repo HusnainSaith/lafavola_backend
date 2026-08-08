@@ -1,11 +1,12 @@
-﻿import { Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import { PaymentsModule } from '../payments/payments.module';
 import { RefundsController } from './refunds.controller';
 import { RefundsService } from './refunds.service';
-import { RefundRepository } from './repositories/refund.repository';
 
 @Module({
+  imports: [PaymentsModule],
   controllers: [RefundsController],
-  providers: [RefundsService, RefundRepository],
+  providers: [RefundsService],
   exports: [RefundsService],
 })
 export class RefundsModule {}

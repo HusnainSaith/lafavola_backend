@@ -9,12 +9,12 @@
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Role } from '../../roles/entities/role.entity';
-import { Permission } from '../../permissions/entities/permission.entity';
-import { UserPermission } from './user-permission.entity';
 import { RefreshToken } from '../../auth/entities/refresh-token.entity';
 import { SocialAccount } from '../../auth/entities/social-account.entity';
 import { CustomerProfile } from '../../customers/entities/customer-profile.entity';
+import { Permission } from '../../permissions/entities/permission.entity';
+import { Role } from '../../roles/entities/role.entity';
+import { UserPermission } from './user-permission.entity';
 
 @Entity('users')
 export class User {
@@ -54,6 +54,13 @@ export class User {
 
   @Column({ name: 'archived_at', type: 'timestamptz', nullable: true })
   archivedAt?: Date;
+
+  @Column({
+    name: 'processing_restricted_at',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  processingRestrictedAt?: Date;
 
   @OneToMany(() => UserPermission, (userPermission) => userPermission.user)
   userPermissions: UserPermission[];

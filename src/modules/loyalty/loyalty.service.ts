@@ -1,9 +1,9 @@
 ﻿import { BadRequestException, Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { LoyaltyAccountRepository } from './repositories/loyalty-account.repository';
+import { RedeemLoyaltyPointsDto } from './dto/redeem-loyalty-points.dto';
 import { LoyaltyAccount } from './entities/loyalty-account.entity';
 import { LoyaltyTransaction } from './entities/loyalty-transaction.entity';
-import { RedeemLoyaltyPointsDto } from './dto/redeem-loyalty-points.dto';
+import { LoyaltyAccountRepository } from './repositories/loyalty-account.repository';
 
 @Injectable()
 export class LoyaltyService {

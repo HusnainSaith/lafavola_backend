@@ -1,13 +1,12 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('carts')
 export class Cart {

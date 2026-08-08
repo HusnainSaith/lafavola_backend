@@ -1,14 +1,13 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { LoyaltyAccount } from './loyalty-account.entity';
 import { Order } from '../../orders/entities/order.entity';
 import { User } from '../../users/entities/user.entity';
+import { LoyaltyAccount } from './loyalty-account.entity';
 
 @Entity('loyalty_transactions')
 export class LoyaltyTransaction {

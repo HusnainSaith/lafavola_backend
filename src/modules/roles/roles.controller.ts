@@ -1,25 +1,32 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   UseGuards,
 } from '@nestjs/common';
-import { RolesService } from './roles.service';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { BaseController } from '../../common/controllers/base.controller';
+import { Permissions } from '../../common/decorators/permissions.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { SecurityUtil } from '../../common/utils/security.util';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { PermissionsGuard } from '../../common/guards/permissions.guard';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { Permissions } from '../../common/decorators/permissions.decorator';
 import { RoleEnum } from './role.enum';
-import { SecurityUtil } from '../../common/utils/security.util';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { BaseController } from '../../common/controllers/base.controller';
+import { RolesService } from './roles.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
 @ApiTags('Roles')
@@ -32,7 +39,10 @@ export class RolesController extends BaseController {
   @Post()
   @ApiBody({ type: CreateRoleDto })
   @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -45,7 +55,10 @@ export class RolesController extends BaseController {
 
   @Get()
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -59,7 +72,10 @@ export class RolesController extends BaseController {
   @Get(':id')
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -75,7 +91,10 @@ export class RolesController extends BaseController {
   @ApiBody({ type: UpdateRoleDto })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -90,7 +109,10 @@ export class RolesController extends BaseController {
   @Delete(':id')
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')

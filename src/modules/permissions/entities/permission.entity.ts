@@ -6,8 +6,8 @@
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { RolePermission } from '../../role-permissions/entities/role-permission.entity';
-import { UserPermission } from '../../users/entities/user-permission.entity';
 import { Role } from '../../roles/entities/role.entity';
+import { UserPermission } from '../../users/entities/user-permission.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('permissions')

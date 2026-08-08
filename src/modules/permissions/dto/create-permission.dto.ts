@@ -1,5 +1,5 @@
-import { IsString, IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreatePermissionDto {
   @ApiProperty({

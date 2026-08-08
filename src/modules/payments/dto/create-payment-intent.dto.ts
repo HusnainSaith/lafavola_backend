@@ -1,15 +1,7 @@
-﻿import {
-  IsEnum,
-  IsOptional,
-  IsString,
-  IsUUID,
-  MaxLength,
-} from 'class-validator';
-import { PaymentMethodType } from '../enums/payment-method-type.enum';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsUUID, MaxLength } from 'class-validator';
 
 export class CreatePaymentIntentDto {
-  @IsUUID() orderId: string;
-  @IsEnum(PaymentMethodType) paymentMethodType: PaymentMethodType;
-  @IsOptional() @IsUUID() savedPaymentMethodId?: string;
-  @IsOptional() @IsString() @MaxLength(255) idempotencyKey?: string;
+  @ApiProperty() @IsUUID() orderId: string;
+  @ApiProperty() @IsString() @MaxLength(255) idempotencyKey: string;
 }

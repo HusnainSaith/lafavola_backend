@@ -1,10 +1,9 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 import { User } from '../../users/entities/user.entity';
@@ -36,6 +35,20 @@ export class MediaAsset {
 
   @Column({ name: 'object_key', type: 'varchar', length: 1024, unique: true })
   objectKey: string;
+
+  @Column({
+    name: 'original_file_name',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  originalFileName?: string;
+
+  @Column({ name: 'purpose', type: 'varchar', length: 40 })
+  purpose: string;
+
+  @Column({ name: 'target_id', type: 'uuid', nullable: true })
+  targetId?: string;
 
   @Column({ name: 'public_url', type: 'text', nullable: true })
   publicUrl?: string;

@@ -1,13 +1,12 @@
 ﻿import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 import { MediaAsset } from '../../media/entities/media-asset.entity';
+import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 
 @Entity('menu_categories')
 export class MenuCategory {

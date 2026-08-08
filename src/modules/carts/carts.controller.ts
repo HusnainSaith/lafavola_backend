@@ -9,14 +9,21 @@
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CartsService } from './carts.service';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
 
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 @ApiTags('Carts')
 @Controller('cart')
 @UseGuards(JwtAuthGuard)
@@ -27,7 +34,10 @@ export class CartsController {
   @ApiOperation({ summary: 'Detail' })
   @ApiQuery({ name: 'restaurantId', required: false, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   detail(
     @CurrentUser() user: AuthenticatedUser,
@@ -41,7 +51,10 @@ export class CartsController {
   @ApiBody({ type: AddCartItemDto })
   @ApiQuery({ name: 'restaurantId', required: false, type: String })
   @ApiResponse({ status: 201, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   add(
     @CurrentUser() user: AuthenticatedUser,
@@ -56,7 +69,10 @@ export class CartsController {
   @ApiBody({ type: UpdateCartItemDto })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   update(
     @CurrentUser() user: AuthenticatedUser,
@@ -70,13 +86,27 @@ export class CartsController {
   @ApiOperation({ summary: 'Remove' })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  @ApiResponse({ status: 400, description: 'Validation or business-rule error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation or business-rule error',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async remove(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
   ) {
     await this.service.removeItem(user.id, id);
+    return { success: true };
+  }
+
+  @Delete()
+  @ApiOperation({ summary: 'Clear the authenticated customer cart' })
+  @ApiQuery({ name: 'restaurantId', required: true, type: String })
+  async clear(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('restaurantId') restaurantId: string,
+  ) {
+    await this.service.clear(user.id, restaurantId);
     return { success: true };
   }
 }
