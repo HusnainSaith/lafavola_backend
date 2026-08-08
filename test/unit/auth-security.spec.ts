@@ -37,6 +37,7 @@ function fixture() {
     sendPasswordReset: jest.fn().mockResolvedValue(undefined),
   };
   const mail = { send: jest.fn().mockResolvedValue({}) };
+  const socialIdentityVerifier = { verify: jest.fn() };
   const service = new AuthService(
     users as never,
     jwt as never,
@@ -47,6 +48,7 @@ function fixture() {
     verificationTokens as never,
     delivery,
     mail,
+    socialIdentityVerifier,
   );
   return {
     service,
@@ -56,6 +58,7 @@ function fixture() {
     verificationTokens,
     delivery,
     mail,
+    socialIdentityVerifier,
   };
 }
 

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -21,6 +22,7 @@ import { linkTemplate } from '../../integrations/mail/templates/template.util';
 import { Role } from '../roles/entities/role.entity';
 import { RoleEnum } from '../roles/role.enum';
 import { UserStatus } from '../users/enums/user-status.enum';
+import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { AuthUserResponseDto } from './dto/auth-user-response.dto';
@@ -30,12 +32,19 @@ import {
   ResetPasswordDto,
 } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
+import { SocialLoginDto } from './dto/social-login.dto';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { SocialAccount } from './entities/social-account.entity';
 import { VerificationToken } from './entities/verification-token.entity';
+import { SocialProvider } from './enums/social-provider.enum';
 import {
   PASSWORD_RESET_DELIVERY,
   PasswordResetDelivery,
 } from './interfaces/password-reset-delivery.interface';
+import {
+  SOCIAL_IDENTITY_VERIFIER,
+  SocialIdentityVerifier,
+} from './interfaces/social-identity-verifier.interface';
 
 const GENERIC_RESET_MESSAGE =
   'If an account exists for that email, password reset instructions have been sent.';
@@ -57,6 +66,8 @@ export class AuthService {
     @Inject(PASSWORD_RESET_DELIVERY)
     private readonly resetDelivery: PasswordResetDelivery,
     @Inject(MAIL_PROVIDER) private readonly mail: MailProvider,
+    @Inject(SOCIAL_IDENTITY_VERIFIER)
+    private readonly socialIdentityVerifier: SocialIdentityVerifier,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -114,6 +125,95 @@ export class AuthService {
       data: {
         accessToken,
         refreshToken,
+        user: AuthUserResponseDto.from(user),
+      },
+    };
+  }
+
+  async socialLogin(provider: SocialProvider, dto: SocialLoginDto) {
+    const identity = await this.socialIdentityVerifier.verify(
+      provider,
+      dto.idToken,
+    );
+
+    const user = await this.dataSource.transaction(async (manager) => {
+      const socialAccounts = manager.getRepository(SocialAccount);
+      const existingAccount = await socialAccounts.findOne({
+        where: { provider, providerSubject: identity.subject },
+        relations: { user: { role: true } },
+      });
+
+      if (existingAccount) {
+        this.assertActive(existingAccount.user);
+        existingAccount.user.lastLoginAt = new Date();
+        await manager.update(User, existingAccount.user.id, {
+          lastLoginAt: existingAccount.user.lastLoginAt,
+        });
+        return existingAccount.user;
+      }
+
+      if (!identity.email || !identity.emailVerified) {
+        throw new BadRequestException(
+          'A verified email is required for first-time OAuth sign-in',
+        );
+      }
+
+      const users = manager.getRepository(User);
+      let linkedUser = await users
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role')
+        .where('LOWER(user.email) = LOWER(:email)', { email: identity.email })
+        .getOne();
+
+      if (linkedUser) {
+        this.assertActive(linkedUser);
+        linkedUser.lastLoginAt = new Date();
+        await manager.update(User, linkedUser.id, {
+          lastLoginAt: linkedUser.lastLoginAt,
+          emailVerifiedAt: linkedUser.emailVerifiedAt || new Date(),
+        });
+      } else {
+        const customerRole = await manager.getRepository(Role).findOne({
+          where: { name: RoleEnum.CLIENT },
+        });
+        if (!customerRole) {
+          throw new InternalServerErrorException(
+            'Customer authentication is unavailable',
+          );
+        }
+        linkedUser = await users.save(
+          users.create({
+            email: identity.email,
+            fullName:
+              dto.fullName?.trim() ||
+              identity.fullName ||
+              identity.email.split('@')[0],
+            roleId: customerRole.id,
+            role: customerRole,
+            status: UserStatus.ACTIVE,
+            emailVerifiedAt: new Date(),
+            lastLoginAt: new Date(),
+          }),
+        );
+      }
+
+      await socialAccounts.save(
+        socialAccounts.create({
+          userId: linkedUser.id,
+          provider,
+          providerSubject: identity.subject,
+          providerEmail: identity.email,
+        }),
+      );
+      return linkedUser;
+    });
+
+    return {
+      success: true,
+      message: `${provider === SocialProvider.GOOGLE ? 'Google' : 'Apple'} authentication successful`,
+      data: {
+        accessToken: await this.signAccessToken(user.id, user.email),
+        refreshToken: await this.createRefreshSession(user.id),
         user: AuthUserResponseDto.from(user),
       },
     };
@@ -264,6 +364,12 @@ export class AuthService {
   async getCurrentUser(userId: string) {
     const response = await this.usersService.findOne(userId);
     return { ...response, data: AuthUserResponseDto.from(response.data) };
+  }
+
+  private assertActive(user: User) {
+    if (!user || user.status !== UserStatus.ACTIVE || user.archivedAt) {
+      throw new UnauthorizedException('This account cannot sign in');
+    }
   }
 
   private async signAccessToken(userId: string, email?: string) {

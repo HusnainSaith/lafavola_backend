@@ -14,6 +14,8 @@ import { PASSWORD_RESET_DELIVERY } from './interfaces/password-reset-delivery.in
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { MailModule } from '../../integrations/mail/mail.module';
 import { MailPasswordResetDelivery } from '../../integrations/mail/mail-password-reset.delivery';
+import { SOCIAL_IDENTITY_VERIFIER } from './interfaces/social-identity-verifier.interface';
+import { OidcSocialIdentityVerifier } from './providers/oidc-social-identity.verifier';
 
 @Module({
   imports: [
@@ -39,6 +41,10 @@ import { MailPasswordResetDelivery } from '../../integrations/mail/mail-password
     {
       provide: PASSWORD_RESET_DELIVERY,
       useExisting: MailPasswordResetDelivery,
+    },
+    {
+      provide: SOCIAL_IDENTITY_VERIFIER,
+      useClass: OidcSocialIdentityVerifier,
     },
   ],
   exports: [AuthService, JwtAuthGuard],

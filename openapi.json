@@ -625,6 +625,62 @@
         ]
       }
     },
+    "/auth/oauth/google": {
+      "post": {
+        "operationId": "AuthController_googleLogin",
+        "summary": "Sign in or register with a Google identity token",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SocialLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Google authentication successful"
+          },
+          "401": {
+            "description": "Invalid Google identity token"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/oauth/apple": {
+      "post": {
+        "operationId": "AuthController_appleLogin",
+        "summary": "Sign in or register with an Apple identity token",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SocialLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Apple authentication successful"
+          },
+          "401": {
+            "description": "Invalid Apple identity token"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/auth/refresh": {
       "post": {
         "operationId": "AuthController_refresh",
@@ -4878,6 +4934,24 @@
         "required": [
           "email",
           "password"
+        ]
+      },
+      "SocialLoginDto": {
+        "type": "object",
+        "properties": {
+          "idToken": {
+            "type": "string",
+            "description": "The identity token returned by Google or Apple",
+            "example": "eyJhbGciOiJSUzI1NiIsImtpZCI6Ii4uLiJ9..."
+          },
+          "fullName": {
+            "type": "string",
+            "description": "Name supplied on first sign-in (especially for Apple, which only supplies it once)",
+            "example": "Mario Rossi"
+          }
+        },
+        "required": [
+          "idToken"
         ]
       },
       "RefreshTokenDto": {

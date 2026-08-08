@@ -18,7 +18,9 @@ import {
   ResetPasswordDto,
 } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
+import { SocialLoginDto } from './dto/social-login.dto';
 import { VerifyTokenDto } from './dto/verify-token.dto';
+import { SocialProvider } from './enums/social-provider.enum';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -52,6 +54,34 @@ export class AuthController extends BaseController {
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   login(@Body() dto: AuthCredentialsDto) {
     return this.handleAsyncOperation(this.authService.login(dto));
+  }
+
+  @Post('oauth/google')
+  @Public()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Sign in or register with a Google identity token' })
+  @ApiBody({ type: SocialLoginDto })
+  @ApiResponse({ status: 200, description: 'Google authentication successful' })
+  @ApiResponse({ status: 401, description: 'Invalid Google identity token' })
+  googleLogin(@Body() dto: SocialLoginDto) {
+    return this.handleAsyncOperation(
+      this.authService.socialLogin(SocialProvider.GOOGLE, dto),
+    );
+  }
+
+  @Post('oauth/apple')
+  @Public()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Sign in or register with an Apple identity token' })
+  @ApiBody({ type: SocialLoginDto })
+  @ApiResponse({ status: 200, description: 'Apple authentication successful' })
+  @ApiResponse({ status: 401, description: 'Invalid Apple identity token' })
+  appleLogin(@Body() dto: SocialLoginDto) {
+    return this.handleAsyncOperation(
+      this.authService.socialLogin(SocialProvider.APPLE, dto),
+    );
   }
 
   @Post('refresh')

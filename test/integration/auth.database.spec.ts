@@ -5,6 +5,8 @@ import { DataSource, Repository } from 'typeorm';
 import { AuthService } from '../../src/modules/auth/auth.service';
 import { RefreshToken } from '../../src/modules/auth/entities/refresh-token.entity';
 import { VerificationToken } from '../../src/modules/auth/entities/verification-token.entity';
+import { SocialAccount } from '../../src/modules/auth/entities/social-account.entity';
+import { SocialProvider } from '../../src/modules/auth/enums/social-provider.enum';
 import { Role } from '../../src/modules/roles/entities/role.entity';
 import { RoleEnum } from '../../src/modules/roles/role.enum';
 import { Permission } from '../../src/modules/permissions/entities/permission.entity';
@@ -28,6 +30,7 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
     let delivery: { sendPasswordReset: jest.Mock };
     let mail: { send: jest.Mock };
     let users: Repository<User>;
+    let socialIdentityVerifier: { verify: jest.Mock };
 
     beforeAll(async () => {
       const database = await ensureTestDatabase();
@@ -53,6 +56,7 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
       );
       delivery = { sendPasswordReset: jest.fn().mockResolvedValue(undefined) };
       mail = { send: jest.fn().mockResolvedValue({}) };
+      socialIdentityVerifier = { verify: jest.fn() };
       auth = new AuthService(
         usersService,
         new JwtService(),
@@ -68,6 +72,7 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
         dataSource.getRepository(VerificationToken),
         delivery,
         mail,
+        socialIdentityVerifier,
       );
       users = dataSource.getRepository(User);
     });
@@ -83,6 +88,66 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
         password: 'SecurePass1',
       });
     }
+
+    it('creates a customer and reusable refresh session from verified Google identity', async () => {
+      socialIdentityVerifier.verify.mockResolvedValue({
+        subject: 'google-subject-1',
+        email: 'oauth@example.com',
+        emailVerified: true,
+        fullName: 'OAuth Customer',
+      });
+
+      const first = await auth.socialLogin(SocialProvider.GOOGLE, {
+        idToken: 'google-token',
+      });
+      const second = await auth.socialLogin(SocialProvider.GOOGLE, {
+        idToken: 'google-token-again',
+      });
+
+      expect(first.data.user.id).toBe(second.data.user.id);
+      expect(first.data.accessToken).toBeTruthy();
+      expect(first.data.refreshToken).toBeTruthy();
+      await expect(
+        auth.refreshToken({ refreshToken: first.data.refreshToken }),
+      ).resolves.toBeDefined();
+      expect(await users.countBy({ email: 'oauth@example.com' })).toBe(1);
+      expect(
+        await dataSource.getRepository(SocialAccount).countBy({
+          provider: SocialProvider.GOOGLE,
+          providerSubject: 'google-subject-1',
+        }),
+      ).toBe(1);
+    });
+
+    it('links a verified Apple identity to an existing account without duplicating it', async () => {
+      await register('linked@example.com');
+      const existing = await users.findOneByOrFail({
+        email: 'linked@example.com',
+      });
+      socialIdentityVerifier.verify.mockResolvedValue({
+        subject: 'apple-subject-1',
+        email: 'LINKED@example.com',
+        emailVerified: true,
+      });
+
+      const result = await auth.socialLogin(SocialProvider.APPLE, {
+        idToken: 'apple-token',
+        fullName: 'Ignored Name',
+      });
+
+      expect(result.data.user.id).toBe(existing.id);
+      expect(await users.countBy({ email: 'linked@example.com' })).toBe(1);
+    });
+
+    it('requires a verified email when the social identity is not linked yet', async () => {
+      socialIdentityVerifier.verify.mockResolvedValue({
+        subject: 'new-apple-subject',
+        emailVerified: false,
+      });
+      await expect(
+        auth.socialLogin(SocialProvider.APPLE, { idToken: 'apple-token' }),
+      ).rejects.toThrow('A verified email is required');
+    });
 
     it('persists refresh digests, rotates them, rejects reuse, and logs out', async () => {
       await register('refresh@example.com');
