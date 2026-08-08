@@ -13,6 +13,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import {
   PresignPutInput,
+  PutObjectInput,
   StorageProvider,
   StoredObjectMetadata,
 } from '../../storage/storage.interface';
@@ -57,6 +58,22 @@ export class S3StorageProvider implements StorageProvider {
       );
     } catch {
       this.failure('presign');
+    }
+  }
+
+  async put(input: PutObjectInput): Promise<void> {
+    this.assertConfigured();
+    try {
+      await this.client.send(
+        new PutObjectCommand({
+          Bucket: this.bucket,
+          Key: input.key,
+          ContentType: input.contentType,
+          Body: input.body,
+        }),
+      );
+    } catch {
+      this.failure('upload');
     }
   }
 

@@ -245,10 +245,7 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
     });
 
     it('calculates exact recognized, refunded, net and daily report values', async () => {
-      const [{ id: reportingRestaurant }] = await db.query(
-        `INSERT INTO restaurants(name,slug,country_code,currency,timezone,default_delivery_minutes,delivery_fee_minor,minimum_order_minor,tax_rate_basis_points,tax_behavior)
-       VALUES ('Reporting','reporting','IT','EUR','Europe/Rome',25,100,0,1000,'excluded') RETURNING id`,
-      );
+      const reportingRestaurant = restaurantId;
       const first = await insertOrder('REPORT-1', {
         restaurant: reportingRestaurant,
         status: 'delivered',

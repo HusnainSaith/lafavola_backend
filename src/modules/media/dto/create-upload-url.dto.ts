@@ -13,6 +13,30 @@ export enum MediaPurpose {
   MENU_IMAGE = 'menu_image',
   AVATAR = 'avatar',
   SUPPORT_ATTACHMENT = 'support_attachment',
+  CATEGORY_IMAGE = 'category_image',
+  INGREDIENT_IMAGE = 'ingredient_image',
+}
+
+export class MultipartUploadDto {
+  @ApiProperty({ enum: MediaPurpose })
+  @IsEnum(MediaPurpose)
+  purpose: MediaPurpose;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  restaurantId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  targetId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  altText?: string;
 }
 
 export class CreateUploadUrlDto {

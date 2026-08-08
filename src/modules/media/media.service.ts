@@ -12,9 +12,16 @@ import {
   StorageProvider,
 } from '../../integrations/storage/storage.interface';
 import { MenuItem } from '../menu/entities/menu-item.entity';
+import { MenuCategory } from '../categories/entities/menu-category.entity';
+import { CustomerProfile } from '../customers/entities/customer-profile.entity';
+import { Ingredient } from '../ingredients/entities/ingredient.entity';
 import { SupportTicket } from '../support/entities/support-ticket.entity';
 import { User } from '../users/entities/user.entity';
-import { CreateUploadUrlDto, MediaPurpose } from './dto/create-upload-url.dto';
+import {
+  CreateUploadUrlDto,
+  MediaPurpose,
+  MultipartUploadDto,
+} from './dto/create-upload-url.dto';
 import { FinalizeUploadDto } from './dto/finalize-upload.dto';
 import { MediaAssetRepository } from './repositories/media-asset.repository';
 
@@ -32,6 +39,99 @@ export class MediaService {
     private readonly assets: MediaAssetRepository,
     @Inject(STORAGE_PROVIDER) private readonly storage: StorageProvider,
   ) {}
+
+  async upload(
+    userId: string,
+    file: Express.Multer.File,
+    dto: MultipartUploadDto,
+  ) {
+    if (!file) throw new BadRequestException('File is required');
+    const format = MIME[file.mimetype];
+    const imagePurpose = dto.purpose !== MediaPurpose.SUPPORT_ATTACHMENT;
+    if (!format || (imagePurpose && file.mimetype === 'application/pdf'))
+      throw new BadRequestException(
+        'File type is not allowed for this purpose',
+      );
+    if (file.size > format.maxBytes)
+      throw new BadRequestException('File exceeds the allowed size');
+    const authorization = {
+      ...dto,
+      fileName: file.originalname,
+      mimeType: file.mimetype,
+      sizeBytes: file.size,
+    } as CreateUploadUrlDto;
+    await this.assertTargetAccess(userId, authorization);
+    const objectKey = this.buildKey(userId, authorization, format.extension);
+    await this.storage.put({
+      key: objectKey,
+      contentType: file.mimetype,
+      body: file.buffer,
+    });
+    try {
+      const asset = await this.assets.save(
+        this.assets.create({
+          restaurantId: dto.restaurantId,
+          uploadedByUserId: userId,
+          storageProvider: this.storage.providerName,
+          bucket: this.storage.bucket,
+          objectKey,
+          originalFileName: file.originalname,
+          purpose: dto.purpose,
+          targetId: dto.targetId,
+          publicUrl: this.storage.publicUrl(objectKey),
+          mimeType: file.mimetype,
+          sizeBytes: String(file.size),
+          altText: dto.altText,
+          status: 'active',
+        }),
+      );
+      await this.attachUploadedAsset(userId, asset.id, asset.publicUrl, dto);
+      return asset;
+    } catch (error) {
+      await this.storage.delete(objectKey);
+      throw error;
+    }
+  }
+
+  private async attachUploadedAsset(
+    userId: string,
+    assetId: string,
+    publicUrl: string | undefined,
+    dto: MultipartUploadDto,
+  ): Promise<void> {
+    if (dto.purpose === MediaPurpose.AVATAR) {
+      if (!publicUrl)
+        throw new BadRequestException(
+          'AWS_S3_PUBLIC_BASE_URL is required for avatar uploads',
+        );
+      const profiles = this.dataSource.getRepository(CustomerProfile);
+      let profile = await profiles.findOne({ where: { userId } });
+      profile = profile
+        ? Object.assign(profile, { avatarUrl: publicUrl })
+        : profiles.create({
+            userId,
+            avatarUrl: publicUrl,
+            preferredLanguage: 'it',
+            loyaltyOptIn: false,
+            marketingOptIn: false,
+          });
+      await profiles.save(profile);
+      return;
+    }
+    if (!dto.targetId) return;
+    if (dto.purpose === MediaPurpose.MENU_IMAGE)
+      await this.dataSource
+        .getRepository(MenuItem)
+        .update(dto.targetId, { imageAssetId: assetId });
+    if (dto.purpose === MediaPurpose.CATEGORY_IMAGE)
+      await this.dataSource
+        .getRepository(MenuCategory)
+        .update(dto.targetId, { imageAssetId: assetId });
+    if (dto.purpose === MediaPurpose.INGREDIENT_IMAGE)
+      await this.dataSource
+        .getRepository(Ingredient)
+        .update(dto.targetId, { imageAssetId: assetId });
+  }
 
   async authorizeUpload(userId: string, dto: CreateUploadUrlDto) {
     const format = MIME[dto.mimeType];
@@ -123,6 +223,10 @@ export class MediaService {
     const id = randomUUID();
     if (dto.purpose === MediaPurpose.MENU_IMAGE)
       return `restaurants/${dto.restaurantId}/menu/${id}.${extension}`;
+    if (dto.purpose === MediaPurpose.CATEGORY_IMAGE)
+      return `restaurants/${dto.restaurantId}/categories/${id}.${extension}`;
+    if (dto.purpose === MediaPurpose.INGREDIENT_IMAGE)
+      return `restaurants/${dto.restaurantId}/ingredients/${id}.${extension}`;
     if (dto.purpose === MediaPurpose.AVATAR)
       return `customers/${userId}/avatars/${id}.${extension}`;
     return `support/${dto.targetId}/${id}.${extension}`;
@@ -130,13 +234,28 @@ export class MediaService {
 
   private async assertTargetAccess(userId: string, dto: CreateUploadUrlDto) {
     if (dto.purpose === MediaPurpose.AVATAR) return;
-    if (dto.purpose === MediaPurpose.MENU_IMAGE) {
+    if (
+      [
+        MediaPurpose.MENU_IMAGE,
+        MediaPurpose.CATEGORY_IMAGE,
+        MediaPurpose.INGREDIENT_IMAGE,
+      ].includes(dto.purpose)
+    ) {
       if (!dto.restaurantId || !dto.targetId)
         throw new BadRequestException('Restaurant and menu item are required');
-      const item = await this.dataSource.getRepository(MenuItem).findOne({
-        where: { id: dto.targetId, restaurantId: dto.restaurantId },
-      });
-      if (!item) throw new NotFoundException('Menu item not found');
+      const entity =
+        dto.purpose === MediaPurpose.MENU_IMAGE
+          ? await this.dataSource.getRepository(MenuItem).findOne({
+              where: { id: dto.targetId, restaurantId: dto.restaurantId },
+            })
+          : dto.purpose === MediaPurpose.CATEGORY_IMAGE
+            ? await this.dataSource.getRepository(MenuCategory).findOne({
+                where: { id: dto.targetId, restaurantId: dto.restaurantId },
+              })
+            : await this.dataSource.getRepository(Ingredient).findOne({
+                where: { id: dto.targetId, restaurantId: dto.restaurantId },
+              });
+      if (!entity) throw new NotFoundException('Image target not found');
       const user = await this.dataSource.getRepository(User).findOne({
         where: { id: userId },
         relations: { role: true },

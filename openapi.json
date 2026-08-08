@@ -1154,102 +1154,10 @@
       }
     },
     "/restaurants": {
-      "get": {
-        "operationId": "RestaurantsController_findAll",
-        "summary": "Find All",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Validation or business-rule error"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "tags": [
-          "Restaurants"
-        ]
-      },
-      "post": {
-        "operationId": "RestaurantsController_create",
-        "summary": "Create",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateRestaurantDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Validation or business-rule error"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "tags": [
-          "Restaurants"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/restaurants/{id}": {
-      "get": {
-        "operationId": "RestaurantsController_findOne",
-        "summary": "Find One",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Validation or business-rule error"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "tags": [
-          "Restaurants"
-        ]
-      },
       "patch": {
         "operationId": "RestaurantsController_update",
         "summary": "Update",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -1260,39 +1168,6 @@
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Validation or business-rule error"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "tags": [
-          "Restaurants"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      },
-      "delete": {
-        "operationId": "RestaurantsController_remove",
-        "summary": "Remove",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -1743,6 +1618,62 @@
         },
         "tags": [
           "Staff"
+        ]
+      }
+    },
+    "/media/upload": {
+      "post": {
+        "operationId": "MediaController_upload",
+        "summary": "Upload an image or support file directly to S3",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "purpose"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "enum": [
+                      "menu_image",
+                      "avatar",
+                      "support_attachment",
+                      "category_image",
+                      "ingredient_image"
+                    ]
+                  },
+                  "restaurantId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "targetId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "altText": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Media"
         ]
       }
     },
@@ -5087,10 +5018,6 @@
           "permissionIds"
         ]
       },
-      "CreateRestaurantDto": {
-        "type": "object",
-        "properties": {}
-      },
       "UpdateRestaurantDto": {
         "type": "object",
         "properties": {}
@@ -5131,7 +5058,9 @@
             "enum": [
               "menu_image",
               "avatar",
-              "support_attachment"
+              "support_attachment",
+              "category_image",
+              "ingredient_image"
             ]
           },
           "restaurantId": {

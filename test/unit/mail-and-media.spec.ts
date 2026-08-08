@@ -30,6 +30,7 @@ describe('mail templates and media storage boundary', () => {
       providerName: 'aws_s3',
       bucket: 'test-bucket',
       presignPut: jest.fn().mockResolvedValue('https://signed.example/put'),
+      put: jest.fn().mockResolvedValue(undefined),
       head: jest.fn(),
       delete: jest.fn(),
       publicUrl: jest.fn((key) => `https://cdn.example/${key}`),
