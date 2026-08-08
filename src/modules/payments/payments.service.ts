@@ -39,11 +39,87 @@ export class PaymentsService {
     @Inject(PAYMENT_PROVIDER) private readonly provider: PaymentProviderPort,
   ) {}
 
-  listMethods(customerId: string) {
-    return this.dataSource.getRepository(CustomerPaymentMethod).find({
-      where: { customerId, archivedAt: null as any },
-      order: { isDefault: 'DESC', createdAt: 'DESC' },
+  async listMethods(customerId: string) {
+    const methods = await this.dataSource
+      .getRepository(CustomerPaymentMethod)
+      .createQueryBuilder('method')
+      .where('method.customer_id = :customerId', { customerId })
+      .andWhere('method.archived_at IS NULL')
+      .orderBy('method.is_default', 'DESC')
+      .addOrderBy('method.created_at', 'DESC')
+      .getMany();
+    return methods.map((method) => this.safePaymentMethod(method));
+  }
+
+  async makeMethodDefault(customerId: string, methodId: string) {
+    return this.dataSource.transaction(async (manager) => {
+      const repository = manager.getRepository(CustomerPaymentMethod);
+      const method = requireEntity(
+        await repository
+          .createQueryBuilder('method')
+          .setLock('pessimistic_write')
+          .where('method.id = :methodId', { methodId })
+          .andWhere('method.customer_id = :customerId', { customerId })
+          .andWhere('method.archived_at IS NULL')
+          .getOne(),
+        'Payment method not found',
+      );
+      await repository
+        .createQueryBuilder()
+        .update(CustomerPaymentMethod)
+        .set({ isDefault: false })
+        .where('customer_id = :customerId', { customerId })
+        .andWhere('archived_at IS NULL')
+        .execute();
+      method.isDefault = true;
+      return this.safePaymentMethod(await repository.save(method));
     });
+  }
+
+  async archiveMethod(customerId: string, methodId: string): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
+      const repository = manager.getRepository(CustomerPaymentMethod);
+      const method = requireEntity(
+        await repository
+          .createQueryBuilder('method')
+          .setLock('pessimistic_write')
+          .where('method.id = :methodId', { methodId })
+          .andWhere('method.customer_id = :customerId', { customerId })
+          .andWhere('method.archived_at IS NULL')
+          .getOne(),
+        'Payment method not found',
+      );
+      const wasDefault = method.isDefault;
+      method.archivedAt = new Date();
+      method.isDefault = false;
+      await repository.save(method);
+      if (wasDefault) {
+        const replacement = await repository
+          .createQueryBuilder('method')
+          .where('method.customer_id = :customerId', { customerId })
+          .andWhere('method.archived_at IS NULL')
+          .orderBy('method.created_at', 'DESC')
+          .getOne();
+        if (replacement) {
+          replacement.isDefault = true;
+          await repository.save(replacement);
+        }
+      }
+    });
+  }
+
+  private safePaymentMethod(method: CustomerPaymentMethod) {
+    return {
+      id: method.id,
+      paymentMethodType: method.paymentMethodType,
+      cardBrand: method.cardBrand,
+      cardLast4: method.cardLast4,
+      expMonth: method.expMonth,
+      expYear: method.expYear,
+      label: method.label,
+      isDefault: method.isDefault,
+      createdAt: method.createdAt,
+    };
   }
 
   async createCheckout(customerId: string, dto: CreatePaymentIntentDto) {

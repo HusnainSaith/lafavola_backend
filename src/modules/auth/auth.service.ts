@@ -336,11 +336,17 @@ export class AuthService {
       url: url.toString(),
       expiration: 'This link expires in 24 hours and can be used once.',
     });
-    await this.mail.send({
-      to: email,
-      subject: 'Verify your La Favola email',
-      ...template,
-    });
+    try {
+      await this.mail.send({
+        to: email,
+        subject: 'Verify your La Favola email',
+        ...template,
+      });
+    } catch {
+      // The account and its verification token are already durable. SMTP is an
+      // optional delivery channel and must not make registration appear failed.
+      this.logger.warn('Email verification delivery failed');
+    }
   }
 
   private digest(token: string): string {

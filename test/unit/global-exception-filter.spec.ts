@@ -73,4 +73,12 @@ describe('GlobalExceptionFilter', () => {
     expect(JSON.stringify(result.body)).not.toContain('SELECT secret');
     expect(result.body.requestId).toBe('request-1');
   });
+
+  it('keeps unexpected application error details out of the response', () => {
+    const result = invoke(new Error('mail transport configuration failed'));
+    expect(result.status).toHaveBeenCalledWith(500);
+    expect(result.body.message).toBe('Internal server error');
+    expect(JSON.stringify(result.body)).not.toContain('mail transport');
+    expect(result.body.requestId).toBe('request-1');
+  });
 });

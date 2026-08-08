@@ -30,7 +30,7 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
         `INSERT INTO roles(name,is_system) VALUES ('customer',true) RETURNING id`,
       );
       const [{ id: supportRole }] = await dataSource.query(
-        `INSERT INTO roles(name,is_system) VALUES ('support',true) RETURNING id`,
+        `SELECT id FROM roles WHERE name='support'`,
       );
       [{ id: customerId }] = await dataSource.query(
         `INSERT INTO users(email,full_name,role_id) VALUES ('chat@example.com','Chat Customer',$1) RETURNING id`,

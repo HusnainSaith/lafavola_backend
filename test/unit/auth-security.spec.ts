@@ -48,7 +48,15 @@ function fixture() {
     delivery,
     mail,
   );
-  return { service, users, roles, refreshTokens, verificationTokens, delivery };
+  return {
+    service,
+    users,
+    roles,
+    refreshTokens,
+    verificationTokens,
+    delivery,
+    mail,
+  };
 }
 
 describe('P0 authentication security', () => {
@@ -142,6 +150,28 @@ describe('P0 authentication security', () => {
       expect.objectContaining({ roleId: 'client-role' }),
     );
     expect(result.user).not.toHaveProperty('password');
+  });
+
+  it('does not report registration as failed when verification email delivery fails', async () => {
+    const { service, users, roles, mail } = fixture();
+    roles.findOne.mockResolvedValue({ id: 'client-role', name: 'client' });
+    users.create.mockResolvedValue({
+      data: {
+        id: 'user-id',
+        email: 'mario@example.com',
+        fullName: 'Mario Rossi',
+        status: UserStatus.ACTIVE,
+      },
+    });
+    mail.send.mockRejectedValue(new Error('provider unavailable'));
+
+    await expect(
+      service.register({
+        fullName: 'Mario Rossi',
+        email: 'mario@example.com',
+        password: 'SecurePass1',
+      }),
+    ).resolves.toMatchObject({ success: true });
   });
 
   it('returns the same forgot-password response for unknown accounts', async () => {

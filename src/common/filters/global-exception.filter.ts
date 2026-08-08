@@ -196,5 +196,34 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       `${method} ${url} - ${errorResponse.statusCode} - ${errorResponse.message}`,
       JSON.stringify(logContext),
     );
+
+    if (errorResponse.statusCode >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      const databaseError = exception as QueryFailedError & {
+        driverError?: { code?: string; constraint?: string };
+      };
+      const isDatabaseError = exception instanceof QueryFailedError;
+      this.logger.error(
+        JSON.stringify({
+          exceptionType:
+            exception instanceof Error
+              ? exception.constructor.name
+              : typeof exception,
+          // QueryFailedError messages can contain SQL and bound values. Keep
+          // those out of logs while retaining useful details for ordinary
+          // application errors.
+          exceptionMessage:
+            exception instanceof Error && !isDatabaseError
+              ? exception.message
+              : undefined,
+          databaseCode: databaseError.driverError?.code,
+          databaseConstraint: databaseError.driverError?.constraint,
+          requestId: errorResponse.requestId,
+          stack:
+            exception instanceof Error && !isDatabaseError
+              ? exception.stack
+              : undefined,
+        }),
+      );
+    }
   }
 }

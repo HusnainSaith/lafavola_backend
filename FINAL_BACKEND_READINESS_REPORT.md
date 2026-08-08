@@ -20,7 +20,7 @@ Previously added identity, guard, ownership, error and provider tests pass. This
 
 ## 8. Database/entity audit
 
-All 21 migrations apply to a fresh `_test` database and the second run is a no-op. Migration 21 adds privacy processing-restriction state and supports anonymized deleted identities. TypeORM remains `synchronize:false`; migrations are authoritative.
+All 22 migrations apply to a fresh `_test` database and the second run is a no-op. Migration 21 adds privacy processing-restriction state and supports anonymized deleted identities; migration 22 seeds the required system roles used by registration and RBAC. TypeORM remains `synchronize:false`; migrations are authoritative.
 
 ## 9. Transaction/concurrency
 

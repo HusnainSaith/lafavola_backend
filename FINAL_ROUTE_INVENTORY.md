@@ -1,6 +1,6 @@
 # Final Route Inventory
 
-Generated from `openapi.json` and audited against controller policy. Total operations: **151**.
+Generated from `openapi.json` and audited against controller policy. Total operations: **155**.
 
 Coverage labels identify the strongest current automated layer; they do not turn an authentication-boundary check into a full business journey.
 
@@ -54,9 +54,10 @@ Coverage labels identify the strongest current automated layer; they do not turn
 | DELETE | /faq/{id} | Faq | Remove | PUBLIC | None | Not explicitly typed | Role/resource policy; no customer cross-tenant access | HTTP auth boundary or static route audit; dedicated journey varies | FAQ |
 | GET | /faq/{id} | Faq | Find One | PUBLIC | None | Not explicitly typed | Role/resource policy; no customer cross-tenant access | HTTP auth boundary or static route audit; dedicated journey varies | FAQ |
 | PATCH | /faq/{id} | Faq | Update | PUBLIC | UpdateFaqDto | Not explicitly typed | Role/resource policy; no customer cross-tenant access | HTTP auth boundary or static route audit; dedicated journey varies | FAQ |
-| GET | /favorites | Favorites | List | PUBLIC | None | Not explicitly typed | Authenticated customer scope | HTTP auth boundary or static route audit; dedicated journey varies | Favorites |
-| POST | /favorites | Favorites | Create | PUBLIC | CreateFavoriteDto | Not explicitly typed | Authenticated customer scope | HTTP auth boundary or static route audit; dedicated journey varies | Favorites |
-| DELETE | /favorites/{id} | Favorites | Remove | PUBLIC | None | Not explicitly typed | Authenticated customer scope | HTTP auth boundary or static route audit; dedicated journey varies | Favorites |
+| GET | /favorites | Favorites | List | CUSTOMER | None | Not explicitly typed | Authenticated customer scope | HTTP auth boundary or static route audit; dedicated journey varies | Favorites |
+| POST | /favorites | Favorites | Create | CUSTOMER | CreateFavoriteDto | Not explicitly typed | Authenticated customer scope | HTTP auth boundary or static route audit; dedicated journey varies | Favorites |
+| DELETE | /favorites/{id} | Favorites | Remove | CUSTOMER | None | Not explicitly typed | Authenticated customer scope | HTTP auth boundary or static route audit; dedicated journey varies | Favorites |
+| POST | /favorites/{id}/cart | Favorites | Validate and add an owned favorite to the active cart | CUSTOMER | AddFavoriteToCartDto | Not explicitly typed | Authenticated customer scope | Unit/DB integration; no full authenticated HTTP journey | Favorites |
 | GET | /health | System | Process liveness; does not probe providers | PUBLIC | None | Not explicitly typed | Role/resource policy; no customer cross-tenant access | HTTP auth boundary or static route audit; dedicated journey varies | Platform administration |
 | GET | /ingredients | Ingredients | Find All | PUBLIC | None | Not explicitly typed | Role/resource policy; no customer cross-tenant access | HTTP auth boundary or static route audit; dedicated journey varies | Ingredients |
 | POST | /ingredients | Ingredients | Create | PUBLIC | CreateIngredientDto | Not explicitly typed | Role/resource policy; no customer cross-tenant access | HTTP auth boundary or static route audit; dedicated journey varies | Ingredients |
@@ -94,6 +95,9 @@ Coverage labels identify the strongest current automated layer; they do not turn
 | POST | /orders/me/{id}/cancel | Orders | Cancel | PUBLIC | object | Not explicitly typed | Authenticated customer scope | Unit/DB integration; no full authenticated HTTP journey | Orders |
 | POST | /orders/me/{id}/reorder | Orders | Revalidate an earlier order and add it to the active cart | PUBLIC | None | Not explicitly typed | Authenticated customer scope | Unit/DB integration; no full authenticated HTTP journey | Orders |
 | POST | /payments/checkouts | Payments | Create or reuse an online SumUp checkout for an owned order | AUTHENTICATED (route roles apply) | CreatePaymentIntentDto | PaymentCheckoutResponseDto | Role/resource policy; no customer cross-tenant access | DB journey + HTTP auth boundary | Payments/receipts |
+| GET | /payments/methods | Payments | List safe references to owned saved payment methods | AUTHENTICATED (route roles apply) | None | PaymentMethodResponseDto | Role/resource policy; no customer cross-tenant access | DB journey + HTTP auth boundary | Payments/receipts |
+| DELETE | /payments/methods/{id} | Payments | Archive an owned saved payment method | AUTHENTICATED (route roles apply) | None | Not explicitly typed | Role/resource policy; no customer cross-tenant access | DB journey + HTTP auth boundary | Payments/receipts |
+| PATCH | /payments/methods/{id}/default | Payments | Make an owned saved payment method the default | AUTHENTICATED (route roles apply) | None | PaymentMethodResponseDto | Role/resource policy; no customer cross-tenant access | DB journey + HTTP auth boundary | Payments/receipts |
 | POST | /payments/orders/{id}/collect | Payments | Record cash or external-terminal collection on delivery | DRIVER/ADMIN | CollectPaymentDto | PaymentCheckoutResponseDto | Order owner for status; assigned driver/admin for collection | DB journey + HTTP auth boundary | Payments/receipts |
 | GET | /payments/orders/{orderId}/status | Payments | Get an owned order payment status and optionally refresh SumUp | AUTHENTICATED (route roles apply) | None | PaymentCheckoutResponseDto | Order owner for status; assigned driver/admin for collection | DB journey + HTTP auth boundary | Payments/receipts |
 | POST | /payments/webhooks/sumup | Payments | Receive SumUp notifications; state is verified through SumUp | PUBLIC | SumUpWebhookDto | Not explicitly typed | Role/resource policy; no customer cross-tenant access | DB journey + HTTP auth boundary | Payments/receipts |

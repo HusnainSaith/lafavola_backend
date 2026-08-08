@@ -5,7 +5,7 @@ Statuses are based on current source and executed automated validation. The only
 | Requirement | Status | Evidence / remaining gap |
 |---|---|---|
 | Authentication | PASS | Customer-only registration, verification, account-state checks, hashed one-time tokens, rotating hashed refresh sessions and regression tests. |
-| Customer profile | PASS | Ownership-scoped profile/preferences APIs; persistence is implemented. |
+| Customer profile | PASS | Ownership-scoped profile/preferences APIs and safe saved-payment-reference list/default/archive operations are implemented. |
 | Addresses | PASS | Ownership-scoped CRUD and one-active-default database constraint. |
 | Menu | PASS | Active/available joined public catalog with pagination. |
 | Pizza categories | PASS | Public reads and admin mutations exist. |
@@ -25,7 +25,7 @@ Statuses are based on current source and executed automated validation. The only
 | Notifications | PASS | In-app records, preferences, outbox, delivery records and token lifecycle exist. |
 | Search | PASS | Database-side name search. |
 | Filters | PASS | Category, dietary, ingredient, price, availability and sort filters. |
-| Favorites | PASS | Ownership-scoped APIs and uniqueness constraint; full journey E2E remains absent. |
+| Favorites | PASS | Ownership-scoped APIs, uniqueness, and favorite-to-cart quick reorder with current server validation are implemented. |
 | Order history | PASS | Ownership-scoped pagination/detail. |
 | Reorder | PASS | Availability-aware atomic batch reorder. |
 | Customer support | PASS | Ownership-scoped ticket and message history. |
@@ -41,7 +41,7 @@ Statuses are based on current source and executed automated validation. The only
 | Sales reports | PASS | Gross/recognized/refunds/net/discount/tax/fees/count/AOV aggregates are date- and restaurant-scoped and fixture-tested. |
 | Daily revenue | PASS | A zero-filled daily API reports recognized revenue, refunds and net; live aggregation avoids an undefined snapshot schedule. |
 | Popular items | PASS | Delivered/closed quantity ranking query exists. |
-| Security | PASS | Deny-by-default auth/RBAC, ownership, Helmet, CORS validation, throttling and safe error mapping. Shared throttling is deployment work. |
+| Security | PASS | Deny-by-default auth/RBAC, strict role matching, ownership, Helmet, CORS validation, throttling and safe error mapping. Customer-to-admin report denial is HTTP/database-tested. |
 | Privacy | CLIENT DECISION REQUIRED | Technical export, restriction and anonymization pass; legal retention, SLA, rectification and exact erasure boundaries require policy decisions. |
 | AWS storage | PROVIDER CREDENTIAL TEST PENDING | Presign/finalize/ownership/delete boundary exists; real S3 smoke was not run. |
 | Email | PROVIDER CREDENTIAL TEST PENDING | Nodemailer adapter and outbox mail exist; real SMTP was not tested. |

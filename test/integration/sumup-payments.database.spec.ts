@@ -20,6 +20,7 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
     let dataSource: DataSource;
     let orderId: string;
     let paymentId: string;
+    let customerId: string;
     const provider: jest.Mocked<PaymentProviderPort> = {
       createCheckout: jest.fn(),
       getCheckout: jest.fn(),
@@ -37,7 +38,7 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
       const [{ id: roleId }] = await dataSource.query(
         `INSERT INTO roles (name,is_system) VALUES ('customer',true) RETURNING id`,
       );
-      const [{ id: customerId }] = await dataSource.query(
+      [{ id: customerId }] = await dataSource.query(
         `INSERT INTO users (email,full_name,role_id) VALUES ('payments@example.com','Payments Customer',$1) RETURNING id`,
         [roleId],
       );
@@ -58,6 +59,45 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
 
     afterAll(async () => {
       if (dataSource?.isInitialized) await dataSource.destroy();
+    });
+
+    it('lists only safe owned payment references and atomically changes the default', async () => {
+      const [{ id: firstId }] = await dataSource.query(
+        `INSERT INTO customer_payment_methods
+         (customer_id,provider,provider_payment_method_id,payment_method_type,card_brand,card_last4,is_default)
+         VALUES ($1,'stripe','secret-provider-reference-1','card','visa','1111',true) RETURNING id`,
+        [customerId],
+      );
+      const [{ id: secondId }] = await dataSource.query(
+        `INSERT INTO customer_payment_methods
+         (customer_id,provider,provider_payment_method_id,payment_method_type,card_brand,card_last4,is_default)
+         VALUES ($1,'stripe','secret-provider-reference-2','card','mastercard','2222',false) RETURNING id`,
+        [customerId],
+      );
+      const service = new PaymentsService(
+        dataSource,
+        new PaymentTransactionRepository(dataSource),
+        {} as ConfigService,
+        {} as any,
+        provider,
+      );
+
+      const methods = await service.listMethods(customerId);
+      expect(methods).toHaveLength(2);
+      expect(JSON.stringify(methods)).not.toContain(
+        'secret-provider-reference',
+      );
+      await service.makeMethodDefault(customerId, secondId);
+      const defaults = await dataSource.query(
+        `SELECT id FROM customer_payment_methods WHERE customer_id=$1 AND is_default=true AND archived_at IS NULL`,
+        [customerId],
+      );
+      expect(defaults).toEqual([{ id: secondId }]);
+
+      await service.archiveMethod(customerId, secondId);
+      const active = await service.listMethods(customerId);
+      expect(active).toHaveLength(1);
+      expect(active[0]).toMatchObject({ id: firstId, isDefault: true });
     });
 
     it('verifies a paid checkout once and creates one receipt/state transition', async () => {

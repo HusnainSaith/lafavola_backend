@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
   ParseBoolPipe,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -28,6 +30,7 @@ import { RoleEnum } from '../roles/role.enum';
 import { CollectPaymentDto } from './dto/collect-payment.dto';
 import { CreatePaymentIntentDto } from './dto/create-payment-intent.dto';
 import { PaymentCheckoutResponseDto } from './dto/payment-checkout-response.dto';
+import { PaymentMethodResponseDto } from './dto/payment-method-response.dto';
 import { SumUpWebhookDto } from './dto/sumup-webhook.dto';
 import { PaymentsService } from './payments.service';
 
@@ -37,6 +40,36 @@ import { PaymentsService } from './payments.service';
 @UseGuards(JwtAuthGuard)
 export class PaymentsController {
   constructor(private readonly service: PaymentsService) {}
+
+  @Get('methods')
+  @ApiOperation({
+    summary: 'List safe references to owned saved payment methods',
+  })
+  @ApiResponse({ status: 200, type: PaymentMethodResponseDto, isArray: true })
+  methods(@CurrentUser() user: AuthenticatedUser) {
+    return this.service.listMethods(user.id);
+  }
+
+  @Patch('methods/:id/default')
+  @ApiOperation({ summary: 'Make an owned saved payment method the default' })
+  @ApiResponse({ status: 200, type: PaymentMethodResponseDto })
+  makeMethodDefault(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    return this.service.makeMethodDefault(user.id, id);
+  }
+
+  @Delete('methods/:id')
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Archive an owned saved payment method' })
+  @ApiResponse({ status: 204, description: 'Payment method archived' })
+  archiveMethod(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    return this.service.archiveMethod(user.id, id);
+  }
 
   @Post('checkouts')
   @ApiOperation({

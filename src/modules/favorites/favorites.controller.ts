@@ -10,10 +10,12 @@
 import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AddFavoriteToCartDto } from './dto/add-favorite-to-cart.dto';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { FavoritesService } from './favorites.service';
 
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -21,6 +23,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 @ApiTags('Favorites')
+@ApiBearerAuth('JWT-auth')
 @Controller('favorites')
 @UseGuards(JwtAuthGuard)
 export class FavoritesController {
@@ -52,6 +55,21 @@ export class FavoritesController {
     @Body() dto: CreateFavoriteDto,
   ) {
     return this.service.create(user.id, dto);
+  }
+
+  @Post(':id/cart')
+  @ApiOperation({
+    summary: 'Validate and add an owned favorite to the active cart',
+  })
+  @ApiBody({ type: AddFavoriteToCartDto })
+  @ApiParam({ name: 'id', type: String })
+  @ApiResponse({ status: 201, description: 'Favorite added to active cart' })
+  addToCart(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: AddFavoriteToCartDto,
+  ) {
+    return this.service.addToCart(user.id, id, dto.quantity);
   }
 
   @Delete(':id')

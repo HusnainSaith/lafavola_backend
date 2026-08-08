@@ -37,7 +37,8 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
       await db.runMigrations({ transaction: 'each' });
       const [{ id: customerRole }, { id: employeeRole }, { id: adminRole }] =
         await db.query(
-          `INSERT INTO roles(name,is_system) VALUES ('client',true),('employee',true),('admin',true) RETURNING id`,
+          `SELECT id FROM roles WHERE name IN ('client','employee','admin')
+           ORDER BY CASE name WHEN 'client' THEN 1 WHEN 'employee' THEN 2 ELSE 3 END`,
         );
       [
         { id: customerId },

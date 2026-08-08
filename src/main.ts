@@ -1,3 +1,4 @@
+import { ForbiddenException } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -43,7 +44,10 @@ async function bootstrap() {
     origin: (origin, cb) => {
       if (!origin) return cb(null, true);
       if (allowed.includes(origin)) return cb(null, true);
-      return cb(new Error(`CORS blocked for origin: ${origin}`), false);
+      return cb(
+        new ForbiddenException(`CORS blocked for origin: ${origin}`),
+        false,
+      );
     },
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',

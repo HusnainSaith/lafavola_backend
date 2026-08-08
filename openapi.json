@@ -3261,6 +3261,101 @@
         ]
       }
     },
+    "/payments/methods": {
+      "get": {
+        "operationId": "PaymentsController_methods",
+        "summary": "List safe references to owned saved payment methods",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentMethodResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/payments/methods/{id}/default": {
+      "patch": {
+        "operationId": "PaymentsController_makeMethodDefault",
+        "summary": "Make an owned saved payment method the default",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentMethodResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/payments/methods/{id}": {
+      "delete": {
+        "operationId": "PaymentsController_archiveMethod",
+        "summary": "Archive an owned saved payment method",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Payment method archived"
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
     "/payments/checkouts": {
       "post": {
         "operationId": "PaymentsController_createCheckout",
@@ -3957,6 +4052,11 @@
         },
         "tags": [
           "Favorites"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
         ]
       },
       "post": {
@@ -3986,6 +4086,50 @@
         },
         "tags": [
           "Favorites"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/favorites/{id}/cart": {
+      "post": {
+        "operationId": "FavoritesController_addToCart",
+        "summary": "Validate and add an owned favorite to the active cart",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddFavoriteToCartDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Favorite added to active cart"
+          }
+        },
+        "tags": [
+          "Favorites"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
         ]
       }
     },
@@ -4016,6 +4160,11 @@
         },
         "tags": [
           "Favorites"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
         ]
       }
     },
@@ -5264,6 +5413,45 @@
         "type": "object",
         "properties": {}
       },
+      "PaymentMethodResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "paymentMethodType": {
+            "type": "string"
+          },
+          "cardBrand": {
+            "type": "string"
+          },
+          "cardLast4": {
+            "type": "string"
+          },
+          "expMonth": {
+            "type": "number"
+          },
+          "expYear": {
+            "type": "number"
+          },
+          "label": {
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "paymentMethodType",
+          "isDefault",
+          "createdAt"
+        ]
+      },
       "CreatePaymentIntentDto": {
         "type": "object",
         "properties": {
@@ -5371,6 +5559,10 @@
         "properties": {}
       },
       "CreateFavoriteDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "AddFavoriteToCartDto": {
         "type": "object",
         "properties": {}
       },

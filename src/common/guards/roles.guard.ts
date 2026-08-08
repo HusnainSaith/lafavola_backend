@@ -58,8 +58,7 @@ export class RolesGuard implements CanActivate {
       // Handle both enum values and string values
       return (
         requiredRole === userRoleName ||
-        requiredRole.toString() === userRoleName ||
-        Object.values(RoleEnum).includes(userRoleName as RoleEnum)
+        requiredRole.toString() === userRoleName
       );
     });
 

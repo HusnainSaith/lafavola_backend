@@ -1,12 +1,13 @@
 import {
   BadRequestException,
   ConflictException,
+  HttpException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { ServiceResponse } from '../../common/interfaces/service-response.interface';
 import { SecurityUtil } from '../../common/utils/security.util';
 import { Permission } from '../permissions/entities/permission.entity';
@@ -38,14 +39,28 @@ export class UsersService {
     try {
       SecurityUtil.validateObject(dto);
 
+      const email = dto.email.toLowerCase().trim();
+      const phone = dto.phone?.trim();
+
       const existingUser = await this.userRepository.findOne({
-        where: { email: dto.email },
+        where: { email },
       });
 
       if (existingUser) {
         throw new ConflictException(
           'A user with this email address already exists',
         );
+      }
+
+      if (phone) {
+        const existingPhone = await this.userRepository.findOne({
+          where: { phone },
+        });
+        if (existingPhone) {
+          throw new ConflictException(
+            'A user with this phone number already exists',
+          );
+        }
       }
 
       let role: Role | undefined;
@@ -63,6 +78,8 @@ export class UsersService {
 
       const user = this.userRepository.create({
         ...dto,
+        email,
+        phone,
         password: hashedPassword,
         role,
       });
@@ -74,13 +91,10 @@ export class UsersService {
         data: savedUser as User,
       };
     } catch (error) {
-      if (
-        error instanceof ConflictException ||
-        error instanceof NotFoundException
-      ) {
+      if (error instanceof HttpException || error instanceof QueryFailedError) {
         throw error;
       }
-      throw new Error(`Failed to create user: ${error.message}`);
+      throw error;
     }
   }
 
@@ -88,21 +102,16 @@ export class UsersService {
     email: string,
     options?: { includePassword?: boolean },
   ): Promise<User | null> {
-    try {
-      const queryBuilder = this.userRepository
-        .createQueryBuilder('user')
-        .leftJoinAndSelect('user.role', 'role')
-        .where('user.email = :email', { email: email.toLowerCase().trim() });
+    const queryBuilder = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.role', 'role')
+      .where('user.email = :email', { email: email.toLowerCase().trim() });
 
-      if (options?.includePassword) {
-        queryBuilder.addSelect('user.password');
-      }
-
-      const user = await queryBuilder.getOne();
-      return user || null;
-    } catch (error) {
-      throw new Error(`Failed to find user by email: ${error.message}`);
+    if (options?.includePassword) {
+      queryBuilder.addSelect('user.password');
     }
+
+    return (await queryBuilder.getOne()) || null;
   }
 
   async updatePassword(userId: string, hashedPassword: string): Promise<void> {

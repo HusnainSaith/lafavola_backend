@@ -10,7 +10,7 @@ This classification concerns backend behavior only. SMTP, S3, SumUp, AppSync and
 
 | # | Area | Result | Executable evidence / qualification |
 |---:|---|---|---|
-| 1 | Customer journey | PASS by composed layers | Authentication DB tests plus ordering DB suites cover identity, catalog-to-order state and persistence. HTTP E2E proves startup and protected-route boundaries; it is not one monolithic 48-step test. |
+| 1 | Customer journey | PASS | A real Nest/PostgreSQL journey covers registration, login/refresh rotation, profile/address, menu/search, cart, cash checkout, authoritative totals, order history/detail, favorites/quick reorder, support, notifications and logout/revocation. |
 | 2 | Customer negative journey | PASS | Guard/ownership unit tests, auth DB tests and ordering/delivery/privacy ownership tests reject cross-customer and role escalation paths. |
 | 3 | Admin journey | PASS by composed layers | Deny-by-default RBAC, admin route inventory, ordering/payment/reporting DB tests and HTTP protection checks cover the defined behavior. |
 | 4 | Driver journey | PASS | Assignment, wrong-driver denial, accept/pickup/en-route/arriving/delivered, location and COD collection are database-tested. |
@@ -35,15 +35,15 @@ This classification concerns backend behavior only. SMTP, S3, SumUp, AppSync and
 | 23 | Privacy | PASS for technical policy | Consent, owned request/export, restriction and anonymization pass; exports exclude token/password/provider secrets. Legal policy remains decision-required. |
 | 24 | Media | PASS with fake provider | Server-owned keys, MIME/size policy, ownership, finalize and deletion boundaries exist. Real S3 smoke is pending. |
 | 25 | Authorization/ownership | PASS | Global JWT/RBAC plus resource predicates cover customer, staff, support, driver and administrator boundaries. |
-| 26 | Database integrity | PASS | All 21 migrations apply on a fresh `_test` database; second execution is a no-op; integrity suites cover key unique/check/FK rules. |
+| 26 | Database integrity | PASS | All 22 migrations apply on a fresh `_test` database; second execution is a no-op; integrity suites cover key unique/check/FK rules. Migration 22 seeds the required system roles used by registration and authorization. |
 | 27 | Concurrency | PASS for critical paths | Checkout/promotion redemption, refunds, support claim, delivery transition and COD duplicate collection use locks/transactions and have DB evidence. |
-| 28 | Swagger | PASS with documented refinement debt | Generated contract has 104 paths, 151 operations and 67 schemas. Every operation is listed in `FINAL_ROUTE_INVENTORY.md`. Some legacy responses remain implicitly typed. |
+| 28 | Swagger | PASS with documented refinement debt | Generated contract has 108 paths, 155 operations and 69 schemas. Every operation is listed in `FINAL_ROUTE_INVENTORY.md` and is exercised by a no-500 HTTP smoke test. Some legacy responses remain implicitly typed. |
 | 29 | Performance findings | ACCEPTABLE FOR FUNCTIONAL RELEASE | Core growing lists use database pagination/filtering and relevant indexes. Production-scale `EXPLAIN ANALYZE` and load evidence are outside functional acceptance. |
 | 30 | Client decisions remaining | REQUIRED | BOGO semantics, family-combo composition/pricing, student verification/discount policy, loyalty economics/expiry/refunds, and privacy retention/SLA boundaries. |
 
 ## Route and contract audit
 
-`FINAL_ROUTE_INVENTORY.md` lists all 151 OpenAPI operations with method, route, module, purpose, access, request/response contract, ownership, coverage and client mapping. No duplicate route was found. The delivery lifecycle intentionally uses a single validated status-transition endpoint instead of duplicate action routes.
+`FINAL_ROUTE_INVENTORY.md` lists all 155 OpenAPI operations with method, route, module, purpose, access, request/response contract, ownership, coverage and client mapping. No duplicate route was found. The delivery lifecycle intentionally uses a single validated status-transition endpoint instead of duplicate action routes.
 
 Global validation uses transformation, whitelist and forbidden-non-whitelisted properties. Representative DTO, authentication, authorization, ownership, PostgreSQL constraint and sanitized-error cases pass. Secrets, password hashes, refresh/verification digests and raw provider credentials are not part of public response contracts or privacy exports.
 
@@ -54,16 +54,16 @@ Global validation uses transformation, whitelist and forbidden-non-whitelisted p
 | `npm run format` | PASS |
 | `npm run lint:check` | PASS |
 | `npm run build` | PASS |
-| `npm test -- --runInBand` | PASS: 9 suites, 60 tests; credential/DB-gated suites skipped by default |
+| `npm test -- --runInBand` | PASS: 9 suites, 62 tests; credential/DB-gated suites skipped by default |
 | `npm run test:e2e -- --runInBand` | PASS: 1 suite, 9 tests |
-| `npm run test:all:db` with protected `lafavola_test` | PASS: 7 suites, 33 tests |
-| Fresh migrations | PASS: 21 |
+| `npm run test:all:db` with protected `lafavola_test` | PASS: 9 suites, 39 tests |
+| Fresh migrations | PASS: 22 |
 | Second migration execution | PASS: no pending migrations |
-| OpenAPI generation | PASS: 104 paths, 151 operations, 67 schemas |
+| OpenAPI generation | PASS: 108 paths, 155 operations, 69 schemas |
 | `git diff --check` | PASS; CRLF/LF notices are informational |
 
-Total executed assertions: **102 tests** (60 unit + 9 HTTP E2E + 33 PostgreSQL integration). Provider smoke status: SMTP SKIPPED, AWS S3 SKIPPED, SumUp SKIPPED, AWS AppSync SKIPPED, Firebase SKIPPED.
+Total executed assertions: **110 tests** (62 unit + 9 HTTP boundary E2E + 39 PostgreSQL integration/HTTP journey and Swagger route smoke). Provider smoke status: SMTP SKIPPED, AWS S3 SKIPPED, SumUp SKIPPED, AWS AppSync SKIPPED, Firebase SKIPPED.
 
 ## Coverage caveat
 
-The requested behavior is proven through composed unit, HTTP-boundary and real-PostgreSQL service journeys. There is not currently one enormous authenticated HTTP test for each customer/admin/support workflow. This avoids falsely claiming HTTP-level coverage that does not exist, while the functional classification reflects implemented and database-validated business behavior.
+The basic customer flow is now proven through real Nest HTTP routes and PostgreSQL. Admin, driver and support behavior remains strongly database/service-tested, but does not yet have an equally comprehensive dedicated HTTP journey; this report does not overstate that layer.
