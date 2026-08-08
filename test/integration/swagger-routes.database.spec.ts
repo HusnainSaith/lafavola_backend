@@ -50,8 +50,10 @@ const placeholder = '00000000-0000-4000-8000-000000000001';
     const document = JSON.parse(
       readFileSync(resolve(process.cwd(), 'openapi.json'), 'utf8'),
     ) as {
+      security?: Array<Record<string, string[]>>;
       paths: Record<string, Record<string, unknown>>;
     };
+    expect(document.security).toContainEqual({ 'JWT-auth': [] });
     const failures: string[] = [];
     let invoked = 0;
 

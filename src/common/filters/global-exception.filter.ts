@@ -182,6 +182,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   ): void {
     const { method, url, headers } = request;
     const userAgent = headers['user-agent'] || 'Unknown';
+    const authorization = headers.authorization;
 
     const logContext = {
       method,
@@ -189,6 +190,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       userAgent,
       statusCode: errorResponse.statusCode,
       timestamp: errorResponse.timestamp,
+      ...(errorResponse.statusCode === HttpStatus.UNAUTHORIZED
+        ? {
+            authorizationPresent: typeof authorization === 'string',
+            authorizationScheme:
+              typeof authorization === 'string'
+                ? authorization.split(/\s+/, 1)[0]
+                : undefined,
+          }
+        : {}),
     };
 
     // Log all errors as warnings with full context for debugging

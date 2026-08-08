@@ -6,18 +6,16 @@
   Param,
   Patch,
   Post,
-  UseGuards,
 } from '@nestjs/common';
 import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RoleEnum } from '../roles/role.enum';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { RestaurantsService } from './restaurants.service';
 
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -57,6 +55,7 @@ export class RestaurantsController {
   }
 
   @Post()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Create' })
   @ApiBody({ type: CreateRestaurantDto })
   @ApiResponse({ status: 201, description: 'Successful response' })
@@ -65,13 +64,13 @@ export class RestaurantsController {
     description: 'Validation or business-rule error',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
   create(@Body() dto: CreateRestaurantDto) {
     return this.service.create(dto);
   }
 
   @Patch(':id')
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update' })
   @ApiBody({ type: UpdateRestaurantDto })
   @ApiParam({ name: 'id', required: true, type: String })
@@ -81,13 +80,13 @@ export class RestaurantsController {
     description: 'Validation or business-rule error',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
   update(@Param('id') id: string, @Body() dto: UpdateRestaurantDto) {
     return this.service.update(id, dto);
   }
 
   @Delete(':id')
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Remove' })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
@@ -96,7 +95,6 @@ export class RestaurantsController {
     description: 'Validation or business-rule error',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
   async remove(@Param('id') id: string) {
     await this.service.remove(id);

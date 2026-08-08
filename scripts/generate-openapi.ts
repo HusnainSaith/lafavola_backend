@@ -16,6 +16,7 @@ async function generate() {
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'JWT-auth',
     )
+    .addSecurityRequirements('JWT-auth')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   writeFileSync(

@@ -1200,6 +1200,11 @@
         },
         "tags": [
           "Restaurants"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
         ]
       }
     },
@@ -1268,6 +1273,11 @@
         },
         "tags": [
           "Restaurants"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
         ]
       },
       "delete": {
@@ -1296,6 +1306,11 @@
         },
         "tags": [
           "Restaurants"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
         ]
       }
     },
@@ -5591,5 +5606,10 @@
         "properties": {}
       }
     }
-  }
+  },
+  "security": [
+    {
+      "JWT-auth": []
+    }
+  ]
 }

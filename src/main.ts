@@ -69,12 +69,58 @@ async function bootstrap() {
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'JWT-auth',
     )
+    .addSecurityRequirements('JWT-auth')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+  app.use('/api/docs', (_request, response, next) => {
+    response.setHeader(
+      'Cache-Control',
+      'no-store, no-cache, must-revalidate, proxy-revalidate',
+    );
+    response.setHeader('Pragma', 'no-cache');
+    response.setHeader('Expires', '0');
+    next();
+  });
   SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
+      requestInterceptor: (request: {
+        headers: Record<string, string | undefined>;
+      }) => {
+        if (!request.headers.Authorization) {
+          try {
+            const swaggerWindow = window as unknown as {
+              ui?: {
+                authSelectors?: {
+                  authorized?: () => {
+                    toJS?: () => Record<string, { value?: string }>;
+                  };
+                };
+              };
+              localStorage: Storage;
+            };
+            const activeAuthorization =
+              swaggerWindow.ui?.authSelectors?.authorized?.()?.toJS?.() ?? {};
+            const savedAuthorization = JSON.parse(
+              swaggerWindow.localStorage.getItem('authorized') || '{}',
+            ) as Record<string, { value?: string }>;
+            const token = (
+              activeAuthorization['JWT-auth']?.value ??
+              savedAuthorization['JWT-auth']?.value
+            )?.trim();
+            if (token) {
+              request.headers.Authorization = /^Bearer\s/i.test(token)
+                ? token
+                : `Bearer ${token}`;
+            }
+          } catch {
+            // Swagger UI will surface the normal 401 response when no valid
+            // persisted authorization value is available.
+          }
+        }
+        return request;
+      },
     },
   });
 
