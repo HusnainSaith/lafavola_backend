@@ -13,7 +13,10 @@ export class NodemailerMailProvider implements MailProvider {
   private readonly transporter?: Transporter;
 
   constructor(private readonly config: ConfigService) {
-    if (this.config.get<boolean>('MAIL_ENABLED', false)) {
+    if (
+      this.config.get<boolean>('MAIL_ENABLED', false) &&
+      this.config.get<string>('MAIL_PROVIDER', 'smtp') === 'smtp'
+    ) {
       this.transporter = nodemailer.createTransport({
         host: this.config.getOrThrow<string>('MAIL_HOST'),
         port: this.config.getOrThrow<number>('MAIL_PORT'),

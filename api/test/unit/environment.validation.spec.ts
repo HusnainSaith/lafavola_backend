@@ -37,7 +37,7 @@ describe('validateEnvironment', () => {
     expect(() => validateEnvironment({ ...valid, [key]: value })).toThrow();
   });
 
-  it('requires SMTP settings only when mail is enabled', () => {
+  it('requires SMTP settings only when SMTP mail is enabled', () => {
     expect(() =>
       validateEnvironment({ ...valid, MAIL_ENABLED: 'true' }),
     ).toThrow('MAIL_HOST');
@@ -54,6 +54,34 @@ describe('validateEnvironment', () => {
         MAIL_FROM_NAME: 'La Favola',
       }).MAIL_PORT,
     ).toBe(587);
+  });
+
+  it('requires a sender and region for SES without SMTP credentials', () => {
+    expect(() =>
+      validateEnvironment({
+        ...valid,
+        MAIL_ENABLED: 'true',
+        MAIL_PROVIDER: 'ses',
+        MAIL_FROM_EMAIL: 'no-reply@example.com',
+        MAIL_FROM_NAME: 'La Favola',
+      }),
+    ).toThrow('AWS_SES_REGION');
+    expect(
+      validateEnvironment({
+        ...valid,
+        MAIL_ENABLED: 'true',
+        MAIL_PROVIDER: 'ses',
+        MAIL_FROM_EMAIL: 'no-reply@example.com',
+        MAIL_FROM_NAME: 'La Favola',
+        AWS_SES_REGION: 'eu-north-1',
+      }).MAIL_PROVIDER,
+    ).toBe('ses');
+  });
+
+  it('rejects unsupported mail providers', () => {
+    expect(() =>
+      validateEnvironment({ ...valid, MAIL_PROVIDER: 'sendgrid' }),
+    ).toThrow('MAIL_PROVIDER');
   });
 
   it('allows IAM credentials and requires only region/bucket for enabled S3', () => {

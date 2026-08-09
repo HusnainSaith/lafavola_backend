@@ -53,17 +53,26 @@ export function validateEnvironment(input: Record<string, unknown>) {
   config.JWT_REFRESH_SECRET = required(config, 'JWT_REFRESH_SECRET');
   config.JWT_REFRESH_EXPIRES_IN = required(config, 'JWT_REFRESH_EXPIRES_IN');
   config.MAIL_ENABLED = boolean(config.MAIL_ENABLED, 'MAIL_ENABLED');
+  const mailProvider = String(config.MAIL_PROVIDER ?? 'smtp').toLowerCase();
+  if (!['smtp', 'ses'].includes(mailProvider)) {
+    throw new Error('MAIL_PROVIDER must be smtp or ses');
+  }
+  config.MAIL_PROVIDER = mailProvider;
   if (config.MAIL_ENABLED) {
-    config.MAIL_HOST = required(config, 'MAIL_HOST');
-    config.MAIL_PORT = integer(
-      required(config, 'MAIL_PORT'),
-      'MAIL_PORT',
-      1,
-      65535,
-    );
-    config.MAIL_SECURE = boolean(config.MAIL_SECURE, 'MAIL_SECURE');
-    config.MAIL_USER = required(config, 'MAIL_USER');
-    config.MAIL_PASSWORD = required(config, 'MAIL_PASSWORD');
+    if (mailProvider === 'smtp') {
+      config.MAIL_HOST = required(config, 'MAIL_HOST');
+      config.MAIL_PORT = integer(
+        required(config, 'MAIL_PORT'),
+        'MAIL_PORT',
+        1,
+        65535,
+      );
+      config.MAIL_SECURE = boolean(config.MAIL_SECURE, 'MAIL_SECURE');
+      config.MAIL_USER = required(config, 'MAIL_USER');
+      config.MAIL_PASSWORD = required(config, 'MAIL_PASSWORD');
+    } else {
+      config.AWS_SES_REGION = required(config, 'AWS_SES_REGION');
+    }
     config.MAIL_FROM_EMAIL = required(config, 'MAIL_FROM_EMAIL');
     config.MAIL_FROM_NAME = required(config, 'MAIL_FROM_NAME');
   }
