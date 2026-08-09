@@ -1,0 +1,15 @@
+---
+interface Props {
+  current: 'classic' | 'cards';
+}
+
+const { current } = Astro.props;
+---
+
+<nav class="menu-view-switch" aria-label="Scegli la visualizzazione del menù">
+  <span>Visualizza come</span>
+  <div>
+    <a href="/menu/" aria-current={current === 'classic' ? 'page' : undefined}>Lista classica</a>
+    <a href="/menu-carte/" aria-current={current === 'cards' ? 'page' : undefined}>Carte animate</a>
+  </div>
+</nav>

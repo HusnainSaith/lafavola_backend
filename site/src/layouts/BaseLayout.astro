@@ -1,0 +1,165 @@
+---
+import '../styles/global.css';
+import { restaurant } from '../data/menu';
+
+interface Props {
+  title: string;
+  description: string;
+  page?: 'home' | 'menu' | 'menuCards' | 'info';
+  image?: string;
+}
+
+const {
+  title,
+  description,
+  page,
+  image = '/brand/la-favola-logo.svg',
+} = Astro.props;
+
+const fullTitle = title === 'La Favola' ? title : `${title} · La Favola`;
+---
+
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#6f4e37" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="it_IT" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/brand/la-favola-logo.svg" />
+    <title>{fullTitle}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenuto">Vai al contenuto</a>
+    <header class="site-header">
+      <div class="site-header__inner container">
+        <a class="site-logo" href="/" aria-label="La Favola, pagina iniziale">
+          <img src="/brand/la-favola-logo.svg" alt="La Favola Food Delivery" width="340" height="130" />
+        </a>
+        <nav class="site-nav" aria-label="Navigazione principale">
+          <a href="/" aria-current={page === 'home' ? 'page' : undefined}>La nostra storia</a>
+          <a href="/menu/" aria-current={page === 'menu' || page === 'menuCards' ? 'page' : undefined}>Menù</a>
+          <a href="/informazioni/" aria-current={page === 'info' ? 'page' : undefined}>Informazioni</a>
+          <a class="button" href={restaurant.phonePrimaryHref}>Chiama ora</a>
+        </nav>
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="mobile-nav"
+          aria-label="Apri il menù di navigazione"
+          hidden
+        >
+          <span class="nav-toggle__icon" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="nav-toggle__label">Menù</span>
+        </button>
+      </div>
+      <nav id="mobile-nav" class="mobile-nav" aria-label="Navigazione principale mobile">
+        <div class="mobile-nav__inner container">
+          <a href="/#storia">La nostra storia</a>
+          <a href="/menu/" aria-current={page === 'menu' ? 'page' : undefined}>Menù completo</a>
+          <a href="/menu-carte/" aria-current={page === 'menuCards' ? 'page' : undefined}>Menù a carte</a>
+          <a href="/informazioni/" aria-current={page === 'info' ? 'page' : undefined}>Informazioni</a>
+          <a class="button" href={restaurant.phonePrimaryHref}>Chiama {restaurant.phonePrimary}</a>
+        </div>
+      </nav>
+    </header>
+    <main id="contenuto" tabindex="-1">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="site-footer__inner container">
+        <div class="site-footer__brand">
+          <img src="/brand/la-favola-logo.svg" alt="" width="340" height="130" />
+          <p>
+            {restaurant.address}. Menù pubblico e sito informativo: per ordinare, chiama direttamente La Favola.
+          </p>
+        </div>
+        <div class="site-footer__group">
+          <h2>Contatti</h2>
+          <address>
+            <a href={restaurant.mapsHref}>{restaurant.address}</a><br />
+            <a href={restaurant.phonePrimaryHref}>{restaurant.phonePrimary}</a><br />
+            <a href={restaurant.phoneSecondaryHref}>{restaurant.phoneSecondary}</a><br />
+            <a href={restaurant.instagramHref}>{restaurant.instagram}</a>
+          </address>
+        </div>
+        <div class="site-footer__group">
+          <h2>Orari</h2>
+          <dl class="footer-hours">
+            {restaurant.hours.map((entry) => (
+              <div>
+                <dt>{entry.days}</dt>
+                <dd>{entry.time}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <nav class="site-footer__group footer-links" aria-label="Collegamenti a piè di pagina">
+          <h2>Esplora</h2>
+          <a href="/#storia">La nostra storia</a>
+          <a href="/menu/">Menù completo</a>
+          <a href="/menu-carte/">Menù a carte</a>
+          <a href="/informazioni/">Allergeni e informazioni</a>
+        </nav>
+        <div class="site-footer__actions">
+          <a class="button button--light" href={restaurant.phonePrimaryHref}>Chiama ora</a>
+          <a class="button button--outline" href={restaurant.mapsHref}>Indicazioni</a>
+        </div>
+      </div>
+    </footer>
+    <script>
+      const toggle = document.querySelector<HTMLButtonElement>('.nav-toggle');
+      const mobileNav = document.querySelector<HTMLElement>('#mobile-nav');
+      const mobileQuery = window.matchMedia('(max-width: 52rem)');
+
+      if (toggle && mobileNav) {
+        toggle.hidden = false;
+        mobileNav.hidden = true;
+
+        const setOpen = (open: boolean, restoreFocus = false) => {
+          toggle.setAttribute('aria-expanded', String(open));
+          toggle.setAttribute('aria-label', open ? 'Chiudi il menù di navigazione' : 'Apri il menù di navigazione');
+          mobileNav.hidden = !open;
+          document.body.classList.toggle('nav-open', open);
+          if (!open && restoreFocus) toggle.focus();
+        };
+
+        toggle.addEventListener('click', () => {
+          setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+        });
+
+        mobileNav.addEventListener('click', (event) => {
+          if ((event.target as Element).closest('a')) setOpen(false);
+        });
+
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+            event.preventDefault();
+            setOpen(false, true);
+          }
+        });
+
+        document.addEventListener('pointerdown', (event) => {
+          if (
+            toggle.getAttribute('aria-expanded') === 'true' &&
+            !mobileNav.contains(event.target as Node) &&
+            !toggle.contains(event.target as Node)
+          ) {
+            setOpen(false);
+          }
+        });
+
+        mobileQuery.addEventListener('change', (event) => {
+          if (!event.matches) setOpen(false);
+        });
+      }
+    </script>
+  </body>
+</html>

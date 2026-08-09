@@ -1,0 +1,143 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MenuIconGroup from '../components/MenuIconGroup.astro';
+import MenuLegend from '../components/MenuLegend.astro';
+import MenuViewSwitch from '../components/MenuViewSwitch.astro';
+import { menuAttributeDefinitions, menuSections, restaurant, variations } from '../data/menu';
+import menuPhoto from '../assets/photos/IMG_0087.jpg';
+
+const sectionAttributes = (items: (typeof menuSections)[number]['items']) =>
+  menuAttributeDefinitions
+    .filter((attribute) => items.some((item) => item.attributes?.includes(attribute.id)))
+    .map((attribute) => attribute.id);
+---
+
+<BaseLayout
+  title="Menù a schede"
+  description="Tutto il menù La Favola in una vista a schede: pizze, panini, fritti, salse, bevande, ingredienti, prezzi e indicazioni."
+  page="menuCards"
+>
+  <header class="card-menu-hero">
+    <Image
+      class="card-menu-hero__image"
+      src={menuPhoto}
+      alt="Una pizza La Favola cuoce nel forno"
+      widths={[640, 960, 1440, 1920]}
+      sizes="100vw"
+      quality={78}
+      loading="eager"
+      fetchpriority="high"
+    />
+    <div class="card-menu-hero__overlay"></div>
+    <div class="card-menu-hero__inner container">
+      <span class="eyebrow">Il menù · Vista a schede</span>
+      <h1>Ogni scelta, la sua carta.</h1>
+      <p>
+        Tutto il menù La Favola in una vista più visuale: ingredienti, prezzi, quantità e indicazioni restano gli stessi del dépliant fornito.
+      </p>
+      <div class="button-row">
+        <a class="button button--light" href="#pizze">Inizia dalle pizze</a>
+        <a class="button" href="/menu-la-favola.pdf" download>Scarica il PDF originale</a>
+      </div>
+    </div>
+  </header>
+
+  <nav class="category-nav" aria-label="Categorie del menù a schede">
+    <div class="category-nav__inner container">
+      {menuSections.map((section) => <a href={`#${section.id}`}>{section.title}</a>)}
+      <a href="#variazioni">Variazioni</a>
+      <a href="#allergeni">Allergeni</a>
+    </div>
+  </nav>
+
+  <div class="container card-menu-tools">
+    <MenuViewSwitch current="cards" />
+    <p class="notice">
+      <strong>Stessi dati, nuova vista.</strong> Questa pagina usa il medesimo menù della vista classica. Disponibilità, variazioni, allergeni e possibili contaminazioni vanno confermati con il personale prima dell’ordine.
+    </p>
+  </div>
+
+  {menuSections.map((section, sectionIndex) => {
+    const legendAttributes = sectionAttributes(section.items);
+
+    return (
+      <section
+        class:list={['card-menu-section', sectionIndex % 2 === 1 && 'card-menu-section--sand']}
+        id={section.id}
+        aria-labelledby={`${section.id}-cards-title`}
+      >
+        <div class="container">
+          <div class="card-menu-section__heading">
+            <div>
+              <span class="eyebrow">{section.eyebrow}</span>
+              <h2 id={`${section.id}-cards-title`}>{section.title}</h2>
+            </div>
+            {section.intro && <p class="lead">{section.intro}</p>}
+          </div>
+
+          <MenuLegend attributeIds={legendAttributes} sectionTitle={section.title} />
+
+          <div class="detail-menu-grid">
+            {section.items.map((item) => (
+              <article
+                class="detail-menu-card"
+                data-menu-item={item.name}
+                data-menu-attributes={item.attributes?.join(' ')}
+                data-menu-price={item.price}
+                data-menu-description={item.description}
+                data-menu-note={item.note}
+              >
+                <div class="detail-menu-card__meta">
+                  <span>{section.title}</span>
+                  {item.price && <strong class="price">{item.price}</strong>}
+                </div>
+                <h3>
+                  <span>{item.name}</span>
+                  <MenuIconGroup attributes={item.attributes} />
+                </h3>
+                {item.description && <p>{item.description}</p>}
+                {item.note && <span class="menu-item__note">{item.note}</span>}
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  })}
+
+  <section class="card-menu-section card-menu-section--sand" id="variazioni" aria-labelledby="variazioni-cards-title">
+    <div class="container">
+      <div class="card-menu-section__heading">
+        <div>
+          <span class="eyebrow">Falla tua</span>
+          <h2 id="variazioni-cards-title">Variazioni</h2>
+        </div>
+        <p class="lead">Le opzioni e i supplementi trascritti dal menù fornito.</p>
+      </div>
+      <div class="detail-menu-grid detail-menu-grid--compact">
+        {variations.map((item) => (
+          <article class="detail-menu-card detail-menu-card--variation">
+            <span class="eyebrow">Opzione</span>
+            <h3>{item.label}</h3>
+            <strong class="detail-menu-card__variation-price">{item.price}</strong>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--coffee" id="allergeni" aria-labelledby="allergeni-cards-title">
+    <div class="content-narrow container">
+      <span class="eyebrow">Scegli con attenzione</span>
+      <h2 id="allergeni-cards-title">Allergeni e intolleranze</h2>
+      <p class="lead">
+        Le icone riproducono le indicazioni del menù fornito. Non descrivono possibili contaminazioni crociate e non sostituiscono il confronto con il personale.
+      </p>
+      <div class="button-row">
+        <a class="button button--light" href={restaurant.phonePrimaryHref}>Parla con La Favola</a>
+        <a class="button" href="/menu/">Apri la vista classica</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

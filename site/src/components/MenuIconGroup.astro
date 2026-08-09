@@ -1,0 +1,23 @@
+---
+import { menuAttributeDefinitions, type MenuAttribute } from '../data/menu';
+
+interface Props {
+  attributes?: MenuAttribute[];
+}
+
+const { attributes = [] } = Astro.props;
+const definition = (id: MenuAttribute) =>
+  menuAttributeDefinitions.find((attribute) => attribute.id === id)!;
+---
+
+{attributes.length > 0 && (
+  <span
+    class="menu-symbols"
+    role="img"
+    aria-label={`Indicazioni: ${attributes.map((id) => definition(id).label).join(', ')}`}
+  >
+    {attributes.map((id) => (
+      <span class="menu-symbol" aria-hidden="true">{definition(id).symbol}</span>
+    ))}
+</span>
+)}

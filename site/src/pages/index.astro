@@ -1,0 +1,238 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { pizzas, restaurant } from '../data/menu';
+import heroPhoto from '../assets/photos/modify2.jpeg';
+import ovenPhoto from '../assets/photos/IMG_0103.jpg';
+import doughPhoto from '../assets/photos/IMG_0098.jpg';
+import toppingPhoto from '../assets/photos/IMG_0099.jpg';
+import readyPizzaPhoto from '../assets/photos/IMG_0086.jpg';
+import ingredientsPhoto from '../assets/photos/ingredients-still-life-v1.png';
+import storyPhoto from '../assets/photos/modify1.jpeg';
+
+const featured = [
+  pizzas.find((pizza) => pizza.name === 'Margherita')!,
+  pizzas.find((pizza) => pizza.name === 'Mortazza')!,
+  pizzas.find((pizza) => pizza.name === 'Carrettiera')!,
+];
+
+const processSteps = [
+  {
+    title: 'La scelta',
+    description:
+      'Una composizione illustrativa apre il racconto: gli ingredienti vengono preparati prima di iniziare. La ricetta effettiva resta quella della pizzeria.',
+    image: ingredientsPhoto,
+    alt: 'Composizione illustrativa di farina, acqua, lievito, sale e olio su un piano scuro',
+    illustrative: true,
+  },
+  {
+    title: 'L’impasto prende forma',
+    description:
+      'L’impasto viene lavorato e diviso in panetti, pronti per il tempo di riposo prima della stesura.',
+    image: doughPhoto,
+    alt: 'Panetti di impasto preparati nella cucina La Favola',
+  },
+  {
+    title: 'Il condimento',
+    description:
+      'Sul disco steso arrivano salsa e ingredienti, distribuiti prima della cottura.',
+    image: toppingPhoto,
+    alt: 'Una pizza con salsa e mozzarella pronta per la cottura',
+  },
+  {
+    title: 'La cottura',
+    description:
+      'La pizza entra nel forno e viene seguita dal pizzaiolo fino al punto giusto.',
+    image: ovenPhoto,
+    alt: 'Il pizzaiolo La Favola segue la cottura davanti al forno',
+  },
+  {
+    title: 'La pizza è pronta',
+    description:
+      'Dal forno alla pala: la pizza cotta è pronta per essere servita, ritirata o consegnata.',
+    image: readyPizzaPhoto,
+    alt: 'Una pizza cotta viene estratta dal forno con la pala',
+  },
+];
+---
+
+<BaseLayout
+  title="La Favola"
+  description="Pizza, panini e sfizi a Brescia. Scopri il menù La Favola e ordina per telefono."
+  page="home"
+>
+  <section class="hero" aria-labelledby="hero-title">
+    <Image
+      class="hero__image"
+      src={heroPhoto}
+      alt="Ingresso notturno della pizzeria La Favola con l’insegna illuminata"
+      style="object-position: 50% 12%"
+      widths={[640, 960, 1440, 1920]}
+      sizes="100vw"
+      quality={78}
+      loading="eager"
+      fetchpriority="high"
+    />
+    <div class="hero__inner container">
+      <div class="hero__copy">
+        <span class="eyebrow">Brescia · Dal forno alla tua porta</span>
+        <h1 id="hero-title">Ogni pizza ha una storia.</h1>
+        <p>
+          Il menù La Favola, gli orari e il modo più diretto per ordinare. Scopri la tua preferita e chiamaci per confermare disponibilità e consegna.
+        </p>
+        <div class="button-row">
+          <a class="button button--light" href="/menu/">Scopri tutto il menù</a>
+          <a class="button" href={restaurant.phonePrimaryHref}>Ordina: {restaurant.phonePrimary}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="trust-strip" aria-label="Informazioni principali">
+    <div class="trust-strip__inner container">
+      <div class="trust-item">
+        <span>Dove siamo</span>
+        <strong>Via Vittorio Veneto, Brescia</strong>
+      </div>
+      <div class="trust-item">
+        <span>Quando</span>
+        <strong>Aperti ogni sera</strong>
+      </div>
+      <div class="trust-item">
+        <span>Consegna</span>
+        <strong>A partire da €1,50</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="storia" tabindex="-1" aria-labelledby="storia-title">
+    <div class="split container">
+      <div>
+        <span class="eyebrow">La Favola · Brescia</span>
+        <h2 id="storia-title">Buon cibo, raccontato bene.</h2>
+        <p class="lead">
+          Qui trovi il menù, la sede di Via Vittorio Veneto e uno sguardo alle preparazioni attraverso le immagini fornite da La Favola.
+        </p>
+        <ul class="feature-list">
+          <li><span>Ventiquattro pizze, con ingredienti e prezzi trascritti dal menù fornito.</span></li>
+          <li><span>Panini, sfizi, salse e bevande raccolti nello stesso riferimento.</span></li>
+          <li><span>Ritiro o consegna: chiama per confermare disponibilità e dettagli.</span></li>
+        </ul>
+        <a class="button button--outline" href={restaurant.mapsHref}>Vieni a trovarci</a>
+      </div>
+      <figure class="split__media">
+        <Image
+          class="story-photo"
+          src={storyPhoto}
+          alt="Il pizzaiolo La Favola controlla una pizza nel forno con la pala"
+          widths={[480, 720, 960]}
+          sizes="(max-width: 832px) 100vw, 46vw"
+          quality={78}
+        />
+      </figure>
+    </div>
+  </section>
+
+  <section class="section section--sand" aria-labelledby="menu-preview-title">
+    <div class="container">
+      <span class="eyebrow">Dal nostro menù</span>
+      <h2 id="menu-preview-title">Classiche, generose, sincere.</h2>
+      <p class="lead">
+        Dalla Margherita alla Mortazza, qui trovi un assaggio con gli ingredienti elencati nel dépliant; nel menù completo ci sono tutte e ventiquattro.
+      </p>
+      <div class="menu-preview">
+        {featured.map((item) => (
+          <article class="menu-card">
+            <div class="menu-card__head">
+              <h3>{item.name}</h3>
+              {item.price && <span class="price">{item.price}</span>}
+            </div>
+            <p>{item.description}</p>
+          </article>
+        ))}
+      </div>
+      <div class="button-row" style="margin-top: 2rem">
+        <a class="button" href="/menu/">Leggi il menù completo</a>
+        <a class="button button--outline" href="/menu-la-favola.pdf" download>Scarica il menù PDF</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section process-section" aria-labelledby="process-title">
+    <div class="container">
+      <div class="process-intro">
+        <span class="eyebrow">Dal primo gesto all’ultima pala</span>
+        <h2 id="process-title">Come nasce una pizza La Favola.</h2>
+        <p class="lead">
+          Scorri il racconto: dalla preparazione degli ingredienti fino alla pizza appena uscita dal forno.
+        </p>
+      </div>
+
+      <ol class="process-timeline" role="list">
+        {processSteps.map((step, index) => (
+          <li class="process-step">
+            <article class="process-step__card">
+              <figure class="process-step__media">
+                <Image
+                  src={step.image}
+                  alt={step.alt}
+                  widths={[480, 720, 960, 1280]}
+                  sizes="(max-width: 832px) 100vw, 44vw"
+                  quality={78}
+                />
+                {step.illustrative && <figcaption>Immagine illustrativa</figcaption>}
+              </figure>
+              <div class="process-step__content">
+                <span class="process-step__kicker">Passaggio {String(index + 1).padStart(2, '0')}</span>
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+              </div>
+            </article>
+          </li>
+        ))}
+      </ol>
+
+      <p class="process-note">
+        Le fotografie della preparazione e del forno sono state fornite da La Favola; la prima composizione è illustrativa e non rappresenta dosi o ricette proprietarie.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--coffee" aria-labelledby="trovarci-title">
+    <div class="location-grid container">
+      <div>
+        <span class="eyebrow">La tua pizzeria a Brescia</span>
+        <h2 id="trovarci-title">Ci trovi qui, ogni sera.</h2>
+        <p class="lead">Passa a ritirare oppure chiama per la consegna usando i numeri indicati nel menù.</p>
+        <div class="button-row">
+          <a class="button button--light" href={restaurant.phonePrimaryHref}>Chiama {restaurant.phonePrimary}</a>
+          <a class="button" href={restaurant.mapsHref}>Apri le indicazioni</a>
+        </div>
+      </div>
+      <dl class="detail-list">
+        <div>
+          <dt>Indirizzo</dt>
+          <dd>{restaurant.address}</dd>
+        </div>
+        {restaurant.hours.map((row) => (
+          <div>
+            <dt>{row.days}</dt>
+            <dd>{row.time}</dd>
+          </div>
+        ))}
+        <div>
+          <dt>Consegna</dt>
+          <dd>{restaurant.delivery}</dd>
+        </div>
+        <div>
+          <dt>Secondo numero</dt>
+          <dd><a href={restaurant.phoneSecondaryHref}>{restaurant.phoneSecondary}</a></dd>
+        </div>
+        <div>
+          <dt>Instagram</dt>
+          <dd><a href={restaurant.instagramHref}>{restaurant.instagram}</a></dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+</BaseLayout>

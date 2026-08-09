@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { restaurant } from '../data/menu';
+---
+
+<BaseLayout
+  title="Informazioni"
+  description="Contatti, orari, consegna e informazioni sugli allergeni di La Favola a Brescia."
+  page="info"
+>
+  <header class="page-hero">
+    <div class="content-narrow container">
+      <span class="eyebrow">Prima di ordinare</span>
+      <h1>Informazioni chiare, direttamente dalla pizzeria.</h1>
+      <p class="lead">Contatti, orari, consegna e avvertenze utili. Per ogni dubbio, La Favola è a una telefonata di distanza.</p>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="content-narrow container prose">
+      <h2>Contatti e orari</h2>
+      <dl class="detail-list" style="color: var(--ink)">
+        <div>
+          <dt style="color: var(--terracotta-dark)">Indirizzo</dt>
+          <dd><a href={restaurant.mapsHref}>{restaurant.address}</a></dd>
+        </div>
+        <div>
+          <dt style="color: var(--terracotta-dark)">Telefono</dt>
+          <dd><a href={restaurant.phonePrimaryHref}>{restaurant.phonePrimary}</a> · <a href={restaurant.phoneSecondaryHref}>{restaurant.phoneSecondary}</a></dd>
+        </div>
+        {restaurant.hours.map((row) => (
+          <div>
+            <dt style="color: var(--terracotta-dark)">{row.days}</dt>
+            <dd>{row.time}</dd>
+          </div>
+        ))}
+        <div>
+          <dt style="color: var(--terracotta-dark)">Instagram</dt>
+          <dd><a href={restaurant.instagramHref}>{restaurant.instagram}</a></dd>
+        </div>
+      </dl>
+
+      <h2>Consegna e pagamento</h2>
+      <p>{restaurant.delivery}. {restaurant.payment}</p>
+      <p>Tempi, disponibilità e costo finale della consegna vengono confermati al momento dell’ordine.</p>
+
+      <h2>Allergeni e intolleranze</h2>
+      <p>
+        Gli ingredienti pubblicati riproducono il menù fornito dal ristorante, ma ricette, forniture e lavorazioni possono cambiare. Le associazioni tra singoli prodotti e allergeni devono ancora essere approvate dal ristorante e dal referente qualificato.
+      </p>
+      <p class="notice">
+        <strong>Prima di ordinare, informa sempre il personale di allergie o intolleranze.</strong> Chiedi conferma su ingredienti, sostituzioni e possibilità di contaminazione crociata. Il sito non fornisce garanzie mediche.
+      </p>
+
+      <h2>Privacy, cookie e condizioni</h2>
+      <p>
+        Questo sito dimostrativo non contiene account, carrello, pagamento, moduli di contatto o strumenti di profilazione. Le informative legali definitive, il dominio ufficiale e l’eventuale misurazione del traffico richiedono approvazione del titolare prima della pubblicazione in produzione.
+      </p>
+      <p>Per richieste sul sito o sui dati, contatta direttamente La Favola ai numeri indicati sopra.</p>
+
+      <h2>Accessibilità</h2>
+      <p>
+        Il sito è progettato per essere utilizzabile da tastiera, con testo ridimensionabile e contenuti principali disponibili senza JavaScript. Se incontri una barriera, segnalala telefonicamente a La Favola indicando la pagina e l’azione che stavi svolgendo.
+      </p>
+
+      <div class="button-row" style="margin-top: 3rem">
+        <a class="button" href={restaurant.phonePrimaryHref}>Chiama {restaurant.phonePrimary}</a>
+        <a class="button button--outline" href="/menu/">Torna al menù</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,24 @@
+---
+import { menuAttributeDefinitions, type MenuAttribute } from '../data/menu';
+
+interface Props {
+  attributeIds: MenuAttribute[];
+  sectionTitle: string;
+}
+
+const { attributeIds, sectionTitle } = Astro.props;
+const attributes = attributeIds.map((id) =>
+  menuAttributeDefinitions.find((attribute) => attribute.id === id)!,
+);
+---
+
+{attributes.length > 0 && (
+  <ul class="menu-legend" role="list" aria-label={`Legenda simboli per ${sectionTitle}`}>
+    {attributes.map((attribute) => (
+      <li data-menu-attribute={attribute.id}>
+        <span class="menu-symbol" aria-hidden="true">{attribute.symbol}</span>
+        <span>{attribute.label}</span>
+      </li>
+    ))}
+</ul>
+)}

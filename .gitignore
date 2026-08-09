@@ -58,3 +58,9 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # Uploaded files
 /uploads/*
 !/uploads/.gitkeep
+
+# Original Affinity/PSD branding source is retained locally in branding/.
+# It contains files over the 100 MiB limit of standard Git hosting and must
+# not be committed without an explicitly approved asset-storage solution.
+/branding/**
+!/branding/README.md
