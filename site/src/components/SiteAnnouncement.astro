@@ -1,0 +1,47 @@
+---
+import { restaurant } from '../data/menu';
+---
+
+<dialog class="site-announcement" id="site-announcement" aria-labelledby="site-announcement-title">
+  <div class="site-announcement__surface">
+    <button class="site-announcement__close" type="button" aria-label="Chiudi avviso">
+      <span aria-hidden="true">×</span>
+    </button>
+    <p class="site-announcement__eyebrow"><span aria-hidden="true"></span> Avviso La Favola</p>
+    <h2 id="site-announcement-title">La pizza è quasi pronta.</h2>
+    <p class="site-announcement__lead">
+      Siamo aperti tutte le sere: passa a trovarci o chiama per il tuo ordine.
+    </p>
+    <div class="site-announcement__hours" aria-label="Orari di apertura">
+      {restaurant.hours.map((entry) => (
+        <div>
+          <span>{entry.days}</span>
+          <strong>{entry.time}</strong>
+        </div>
+      ))}
+    </div>
+    <p class="site-announcement__note">{restaurant.delivery}</p>
+    <div class="site-announcement__actions">
+      <a class="button" href={restaurant.phonePrimaryHref}>Ordina ora</a>
+      <button class="site-announcement__dismiss" type="button">Continua a esplorare</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const announcement = document.querySelector<HTMLDialogElement>('#site-announcement');
+
+  if (announcement) {
+    const close = () => announcement.close();
+    const closeButton = announcement.querySelector<HTMLButtonElement>('.site-announcement__close');
+    const dismissButton = announcement.querySelector<HTMLButtonElement>('.site-announcement__dismiss');
+
+    announcement.showModal();
+    closeButton?.focus();
+    closeButton?.addEventListener('click', close);
+    dismissButton?.addEventListener('click', close);
+    announcement.addEventListener('click', (event) => {
+      if (event.target === announcement) close();
+    });
+  }
+</script>

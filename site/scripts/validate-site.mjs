@@ -562,7 +562,8 @@ if (existsSync(logo)) {
 const forbiddenMarkup = /<(?:form|input|select|textarea)\b/i;
 for (const [name, content] of Object.entries(html)) {
   pass(!forbiddenMarkup.test(content), `${name}: transactional form markup is not allowed`);
-  pass((content.match(/<script\b/g) ?? []).length === 1, `${name}: expected only the scoped mobile-navigation script`);
+  pass((content.match(/<script\b/g) ?? []).length === 2, `${name}: expected the announcement and mobile-navigation scripts`);
+  pass(content.includes('id="site-announcement"'), `${name}: missing the site announcement dialog`);
   pass(!/href="\/(?:cart|checkout|account|payment|order)(?:\/|"|\?)/i.test(content), `${name}: transactional route link is not allowed`);
 
   const ids = new Set([...content.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]));

@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import SiteAnnouncement from '../components/SiteAnnouncement.astro';
 import { restaurant } from '../data/menu';
 
 interface Props {
@@ -37,6 +38,7 @@ const fullTitle = title === 'La Favola' ? title : `${title} · La Favola`;
   </head>
   <body>
     <a class="skip-link" href="#contenuto">Vai al contenuto</a>
+    <SiteAnnouncement />
     <header class="site-header">
       <div class="site-header__inner container">
         <a class="site-logo" href="/" aria-label="La Favola, pagina iniziale">
