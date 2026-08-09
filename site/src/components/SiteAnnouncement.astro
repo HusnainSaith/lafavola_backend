@@ -28,20 +28,4 @@ import { restaurant } from '../data/menu';
   </div>
 </dialog>
 
-<script>
-  const announcement = document.querySelector<HTMLDialogElement>('#site-announcement');
-
-  if (announcement) {
-    const close = () => announcement.close();
-    const closeButton = announcement.querySelector<HTMLButtonElement>('.site-announcement__close');
-    const dismissButton = announcement.querySelector<HTMLButtonElement>('.site-announcement__dismiss');
-
-    announcement.showModal();
-    closeButton?.focus();
-    closeButton?.addEventListener('click', close);
-    dismissButton?.addEventListener('click', close);
-    announcement.addEventListener('click', (event) => {
-      if (event.target === announcement) close();
-    });
-  }
-</script>
+<script is:inline src="/scripts/site-announcement.js"></script>
