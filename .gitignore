@@ -64,3 +64,23 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # not be committed without an explicitly approved asset-storage solution.
 /branding/**
 !/branding/README.md
+
+# Parent-workspace deployment artifacts (not part of the source repository).
+/*.tgz
+/deploy-*.sh
+/resume-deploy-*.sh
+/*_accessKeys.csv
+/*_credentials.csv
+
+# The API remains in api/ after the repository-root migration.
+/api/node_modules/
+/api/dist/
+/api/build/
+/api/coverage/
+/api/.nyc_output/
+/api/uploads/*
+!/api/uploads/.gitkeep
+/api/.env.development.local
+/api/.env.test.local
+/api/.env.production.local
+/api/.env.local
