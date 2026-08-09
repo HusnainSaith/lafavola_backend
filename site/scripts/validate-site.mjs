@@ -564,6 +564,9 @@ for (const [name, content] of Object.entries(html)) {
   pass(!forbiddenMarkup.test(content), `${name}: transactional form markup is not allowed`);
   pass((content.match(/<script\b/g) ?? []).length === 2, `${name}: expected the announcement and mobile-navigation scripts`);
   pass(content.includes('id="site-announcement"'), `${name}: missing the site announcement dialog`);
+  pass(content.includes('Chiusura per ferie'), `${name}: missing the holiday closure announcement`);
+  pass(content.includes('10/08/2026') && content.includes('20/08/2026') && content.includes('21/08/2026'), `${name}: missing the approved holiday closure dates`);
+  pass(!content.includes('Ordina ora'), `${name}: closure announcement must not offer ordering`);
   pass(!/href="\/(?:cart|checkout|account|payment|order)(?:\/|"|\?)/i.test(content), `${name}: transactional route link is not allowed`);
 
   const ids = new Set([...content.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]));

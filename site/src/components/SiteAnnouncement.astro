@@ -1,29 +1,25 @@
----
-import { restaurant } from '../data/menu';
----
-
 <dialog class="site-announcement" id="site-announcement" aria-labelledby="site-announcement-title">
   <div class="site-announcement__surface">
     <button class="site-announcement__close" type="button" aria-label="Chiudi avviso">
       <span aria-hidden="true">×</span>
     </button>
-    <p class="site-announcement__eyebrow"><span aria-hidden="true"></span> Avviso La Favola</p>
-    <h2 id="site-announcement-title">La pizza è quasi pronta.</h2>
+    <p class="site-announcement__eyebrow"><span aria-hidden="true">🍕</span> Avviso ai nostri clienti</p>
+    <h2 id="site-announcement-title">Chiusura per ferie</h2>
     <p class="site-announcement__lead">
-      Siamo aperti tutte le sere: passa a trovarci o chiama per il tuo ordine.
+      La Favola Pizzeria d’Asporto Brescia sarà chiusa per ferie.
     </p>
-    <div class="site-announcement__hours" aria-label="Orari di apertura">
-      {restaurant.hours.map((entry) => (
-        <div>
-          <span>{entry.days}</span>
-          <strong>{entry.time}</strong>
-        </div>
-      ))}
+    <div class="site-announcement__closure" aria-label="Periodo di chiusura">
+      <p class="site-announcement__date">
+        <span aria-hidden="true">📅</span>
+        Dal <time datetime="2026-08-10">10/08/2026</time> al <time datetime="2026-08-20">20/08/2026</time>
+      </p>
+      <p class="site-announcement__return">
+        <span aria-hidden="true">✨</span> Ci rivediamo da venerdì <strong>21/08/2026!</strong>
+      </p>
     </div>
-    <p class="site-announcement__note">{restaurant.delivery}</p>
+    <p class="site-announcement__note">Grazie per la vostra fiducia e buone vacanze! ☀️🏖️❤️</p>
     <div class="site-announcement__actions">
-      <a class="button" href={restaurant.phonePrimaryHref}>Ordina ora</a>
-      <button class="site-announcement__dismiss" type="button">Continua a esplorare</button>
+      <button class="site-announcement__dismiss" type="button">Ho capito, grazie</button>
     </div>
   </div>
 </dialog>
