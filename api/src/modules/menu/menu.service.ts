@@ -7,6 +7,8 @@ import { MenuQueryDto } from './dto/menu-query.dto';
 import { MenuItemSize } from './entities/menu-item-size.entity';
 import { MenuItem } from './entities/menu-item.entity';
 import { MenuItemRepository } from './repositories/menu-item.repository';
+import { StaffMember } from '../staff/entities/staff-member.entity';
+import { MenuCategory } from '../categories/entities/menu-category.entity';
 
 @Injectable()
 export class MenuService {
@@ -45,7 +47,12 @@ export class MenuService {
     return requireEntity(item, 'Menu item not found');
   }
 
-  async create(dto: CreateMenuItemDto): Promise<MenuItem> {
+  async create(dto: CreateMenuItemDto, actorUserId: string): Promise<MenuItem> {
+    const restaurantId = await this.restaurantForActor(actorUserId);
+    if (dto.restaurantId !== restaurantId) {
+      throw new NotFoundException('Restaurant not found');
+    }
+    await this.validateCategory(dto.categoryId, restaurantId);
     return this.dataSource.transaction(async (manager) => {
       const itemRepo = manager.getRepository(MenuItem);
       const sizeRepo = manager.getRepository(MenuItemSize);
@@ -91,17 +98,48 @@ export class MenuService {
     });
   }
 
-  async update(id: string, dto: UpdateMenuItemDto): Promise<MenuItem> {
-    const item = await this.items.findById(id);
+  async update(
+    id: string,
+    dto: UpdateMenuItemDto,
+    actorUserId: string,
+  ): Promise<MenuItem> {
+    const restaurantId = await this.restaurantForActor(actorUserId);
+    const item = await this.items.findOne({ where: { id, restaurantId } });
     if (!item) throw new NotFoundException('Menu item not found');
+    if (dto.restaurantId && dto.restaurantId !== restaurantId) {
+      throw new NotFoundException('Restaurant not found');
+    }
+    await this.validateCategory(dto.categoryId, restaurantId);
     Object.assign(item, dto);
     return this.items.save(item);
   }
 
-  async archive(id: string): Promise<void> {
-    const item = await this.detail(id);
+  async archive(id: string, actorUserId: string): Promise<void> {
+    const restaurantId = await this.restaurantForActor(actorUserId);
+    const item = await this.items.findOne({ where: { id, restaurantId } });
+    if (!item) throw new NotFoundException('Menu item not found');
     item.isActive = false;
     item.archivedAt = new Date();
     await this.items.save(item);
+  }
+
+  private async restaurantForActor(actorUserId: string) {
+    const staff = await this.dataSource.getRepository(StaffMember).findOne({
+      where: { userId: actorUserId, isActive: true },
+      select: { restaurantId: true },
+    });
+    if (!staff) throw new NotFoundException('Staff member not found');
+    return staff.restaurantId;
+  }
+
+  private async validateCategory(
+    categoryId: string | undefined,
+    restaurantId: string,
+  ) {
+    if (!categoryId) return;
+    const category = await this.dataSource.getRepository(MenuCategory).findOne({
+      where: { id: categoryId, restaurantId, isActive: true },
+    });
+    if (!category) throw new NotFoundException('Category not found');
   }
 }

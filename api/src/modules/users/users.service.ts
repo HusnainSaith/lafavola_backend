@@ -642,16 +642,32 @@ export class UsersService {
     };
   }
 
-  async update(id: string, dto: UpdateUserDto): Promise<ServiceResponse<User>> {
+  async update(
+    id: string,
+    dto: UpdateUserDto,
+    actorUserId: string,
+  ): Promise<ServiceResponse<User>> {
     try {
       const validId = SecurityUtil.validateId(id);
       SecurityUtil.validateObject(dto);
 
       const user = await this.userRepository.findOne({
         where: { id: validId },
+        relations: { role: true },
       });
       if (!user) {
         throw new NotFoundException('User not found');
+      }
+      const disablesUser =
+        dto.status != null &&
+        !['active', 'pending_verification'].includes(dto.status);
+      if (
+        validId === actorUserId &&
+        (disablesUser || (dto.roleId != null && dto.roleId !== user.roleId))
+      ) {
+        throw new BadRequestException(
+          'You cannot remove your own active administrator access',
+        );
       }
 
       if (dto.email && dto.email !== user.email) {
@@ -681,6 +697,12 @@ export class UsersService {
       if (role) {
         updateData.role = role;
       }
+      if (
+        user.role?.name?.toLowerCase() === 'admin' &&
+        (disablesUser || (role && role.name.toLowerCase() !== 'admin'))
+      ) {
+        await this.assertAnotherActiveAdmin(user.id);
+      }
 
       await this.userRepository.update(validId, updateData);
 
@@ -693,7 +715,8 @@ export class UsersService {
     } catch (error) {
       if (
         error instanceof NotFoundException ||
-        error instanceof ConflictException
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
       ) {
         throw error;
       }
@@ -701,28 +724,62 @@ export class UsersService {
     }
   }
 
-  async remove(id: string): Promise<ServiceResponse<void>> {
+  async remove(
+    id: string,
+    actorUserId: string,
+  ): Promise<ServiceResponse<void>> {
     try {
       const validId = SecurityUtil.validateId(id);
 
+      if (validId === actorUserId) {
+        throw new BadRequestException('You cannot disable your own account');
+      }
       const user = await this.userRepository.findOne({
         where: { id: validId },
+        relations: { role: true },
       });
       if (!user) {
         throw new NotFoundException('User not found');
       }
 
-      await this.userRepository.remove(user);
+      if (user.role?.name?.toLowerCase() === 'admin') {
+        await this.assertAnotherActiveAdmin(user.id);
+      }
+      user.status = 'disabled';
+      user.archivedAt = new Date();
+      await this.userRepository.save(user);
+      await this.userRepository.manager.query(
+        'DELETE FROM refresh_tokens WHERE user_id=$1',
+        [user.id],
+      );
       return {
         success: true,
         message: 'User deleted successfully',
         data: undefined,
       };
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
         throw error;
       }
       throw new Error(`Failed to delete user: ${error.message}`);
+    }
+  }
+
+  private async assertAnotherActiveAdmin(excludedUserId: string) {
+    const remaining = await this.userRepository
+      .createQueryBuilder('user')
+      .innerJoin('user.role', 'role')
+      .where('LOWER(role.name) = :role', { role: 'admin' })
+      .andWhere('user.id <> :excludedUserId', { excludedUserId })
+      .andWhere('user.status = :status', { status: 'active' })
+      .getCount();
+    if (remaining === 0) {
+      throw new BadRequestException(
+        'The last active administrator cannot be disabled or demoted',
+      );
     }
   }
 }

@@ -153,7 +153,7 @@ export class PermissionsController extends BaseController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   // @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @Permissions('permission.update')
+  @Permissions('permissions.update')
   @ApiOperation({ summary: 'Update a specific permission' })
   @Roles(RoleEnum.ADMIN)
   update(@Param('id') id: string, @Body() dto: UpdatePermissionDto) {

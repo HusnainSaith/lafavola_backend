@@ -4,6 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import { AdminListQueryDto } from '../../common/dto/admin-list-query.dto';
 import { requireEntity } from '../../common/utils/service-errors.util';
 import { Order } from '../orders/entities/order.entity';
 import { AssignDriverDto } from './dto/assign-driver.dto';
@@ -15,6 +16,7 @@ import { DeliveryTrackingRepository } from './repositories/delivery-tracking.rep
 import { DeliveryAssignmentStatus } from './enums/delivery-assignment-status.enum';
 import { OutboxService } from '../../queue/outbox.service';
 import { OrderStatusHistory } from '../orders/entities/order-status-history.entity';
+import { StaffMember } from '../staff/entities/staff-member.entity';
 
 const DELIVERY_TRANSITIONS: Record<string, DeliveryAssignmentStatus[]> = {
   assigned: [
@@ -49,6 +51,37 @@ export class DeliveriesService {
     private readonly outbox: OutboxService,
   ) {}
 
+  async listAdmin(actorUserId: string, query: AdminListQueryDto) {
+    const staff = requireEntity(
+      await this.dataSource.getRepository(StaffMember).findOne({
+        where: { userId: actorUserId, isActive: true },
+      }),
+      'Staff member not found',
+    );
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 20;
+    const builder = this.dataSource
+      .getRepository(DeliveryAssignment)
+      .createQueryBuilder('assignment')
+      .innerJoinAndSelect('assignment.order', 'order')
+      .leftJoinAndSelect('assignment.driverUser', 'driver')
+      .where('order.restaurant_id = :restaurantId', {
+        restaurantId: staff.restaurantId,
+      })
+      .orderBy('assignment.updatedAt', 'DESC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize);
+    if (query.status)
+      builder.andWhere('assignment.status = :status', {
+        status: query.status,
+      });
+    const [data, total] = await builder.getManyAndCount();
+    return {
+      data,
+      meta: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) },
+    };
+  }
+
   async getTracking(customerId: string, orderId: string) {
     requireEntity(
       await this.dataSource.getRepository(Order).findOne({
@@ -71,9 +104,15 @@ export class DeliveriesService {
       const assignmentRepo = manager.getRepository(DeliveryAssignment);
       const trackingRepo = manager.getRepository(DeliveryTracking);
 
+      const staff = requireEntity(
+        await manager.getRepository(StaffMember).findOne({
+          where: { userId: assignedByUserId, isActive: true },
+        }),
+        'Staff member not found',
+      );
       const order = requireEntity(
         await manager.getRepository(Order).findOne({
-          where: { id: orderId },
+          where: { id: orderId, restaurantId: staff.restaurantId },
           lock: { mode: 'pessimistic_write' },
         }),
         'Order not found',
@@ -127,10 +166,37 @@ export class DeliveriesService {
     });
   }
 
-  assignmentForDriver(driverUserId: string, orderId: string, isAdmin = false) {
-    return this.dataSource.getRepository(DeliveryAssignment).findOneOrFail({
-      where: isAdmin ? { orderId } : { orderId, driverUserId },
-    });
+  async assignmentForDriver(
+    driverUserId: string,
+    orderId: string,
+    isAdmin = false,
+  ) {
+    if (!isAdmin) {
+      return requireEntity(
+        await this.dataSource.getRepository(DeliveryAssignment).findOne({
+          where: { orderId, driverUserId },
+        }),
+        'Delivery assignment not found',
+      );
+    }
+    const staff = requireEntity(
+      await this.dataSource.getRepository(StaffMember).findOne({
+        where: { userId: driverUserId, isActive: true },
+      }),
+      'Staff member not found',
+    );
+    return requireEntity(
+      await this.dataSource
+        .getRepository(DeliveryAssignment)
+        .createQueryBuilder('assignment')
+        .innerJoin('assignment.order', 'order')
+        .where('assignment.order_id = :orderId', { orderId })
+        .andWhere('order.restaurant_id = :restaurantId', {
+          restaurantId: staff.restaurantId,
+        })
+        .getOne(),
+      'Delivery assignment not found',
+    );
   }
 
   async transition(
@@ -171,6 +237,16 @@ export class DeliveriesService {
         }),
         'Order not found',
       );
+      if (isAdmin) {
+        const staff = requireEntity(
+          await manager.getRepository(StaffMember).findOne({
+            where: { userId: actorUserId, isActive: true },
+          }),
+          'Staff member not found',
+        );
+        if (order.restaurantId !== staff.restaurantId)
+          throw new BadRequestException('Delivery assignment not found');
+      }
       if (
         next === DeliveryAssignmentStatus.DELIVERED &&
         ['cash', 'card_on_delivery'].includes(String(order.paymentMethod)) &&
@@ -249,6 +325,25 @@ export class DeliveriesService {
           await manager.getRepository(DeliveryAssignment).findOne({
             where: { orderId, driverUserId: actorUserId },
           }),
+          'Delivery assignment not found',
+        );
+      } else {
+        const staff = requireEntity(
+          await manager.getRepository(StaffMember).findOne({
+            where: { userId: actorUserId, isActive: true },
+          }),
+          'Staff member not found',
+        );
+        requireEntity(
+          await manager
+            .getRepository(DeliveryAssignment)
+            .createQueryBuilder('assignment')
+            .innerJoin('assignment.order', 'order')
+            .where('assignment.order_id = :orderId', { orderId })
+            .andWhere('order.restaurant_id = :restaurantId', {
+              restaurantId: staff.restaurantId,
+            })
+            .getOne(),
           'Delivery assignment not found',
         );
       }

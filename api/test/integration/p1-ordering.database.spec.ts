@@ -159,7 +159,10 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
        RETURNING id`,
       [restaurantId],
     );
-    const service = new PromotionsService(new PromotionRepository(dataSource));
+    const service = new PromotionsService(
+      new PromotionRepository(dataSource),
+      dataSource,
+    );
     const result = await dataSource.transaction((manager) =>
       service.evaluateAutomatic(manager, {
         restaurantId,
@@ -194,7 +197,10 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
        VALUES ($1,$2,100)`,
       [promotionId, customerId],
     );
-    const service = new PromotionsService(new PromotionRepository(dataSource));
+    const service = new PromotionsService(
+      new PromotionRepository(dataSource),
+      dataSource,
+    );
     const result = await dataSource.transaction((manager) =>
       service.evaluateAutomatic(manager, {
         restaurantId,
@@ -218,7 +224,10 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
        RETURNING id`,
       [restaurantId],
     );
-    const service = new PromotionsService(new PromotionRepository(dataSource));
+    const service = new PromotionsService(
+      new PromotionRepository(dataSource),
+      dataSource,
+    );
     const claim = () =>
       dataSource.transaction(async (manager) => {
         const result = await service.evaluateAutomatic(manager, {

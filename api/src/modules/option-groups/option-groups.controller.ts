@@ -1,6 +1,7 @@
-﻿import {
+import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -8,15 +9,6 @@
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RoleEnum } from '../roles/role.enum';
-import { CreateOptionChoiceDto } from './dto/create-option-choice.dto';
-import { CreateOptionGroupDto } from './dto/create-option-group.dto';
-import { UpdateOptionGroupDto } from './dto/update-option-group.dto';
-import { OptionGroupsService } from './option-groups.service';
-
 import {
   ApiBody,
   ApiOperation,
@@ -25,6 +17,18 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RoleEnum } from '../roles/role.enum';
+import { CreateOptionChoiceDto } from './dto/create-option-choice.dto';
+import { CreateOptionGroupDto } from './dto/create-option-group.dto';
+import { UpdateOptionChoiceDto } from './dto/update-option-choice.dto';
+import { UpdateOptionGroupDto } from './dto/update-option-group.dto';
+import { OptionGroupsService } from './option-groups.service';
+
 @ApiTags('Option Groups')
 @Controller('option-groups')
 export class OptionGroupsController {
@@ -67,8 +71,11 @@ export class OptionGroupsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
-  create(@Body() dto: CreateOptionGroupDto) {
-    return this.service.create(dto);
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateOptionGroupDto,
+  ) {
+    return this.service.create(dto, user.id);
   }
 
   @Patch(':id')
@@ -83,8 +90,23 @@ export class OptionGroupsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
-  update(@Param('id') id: string, @Body() dto: UpdateOptionGroupDto) {
-    return this.service.update(id, dto);
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateOptionGroupDto,
+  ) {
+    return this.service.update(id, dto, user.id);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Deactivate' })
+  @ApiParam({ name: 'id', required: true, type: String })
+  @ApiResponse({ status: 200, description: 'Successful response' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  deactivate(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.service.deactivate(id, user.id);
   }
 
   @Post(':id/choices')
@@ -99,7 +121,45 @@ export class OptionGroupsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
-  addChoice(@Param('id') id: string, @Body() dto: CreateOptionChoiceDto) {
-    return this.service.addChoice(id, dto);
+  addChoice(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: CreateOptionChoiceDto,
+  ) {
+    return this.service.addChoice(id, dto, user.id);
+  }
+
+  @Patch(':id/choices/:choiceId')
+  @ApiOperation({ summary: 'Update Choice' })
+  @ApiBody({ type: UpdateOptionChoiceDto })
+  @ApiParam({ name: 'id', required: true, type: String })
+  @ApiParam({ name: 'choiceId', required: true, type: String })
+  @ApiResponse({ status: 200, description: 'Successful response' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  updateChoice(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Param('choiceId') choiceId: string,
+    @Body() dto: UpdateOptionChoiceDto,
+  ) {
+    return this.service.updateChoice(id, choiceId, dto, user.id);
+  }
+
+  @Delete(':id/choices/:choiceId')
+  @ApiOperation({ summary: 'Deactivate Choice' })
+  @ApiParam({ name: 'id', required: true, type: String })
+  @ApiParam({ name: 'choiceId', required: true, type: String })
+  @ApiResponse({ status: 200, description: 'Successful response' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  deactivateChoice(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Param('choiceId') choiceId: string,
+  ) {
+    return this.service.deactivateChoice(id, choiceId, user.id);
   }
 }

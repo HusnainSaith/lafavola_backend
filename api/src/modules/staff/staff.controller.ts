@@ -1,20 +1,14 @@
-﻿import {
+import {
   Body,
   Controller,
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RoleEnum } from '../roles/role.enum';
-import { CreateStaffMemberDto } from './dto/create-staff-member.dto';
-import { StaffService } from './staff.service';
-
 import {
   ApiBody,
   ApiOperation,
@@ -23,6 +17,16 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RoleEnum } from '../roles/role.enum';
+import { CreateStaffMemberDto } from './dto/create-staff-member.dto';
+import { UpdateStaffMemberDto } from './dto/update-staff-member.dto';
+import { StaffService } from './staff.service';
+
 @ApiTags('Staff')
 @Controller('staff')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -52,8 +56,25 @@ export class StaffController {
     description: 'Validation or business-rule error',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  create(@Body() dto: CreateStaffMemberDto) {
-    return this.service.create(dto);
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateStaffMemberDto,
+  ) {
+    return this.service.create(dto, user.id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update employment profile fields' })
+  @ApiBody({ type: UpdateStaffMemberDto })
+  @ApiParam({ name: 'id', required: true, type: String })
+  @ApiResponse({ status: 200, description: 'Successful response' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateStaffMemberDto,
+  ) {
+    return this.service.update(id, dto, user.id);
   }
 
   @Delete(':id')
@@ -65,7 +86,7 @@ export class StaffController {
     description: 'Validation or business-rule error',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  deactivate(@Param('id') id: string) {
-    return this.service.deactivate(id);
+  deactivate(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.service.deactivate(id, user.id);
   }
 }

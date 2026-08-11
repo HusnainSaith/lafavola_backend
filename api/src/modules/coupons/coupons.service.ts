@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { requireEntity } from '../../common/utils/service-errors.util';
+import { NotFoundException } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+import { StaffMember } from '../staff/entities/staff-member.entity';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
 import { Coupon } from './entities/coupon.entity';
@@ -7,7 +10,10 @@ import { CouponRepository } from './repositories/coupon.repository';
 
 @Injectable()
 export class CouponsService {
-  constructor(private readonly repository: CouponRepository) {}
+  constructor(
+    private readonly repository: CouponRepository,
+    private readonly dataSource: DataSource,
+  ) {}
 
   findAll(): Promise<Coupon[]> {
     return this.repository.findMany({
@@ -22,7 +28,11 @@ export class CouponsService {
     );
   }
 
-  create(dto: CreateCouponDto): Promise<Coupon> {
+  async create(dto: CreateCouponDto, actorUserId: string): Promise<Coupon> {
+    const restaurantId = await this.restaurantForActor(actorUserId);
+    if (dto.restaurantId !== restaurantId) {
+      throw new NotFoundException('Restaurant not found');
+    }
     return this.repository.save(
       this.repository.create({
         restaurantId: dto.restaurantId,
@@ -42,8 +52,19 @@ export class CouponsService {
     );
   }
 
-  async update(id: string, dto: UpdateCouponDto): Promise<Coupon> {
-    const entity = await this.findById(id);
+  async update(
+    id: string,
+    dto: UpdateCouponDto,
+    actorUserId: string,
+  ): Promise<Coupon> {
+    const restaurantId = await this.restaurantForActor(actorUserId);
+    const entity = await this.repository.findOne({
+      where: { id, restaurantId },
+    });
+    if (!entity) throw new NotFoundException('Coupon record not found');
+    if (dto.restaurantId && dto.restaurantId !== restaurantId) {
+      throw new NotFoundException('Restaurant not found');
+    }
 
     Object.assign(entity, {
       ...dto,
@@ -55,9 +76,22 @@ export class CouponsService {
     return this.repository.save(entity);
   }
 
-  async remove(id: string): Promise<void> {
-    const entity = await this.findById(id);
+  async remove(id: string, actorUserId: string): Promise<void> {
+    const restaurantId = await this.restaurantForActor(actorUserId);
+    const entity = await this.repository.findOne({
+      where: { id, restaurantId },
+    });
+    if (!entity) throw new NotFoundException('Coupon record not found');
     entity.isActive = false;
     await this.repository.save(entity);
+  }
+
+  private async restaurantForActor(actorUserId: string) {
+    const staff = await this.dataSource.getRepository(StaffMember).findOne({
+      where: { userId: actorUserId, isActive: true },
+      select: { restaurantId: true },
+    });
+    if (!staff) throw new NotFoundException('Staff member not found');
+    return staff.restaurantId;
   }
 }

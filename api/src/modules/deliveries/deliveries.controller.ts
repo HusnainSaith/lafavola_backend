@@ -5,9 +5,11 @@
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { AdminListQueryDto } from '../../common/dto/admin-list-query.dto';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -31,6 +33,20 @@ import {
 @Controller('deliveries')
 export class DeliveriesController {
   constructor(private readonly service: DeliveriesService) {}
+
+  @Get('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  @ApiOperation({
+    summary: 'List delivery assignments for the active restaurant',
+  })
+  @ApiResponse({ status: 200, description: 'Paginated delivery board' })
+  adminList(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: AdminListQueryDto,
+  ) {
+    return this.service.listAdmin(user.id, query);
+  }
 
   @Get('orders/:orderId/tracking')
   @ApiOperation({ summary: 'Tracking' })
@@ -80,11 +96,7 @@ export class DeliveriesController {
     @CurrentUser() user: AuthenticatedUser,
     @Param('orderId') orderId: string,
   ) {
-    return this.service.assignmentForDriver(
-      user.id,
-      orderId,
-      typeof user.role === 'object' && user.role?.name === RoleEnum.ADMIN,
-    );
+    return this.service.assignmentForDriver(user.id, orderId, isAdmin(user));
   }
 
   @Patch('orders/:orderId/status')
@@ -102,12 +114,7 @@ export class DeliveriesController {
     @Param('orderId') orderId: string,
     @Body() dto: UpdateDeliveryStatusDto,
   ) {
-    return this.service.transition(
-      orderId,
-      dto.status,
-      user.id,
-      typeof user.role === 'object' && user.role?.name === RoleEnum.ADMIN,
-    );
+    return this.service.transition(orderId, dto.status, user.id, isAdmin(user));
   }
 
   @Patch('orders/:orderId/location')
@@ -127,11 +134,12 @@ export class DeliveriesController {
     @Param('orderId') orderId: string,
     @Body() dto: UpdateLocationDto,
   ) {
-    return this.service.updateLocation(
-      orderId,
-      dto,
-      user.id,
-      typeof user.role === 'object' && user.role?.name === RoleEnum.ADMIN,
-    );
+    return this.service.updateLocation(orderId, dto, user.id, isAdmin(user));
   }
+}
+
+function isAdmin(user: AuthenticatedUser): boolean {
+  return typeof user.role === 'string'
+    ? user.role === RoleEnum.ADMIN
+    : user.role?.name === RoleEnum.ADMIN;
 }

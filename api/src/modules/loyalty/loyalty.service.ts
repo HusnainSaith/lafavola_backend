@@ -42,7 +42,7 @@ export class LoyaltyService {
         'account.id = tx.loyalty_account_id',
       )
       .where('account.customer_id = :customerId', { customerId })
-      .orderBy('tx.created_at', 'DESC')
+      .orderBy('tx.createdAt', 'DESC')
       .getMany();
   }
 

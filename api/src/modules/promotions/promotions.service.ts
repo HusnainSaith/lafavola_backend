@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager, In } from 'typeorm';
+import { DataSource, EntityManager, In } from 'typeorm';
+import { NotFoundException } from '@nestjs/common';
+import { StaffMember } from '../staff/entities/staff-member.entity';
 import { requireEntity } from '../../common/utils/service-errors.util';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { UpdatePromotionDto } from './dto/update-promotion.dto';
@@ -33,7 +35,10 @@ export interface PromotionEvaluation {
 
 @Injectable()
 export class PromotionsService {
-  constructor(private readonly repository: PromotionRepository) {}
+  constructor(
+    private readonly repository: PromotionRepository,
+    private readonly dataSource: DataSource,
+  ) {}
 
   findAll(): Promise<Promotion[]> {
     return this.repository.findMany({ order: { createdAt: 'DESC' } });
@@ -256,7 +261,14 @@ export class PromotionsService {
       : [];
   }
 
-  create(dto: CreatePromotionDto): Promise<Promotion> {
+  async create(
+    dto: CreatePromotionDto,
+    actorUserId: string,
+  ): Promise<Promotion> {
+    const restaurantId = await this.restaurantForActor(actorUserId);
+    if (dto.restaurantId !== restaurantId) {
+      throw new NotFoundException('Restaurant not found');
+    }
     return this.repository.save(
       this.repository.create({
         restaurantId: dto.restaurantId,
@@ -280,8 +292,19 @@ export class PromotionsService {
     );
   }
 
-  async update(id: string, dto: UpdatePromotionDto): Promise<Promotion> {
-    const entity = await this.findById(id);
+  async update(
+    id: string,
+    dto: UpdatePromotionDto,
+    actorUserId: string,
+  ): Promise<Promotion> {
+    const restaurantId = await this.restaurantForActor(actorUserId);
+    const entity = await this.repository.findOne({
+      where: { id, restaurantId },
+    });
+    if (!entity) throw new NotFoundException('Promotion record not found');
+    if (dto.restaurantId && dto.restaurantId !== restaurantId) {
+      throw new NotFoundException('Restaurant not found');
+    }
     Object.assign(entity, {
       ...dto,
       startsAt: dto.startsAt ? new Date(dto.startsAt) : entity.startsAt,
@@ -290,9 +313,22 @@ export class PromotionsService {
     return this.repository.save(entity);
   }
 
-  async remove(id: string): Promise<void> {
-    const entity = await this.findById(id);
+  async remove(id: string, actorUserId: string): Promise<void> {
+    const restaurantId = await this.restaurantForActor(actorUserId);
+    const entity = await this.repository.findOne({
+      where: { id, restaurantId },
+    });
+    if (!entity) throw new NotFoundException('Promotion record not found');
     entity.isActive = false;
     await this.repository.save(entity);
+  }
+
+  private async restaurantForActor(actorUserId: string) {
+    const staff = await this.dataSource.getRepository(StaffMember).findOne({
+      where: { userId: actorUserId, isActive: true },
+      select: { restaurantId: true },
+    });
+    if (!staff) throw new NotFoundException('Staff member not found');
+    return staff.restaurantId;
   }
 }

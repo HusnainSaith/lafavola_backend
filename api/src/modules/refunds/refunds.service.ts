@@ -6,7 +6,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { DataSource, Not } from 'typeorm';
+import { AdminListQueryDto } from '../../common/dto/admin-list-query.dto';
 import { Order } from '../orders/entities/order.entity';
+import { StaffMember } from '../staff/entities/staff-member.entity';
 import { PaymentTransaction } from '../payments/entities/payment-transaction.entity';
 import {
   PAYMENT_PROVIDER,
@@ -22,13 +24,15 @@ export class RefundsService {
     @Inject(PAYMENT_PROVIDER) private readonly provider: PaymentProviderPort,
   ) {}
 
-  async create(customerId: string, dto: CreateRefundDto) {
+  async create(actorUserId: string, dto: CreateRefundDto, isAdmin = false) {
     return this.dataSource.transaction(async (manager) => {
-      const order = await manager.getRepository(Order).findOne({
-        where: { id: dto.orderId, customerId },
-        lock: { mode: 'pessimistic_write' },
-      });
-      if (!order) throw new NotFoundException('Order not found');
+      const order = await this.ownedOrder(
+        manager,
+        actorUserId,
+        dto.orderId,
+        isAdmin,
+        true,
+      );
       const payment = await manager.getRepository(PaymentTransaction).findOne({
         where: { orderId: order.id, provider: 'sumup', status: Not('failed') },
         order: { createdAt: 'DESC' },
@@ -73,7 +77,7 @@ export class RefundsService {
         repo.create({
           orderId: order.id,
           paymentTransactionId: payment.id,
-          requestedByUserId: customerId,
+          requestedByUserId: actorUserId,
           amountMinor: dto.amountMinor,
           reason: dto.reason,
           customerReason: dto.customerReason,
@@ -84,30 +88,87 @@ export class RefundsService {
     });
   }
 
-  listForOrder(customerId: string, orderId: string) {
-    return this.dataSource
-      .getRepository(Refund)
-      .createQueryBuilder('refund')
-      .innerJoin(Order, 'order', 'order.id = refund.order_id')
-      .where('refund.order_id = :orderId', { orderId })
-      .andWhere('order.customer_id = :customerId', { customerId })
-      .orderBy('refund.created_at', 'DESC')
-      .getMany();
+  async listForOrder(actorUserId: string, orderId: string, isAdmin = false) {
+    await this.ownedOrder(
+      this.dataSource.manager,
+      actorUserId,
+      orderId,
+      isAdmin,
+    );
+    return this.dataSource.getRepository(Refund).find({
+      where: { orderId },
+      order: { createdAt: 'DESC' },
+    });
   }
 
-  async get(customerId: string, id: string) {
-    const refund = await this.dataSource
+  async listAdmin(actorUserId: string, query: AdminListQueryDto) {
+    const staff = await this.dataSource.getRepository(StaffMember).findOne({
+      where: { userId: actorUserId, isActive: true },
+    });
+    if (!staff) throw new NotFoundException('Staff member not found');
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 20;
+    const builder = this.dataSource
       .getRepository(Refund)
       .createQueryBuilder('refund')
-      .innerJoin(Order, 'order', 'order.id = refund.order_id')
-      .where('refund.id = :id', { id })
-      .andWhere('order.customer_id = :customerId', { customerId })
-      .getOne();
+      .innerJoinAndSelect('refund.order', 'order')
+      .where('order.restaurant_id = :restaurantId', {
+        restaurantId: staff.restaurantId,
+      })
+      .orderBy('refund.createdAt', 'DESC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize);
+    if (query.status)
+      builder.andWhere('refund.status = :status', { status: query.status });
+    const [data, total] = await builder.getManyAndCount();
+    return {
+      data,
+      meta: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) },
+    };
+  }
+
+  async get(actorUserId: string, id: string, isAdmin = false) {
+    const refund = await this.dataSource.getRepository(Refund).findOne({
+      where: { id },
+    });
     if (!refund) throw new NotFoundException('Refund not found');
+    await this.ownedOrder(
+      this.dataSource.manager,
+      actorUserId,
+      refund.orderId,
+      isAdmin,
+    );
     return refund;
   }
 
-  async approve(id: string, staffNote?: string) {
+  private async ownedOrder(
+    manager: Pick<DataSource, 'getRepository'>,
+    actorUserId: string,
+    orderId: string,
+    isAdmin: boolean,
+    lock = false,
+  ) {
+    if (!isAdmin) {
+      const order = await manager.getRepository(Order).findOne({
+        where: { id: orderId, customerId: actorUserId },
+        ...(lock ? { lock: { mode: 'pessimistic_write' as const } } : {}),
+      });
+      if (!order) throw new NotFoundException('Order not found');
+      return order;
+    }
+    const staff = await manager.getRepository(StaffMember).findOne({
+      where: { userId: actorUserId, isActive: true },
+    });
+    if (!staff) throw new NotFoundException('Staff member not found');
+    const order = await manager.getRepository(Order).findOne({
+      where: { id: orderId, restaurantId: staff.restaurantId },
+      ...(lock ? { lock: { mode: 'pessimistic_write' as const } } : {}),
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    return order;
+  }
+
+  async approve(id: string, actorUserId: string, staffNote?: string) {
     let providerFailure = false;
     try {
       return await this.dataSource.transaction(async (manager) => {
@@ -117,6 +178,12 @@ export class RefundsService {
           lock: { mode: 'pessimistic_write' },
         });
         if (!refund) throw new NotFoundException('Refund not found');
+        await this.ownedOrder(
+          manager as unknown as Pick<DataSource, 'getRepository'>,
+          actorUserId,
+          refund.orderId,
+          true,
+        );
         if (refund.status === 'refunded') return refund;
         if (refund.status !== 'requested')
           throw new ConflictException(

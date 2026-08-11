@@ -53,6 +53,23 @@ export class NotificationsController {
     return { count: await this.service.unreadCount(user.id) };
   }
 
+  @Get('devices')
+  @ApiOperation({ summary: 'List push devices owned by the current user' })
+  @ApiResponse({ status: 200, description: 'Owned push devices' })
+  listDevices(@CurrentUser() user: AuthenticatedUser) {
+    return this.service.listDevices(user.id);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get one owned notification' })
+  @ApiParam({ name: 'id', required: true, type: String })
+  @ApiResponse({ status: 200, description: 'Successful response' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Notification not found' })
+  detail(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.service.detail(user.id, id);
+  }
+
   @Patch(':id/read')
   @ApiOperation({ summary: 'Mark Read' })
   @ApiParam({ name: 'id', required: true, type: String })

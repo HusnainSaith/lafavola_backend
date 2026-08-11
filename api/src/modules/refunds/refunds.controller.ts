@@ -5,9 +5,11 @@
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { AdminListQueryDto } from '../../common/dto/admin-list-query.dto';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -29,6 +31,18 @@ import {
 export class RefundsController {
   constructor(private readonly service: RefundsService) {}
 
+  @Get('admin')
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'List refunds for the active staff restaurant' })
+  @ApiResponse({ status: 200, description: 'Paginated refund queue' })
+  adminList(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: AdminListQueryDto,
+  ) {
+    return this.service.listAdmin(user.id, query);
+  }
+
   @Post()
   @ApiOperation({ summary: 'Create' })
   @ApiBody({ type: CreateRefundDto })
@@ -39,7 +53,7 @@ export class RefundsController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateRefundDto) {
-    return this.service.create(user.id, dto);
+    return this.service.create(user.id, dto, isAdmin(user));
   }
 
   @Get('orders/:orderId')
@@ -55,7 +69,7 @@ export class RefundsController {
     @CurrentUser() user: AuthenticatedUser,
     @Param('orderId') orderId: string,
   ) {
-    return this.service.listForOrder(user.id, orderId);
+    return this.service.listForOrder(user.id, orderId, isAdmin(user));
   }
 
   @Get(':id')
@@ -63,7 +77,7 @@ export class RefundsController {
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Refund status' })
   get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.service.get(user.id, id);
+    return this.service.get(user.id, id, isAdmin(user));
   }
 
   @Patch(':id/approve')
@@ -80,7 +94,17 @@ export class RefundsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(RolesGuard)
   @Roles(RoleEnum.ADMIN)
-  approve(@Param('id') id: string, @Body('staffNote') staffNote?: string) {
-    return this.service.approve(id, staffNote);
+  approve(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body('staffNote') staffNote?: string,
+  ) {
+    return this.service.approve(id, user.id, staffNote);
   }
+}
+
+function isAdmin(user: AuthenticatedUser): boolean {
+  return typeof user.role === 'string'
+    ? user.role === RoleEnum.ADMIN
+    : user.role?.name === RoleEnum.ADMIN;
 }

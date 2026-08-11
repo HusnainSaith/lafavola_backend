@@ -27,6 +27,8 @@ import { CreateUserWithPermissionsDto } from './dto/create-user-with-permissions
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
 
 @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
 @ApiTags('Users')
@@ -190,9 +192,15 @@ export class UsersController extends BaseController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'update user by id' })
   @Permissions('users.update')
-  update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+  ) {
     const validId = SecurityUtil.validateId(id);
-    return this.handleAsyncOperation(this.usersService.update(validId, dto));
+    return this.handleAsyncOperation(
+      this.usersService.update(validId, dto, user.id),
+    );
   }
 
   @Delete(':id')
@@ -207,9 +215,11 @@ export class UsersController extends BaseController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'delete user by id' })
   @Permissions('users.delete')
-  remove(@Param('id') id: string) {
+  remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     const validId = SecurityUtil.validateId(id);
-    return this.handleAsyncOperation(this.usersService.remove(validId));
+    return this.handleAsyncOperation(
+      this.usersService.remove(validId, user.id),
+    );
   }
 
   //   @Get('profile')

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { DataSource } from 'typeorm';
+import { AdminListQueryDto } from '../../common/dto/admin-list-query.dto';
 import {
   STORAGE_PROVIDER,
   StorageProvider,
@@ -16,7 +17,7 @@ import { MenuCategory } from '../categories/entities/menu-category.entity';
 import { CustomerProfile } from '../customers/entities/customer-profile.entity';
 import { Ingredient } from '../ingredients/entities/ingredient.entity';
 import { SupportTicket } from '../support/entities/support-ticket.entity';
-import { User } from '../users/entities/user.entity';
+import { StaffMember } from '../staff/entities/staff-member.entity';
 import {
   CreateUploadUrlDto,
   MediaPurpose,
@@ -24,6 +25,7 @@ import {
 } from './dto/create-upload-url.dto';
 import { FinalizeUploadDto } from './dto/finalize-upload.dto';
 import { MediaAssetRepository } from './repositories/media-asset.repository';
+import { MediaAsset } from './entities/media-asset.entity';
 
 const MIME: Record<string, { extension: string; maxBytes: number }> = {
   'image/jpeg': { extension: 'jpg', maxBytes: 5 * 1024 * 1024 },
@@ -39,6 +41,30 @@ export class MediaService {
     private readonly assets: MediaAssetRepository,
     @Inject(STORAGE_PROVIDER) private readonly storage: StorageProvider,
   ) {}
+
+  async listAdmin(actorUserId: string, query: AdminListQueryDto) {
+    const staff = await this.dataSource.getRepository(StaffMember).findOne({
+      where: { userId: actorUserId, isActive: true },
+    });
+    if (!staff) throw new NotFoundException('Staff member not found');
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 20;
+    const [data, total] = await this.dataSource
+      .getRepository(MediaAsset)
+      .findAndCount({
+        where: {
+          restaurantId: staff.restaurantId,
+          ...(query.status ? { status: query.status } : {}),
+        },
+        order: { createdAt: 'DESC' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      });
+    return {
+      data,
+      meta: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) },
+    };
+  }
 
   async upload(
     userId: string,
@@ -203,8 +229,18 @@ export class MediaService {
   async remove(userId: string, assetId: string): Promise<void> {
     const asset = await this.assets.findOne({ where: { id: assetId } });
     if (!asset) throw new NotFoundException('Media asset not found');
-    if (asset.uploadedByUserId !== userId)
-      throw new NotFoundException('Media asset not found');
+    if (asset.uploadedByUserId !== userId) {
+      const staff = asset.restaurantId
+        ? await this.dataSource.getRepository(StaffMember).findOne({
+            where: {
+              userId,
+              restaurantId: asset.restaurantId,
+              isActive: true,
+            },
+          })
+        : null;
+      if (!staff) throw new NotFoundException('Media asset not found');
+    }
     await this.storage.delete(asset.objectKey);
     asset.status = 'deleted';
     asset.publicUrl = undefined;
@@ -256,16 +292,12 @@ export class MediaService {
                 where: { id: dto.targetId, restaurantId: dto.restaurantId },
               });
       if (!entity) throw new NotFoundException('Image target not found');
-      const user = await this.dataSource.getRepository(User).findOne({
-        where: { id: userId },
-        relations: { role: true },
-      });
       const staff = await this.dataSource.query(
         `SELECT 1 FROM staff_members
          WHERE user_id=$1 AND restaurant_id=$2 AND is_active=true LIMIT 1`,
         [userId, dto.restaurantId],
       );
-      if (user?.role?.name !== 'admin' && !staff.length)
+      if (!staff.length)
         throw new ForbiddenException('Not allowed to manage this menu');
       return;
     }

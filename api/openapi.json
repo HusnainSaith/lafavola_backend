@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/": {
+    "/api/v1": {
       "get": {
         "operationId": "AppController_getHello",
         "summary": "Get Hello",
@@ -19,7 +19,7 @@
         ]
       }
     },
-    "/health": {
+    "/api/v1/health": {
       "get": {
         "operationId": "AppController_health",
         "summary": "Process liveness; does not probe providers",
@@ -34,7 +34,7 @@
         ]
       }
     },
-    "/ready": {
+    "/api/v1/ready": {
       "get": {
         "operationId": "AppController_ready",
         "summary": "Readiness based on configuration and PostgreSQL",
@@ -49,7 +49,7 @@
         ]
       }
     },
-    "/users": {
+    "/api/v1/users": {
       "post": {
         "operationId": "UsersController_create",
         "summary": "create users",
@@ -109,7 +109,7 @@
         ]
       }
     },
-    "/users/with-permissions": {
+    "/api/v1/users/with-permissions": {
       "post": {
         "operationId": "UsersController_createWithPermissions",
         "summary": "create user with permissions",
@@ -145,7 +145,7 @@
         ]
       }
     },
-    "/users/{id}/permissions": {
+    "/api/v1/users/{id}/permissions": {
       "post": {
         "operationId": "UsersController_assignPermissions",
         "summary": "assign permissions to user by id",
@@ -223,7 +223,7 @@
         ]
       }
     },
-    "/users/available-features": {
+    "/api/v1/users/available-features": {
       "get": {
         "operationId": "UsersController_getAvailableFeatures",
         "summary": "get all features",
@@ -249,7 +249,7 @@
         ]
       }
     },
-    "/users/available-features/{feature}/actions": {
+    "/api/v1/users/available-features/{feature}/actions": {
       "get": {
         "operationId": "UsersController_getAvailableActionsForFeature",
         "summary": "Get permidssion of any feature",
@@ -284,7 +284,7 @@
         ]
       }
     },
-    "/users/{id}": {
+    "/api/v1/users/{id}": {
       "get": {
         "operationId": "UsersController_findOne",
         "summary": "get user by id",
@@ -395,7 +395,7 @@
         ]
       }
     },
-    "/roles": {
+    "/api/v1/roles": {
       "post": {
         "operationId": "RolesController_create",
         "summary": "Create a new role",
@@ -455,7 +455,7 @@
         ]
       }
     },
-    "/roles/{id}": {
+    "/api/v1/roles/{id}": {
       "get": {
         "operationId": "RolesController_findOne",
         "summary": "Retrieve a role by ID",
@@ -566,7 +566,7 @@
         ]
       }
     },
-    "/auth/register": {
+    "/api/v1/auth/register": {
       "post": {
         "operationId": "AuthController_register",
         "summary": "Register a customer or user account",
@@ -597,7 +597,7 @@
         ]
       }
     },
-    "/auth/login": {
+    "/api/v1/auth/login": {
       "post": {
         "operationId": "AuthController_login",
         "summary": "Log in with account credentials",
@@ -625,7 +625,7 @@
         ]
       }
     },
-    "/auth/oauth/google": {
+    "/api/v1/auth/oauth/google": {
       "post": {
         "operationId": "AuthController_googleLogin",
         "summary": "Sign in or register with a Google identity token",
@@ -653,7 +653,7 @@
         ]
       }
     },
-    "/auth/oauth/apple": {
+    "/api/v1/auth/oauth/apple": {
       "post": {
         "operationId": "AuthController_appleLogin",
         "summary": "Sign in or register with an Apple identity token",
@@ -681,7 +681,7 @@
         ]
       }
     },
-    "/auth/refresh": {
+    "/api/v1/auth/refresh": {
       "post": {
         "operationId": "AuthController_refresh",
         "summary": "Exchange a refresh token for a new access token",
@@ -709,7 +709,7 @@
         ]
       }
     },
-    "/auth/logout": {
+    "/api/v1/auth/logout": {
       "post": {
         "operationId": "AuthController_logout",
         "summary": "Revoke a refresh token and log out",
@@ -734,7 +734,7 @@
         ]
       }
     },
-    "/auth/forgot-password": {
+    "/api/v1/auth/forgot-password": {
       "post": {
         "operationId": "AuthController_requestPasswordReset",
         "summary": "Request a password-reset flow",
@@ -759,7 +759,7 @@
         ]
       }
     },
-    "/auth/reset-password": {
+    "/api/v1/auth/reset-password": {
       "post": {
         "operationId": "AuthController_resetPassword",
         "summary": "Reset the account password using a valid token",
@@ -787,7 +787,7 @@
         ]
       }
     },
-    "/auth/verify-email": {
+    "/api/v1/auth/verify-email": {
       "post": {
         "operationId": "AuthController_verifyEmail",
         "summary": "Consume a single-use email verification token",
@@ -815,7 +815,7 @@
         ]
       }
     },
-    "/auth/resend-verification": {
+    "/api/v1/auth/resend-verification": {
       "post": {
         "operationId": "AuthController_resendVerification",
         "summary": "Resend verification for the authenticated account",
@@ -830,7 +830,7 @@
         ]
       }
     },
-    "/permissions": {
+    "/api/v1/permissions": {
       "post": {
         "operationId": "PermissionsController_create",
         "summary": "Use Guards",
@@ -890,7 +890,7 @@
         ]
       }
     },
-    "/permissions/resources": {
+    "/api/v1/permissions/resources": {
       "get": {
         "operationId": "PermissionsController_getAllResources",
         "summary": "Use Guards",
@@ -916,7 +916,7 @@
         ]
       }
     },
-    "/permissions/actions": {
+    "/api/v1/permissions/actions": {
       "get": {
         "operationId": "PermissionsController_getAllActions",
         "summary": "Use Guards",
@@ -942,7 +942,7 @@
         ]
       }
     },
-    "/permissions/by-resource": {
+    "/api/v1/permissions/by-resource": {
       "get": {
         "operationId": "PermissionsController_findByResource",
         "summary": "Use Guards",
@@ -977,7 +977,7 @@
         ]
       }
     },
-    "/permissions/{id}": {
+    "/api/v1/permissions/{id}": {
       "get": {
         "operationId": "PermissionsController_findOne",
         "summary": "Use Guards",
@@ -1088,7 +1088,7 @@
         ]
       }
     },
-    "/role-permissions/{roleId}": {
+    "/api/v1/role-permissions/{roleId}": {
       "post": {
         "operationId": "RolePermissionsController_assignPermissions",
         "summary": "Assign permissions to a role",
@@ -1166,7 +1166,7 @@
         ]
       }
     },
-    "/role-permissions/{roleId}/{permissionId}": {
+    "/api/v1/role-permissions/{roleId}/{permissionId}": {
       "delete": {
         "operationId": "RolePermissionsController_removePermission",
         "summary": "Remove a permission from a role",
@@ -1209,7 +1209,506 @@
         ]
       }
     },
-    "/restaurants": {
+    "/api/v1/admin/pos/catalog": {
+      "get": {
+        "operationId": "AdminPosController_catalog",
+        "summary": "Get the restaurant-scoped POS catalogue",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "POS catalogue"
+          }
+        },
+        "tags": [
+          "Admin POS"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/pos/orders": {
+      "post": {
+        "operationId": "AdminPosController_createOrder",
+        "summary": "Create an idempotent dine-in or takeaway order",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePosOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Walk-in order created"
+          }
+        },
+        "tags": [
+          "Admin POS"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/pos/orders/{id}/collect": {
+      "post": {
+        "operationId": "AdminPosController_collect",
+        "summary": "Collect a walk-in cash or terminal payment",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Payment collected and receipt issued"
+          }
+        },
+        "tags": [
+          "Admin POS"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/pos/orders/{id}/receipt": {
+      "get": {
+        "operationId": "AdminPosController_receipt",
+        "summary": "Get a printable order ticket or paid receipt",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Printable receipt model"
+          }
+        },
+        "tags": [
+          "Admin POS"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/pos/receipts": {
+      "get": {
+        "operationId": "AdminPosController_receipts",
+        "summary": "List all paid restaurant receipts for reprinting",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Paginated receipt list"
+          }
+        },
+        "tags": [
+          "Admin POS"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pricing/calculate": {
+      "post": {
+        "operationId": "PricingController_calculate",
+        "summary": "Calculate pizza/menu item price",
+        "description": "Calculates the authoritative backend price using the selected menu item, size, options, and quantity.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalculatePriceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Price calculated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriceBreakdownDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid menu item size, unavailable option, or incompatible options"
+          },
+          "404": {
+            "description": "Menu item not found"
+          }
+        },
+        "tags": [
+          "Pricing"
+        ]
+      }
+    },
+    "/api/v1/payments/methods": {
+      "get": {
+        "operationId": "PaymentsController_methods",
+        "summary": "List safe references to owned saved payment methods",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentMethodResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/payments/methods/{id}/default": {
+      "patch": {
+        "operationId": "PaymentsController_makeMethodDefault",
+        "summary": "Make an owned saved payment method the default",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentMethodResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/payments/methods/{id}": {
+      "delete": {
+        "operationId": "PaymentsController_archiveMethod",
+        "summary": "Archive an owned saved payment method",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Payment method archived"
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/payments/checkouts": {
+      "post": {
+        "operationId": "PaymentsController_createCheckout",
+        "summary": "Create or reuse an online SumUp checkout for an owned order",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentIntentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentCheckoutResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Paid order or idempotency conflict"
+          },
+          "502": {
+            "description": "Payment provider rejected the request"
+          },
+          "503": {
+            "description": "Payment provider unavailable"
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/payments/orders/{orderId}/status": {
+      "get": {
+        "operationId": "PaymentsController_status",
+        "summary": "Get an owned order payment status and optionally refresh SumUp",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "refresh",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentCheckoutResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/payments/webhooks/sumup": {
+      "post": {
+        "operationId": "PaymentsController_webhook",
+        "summary": "Receive SumUp notifications; state is verified through SumUp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SumUpWebhookDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Notification accepted"
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/payments/orders/{id}/collect": {
+      "post": {
+        "operationId": "PaymentsController_collect",
+        "summary": "Record cash or external-terminal collection on delivery",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentCheckoutResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/dashboard/summary": {
+      "get": {
+        "operationId": "AdminDashboardController_summary",
+        "summary": "Get restaurant-scoped operational summary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Operational dashboard summary"
+          }
+        },
+        "tags": [
+          "Admin Dashboard"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/audit": {
+      "get": {
+        "operationId": "AuditController_list",
+        "summary": "List audit activity for the active staff restaurant",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Paginated audit activity"
+          }
+        },
+        "tags": [
+          "Audit"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/restaurants": {
+      "get": {
+        "operationId": "RestaurantsController_getSingleton",
+        "summary": "Get the configured restaurant",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": [
+          "Restaurants"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
       "patch": {
         "operationId": "RestaurantsController_update",
         "summary": "Update",
@@ -1245,7 +1744,64 @@
         ]
       }
     },
-    "/customers/me/profile": {
+    "/api/v1/restaurants/hours": {
+      "get": {
+        "operationId": "RestaurantsController_listBusinessHours",
+        "summary": "List the configured restaurant business hours",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": [
+          "Restaurants"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "RestaurantsController_upsertBusinessHours",
+        "summary": "Create or replace business hours for a weekday",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertBusinessHoursDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation or business-rule error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": [
+          "Restaurants"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/customers/me/profile": {
       "get": {
         "operationId": "CustomersController_profile",
         "summary": "Profile",
@@ -1295,7 +1851,7 @@
         ]
       }
     },
-    "/customers/me/preferences": {
+    "/api/v1/customers/me/preferences": {
       "get": {
         "operationId": "CustomersController_preferences",
         "summary": "Preferences",
@@ -1345,7 +1901,7 @@
         ]
       }
     },
-    "/customers/me/privacy/requests": {
+    "/api/v1/customers/me/privacy/requests": {
       "get": {
         "operationId": "PrivacyController_requests",
         "summary": "List the customer privacy-request audit trail",
@@ -1393,7 +1949,7 @@
         ]
       }
     },
-    "/customers/me/privacy/requests/{id}/fulfill": {
+    "/api/v1/customers/me/privacy/requests/{id}/fulfill": {
       "post": {
         "operationId": "PrivacyController_fulfill",
         "summary": "Technically fulfill an owned export, restriction or deletion request",
@@ -1422,7 +1978,7 @@
         ]
       }
     },
-    "/customers/me/privacy/consents": {
+    "/api/v1/customers/me/privacy/consents": {
       "get": {
         "operationId": "PrivacyController_consents",
         "summary": "List the customer consent audit trail",
@@ -1470,7 +2026,7 @@
         ]
       }
     },
-    "/customers/me/addresses": {
+    "/api/v1/customers/me/addresses": {
       "get": {
         "operationId": "AddressesController_list",
         "summary": "List",
@@ -1520,7 +2076,7 @@
         ]
       }
     },
-    "/customers/me/addresses/{id}": {
+    "/api/v1/customers/me/addresses/{id}": {
       "patch": {
         "operationId": "AddressesController_update",
         "summary": "Update",
@@ -1588,7 +2144,7 @@
         ]
       }
     },
-    "/staff": {
+    "/api/v1/staff": {
       "get": {
         "operationId": "StaffController_list",
         "summary": "List",
@@ -1647,7 +2203,42 @@
         ]
       }
     },
-    "/staff/{id}": {
+    "/api/v1/staff/{id}": {
+      "patch": {
+        "operationId": "StaffController_update",
+        "summary": "Update employment profile fields",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStaffMemberDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": [
+          "Staff"
+        ]
+      },
       "delete": {
         "operationId": "StaffController_deactivate",
         "summary": "Deactivate",
@@ -1677,7 +2268,22 @@
         ]
       }
     },
-    "/media/upload": {
+    "/api/v1/media/admin": {
+      "get": {
+        "operationId": "MediaController_adminList",
+        "summary": "List media for the active staff restaurant",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Paginated media library"
+          }
+        },
+        "tags": [
+          "Media"
+        ]
+      }
+    },
+    "/api/v1/media/upload": {
       "post": {
         "operationId": "MediaController_upload",
         "summary": "Upload an image or support file directly to S3",
@@ -1733,7 +2339,7 @@
         ]
       }
     },
-    "/media/uploads": {
+    "/api/v1/media/uploads": {
       "post": {
         "operationId": "MediaController_authorize",
         "summary": "Authorize a short-lived direct S3 upload",
@@ -1765,7 +2371,7 @@
         ]
       }
     },
-    "/media/{id}/finalize": {
+    "/api/v1/media/{id}/finalize": {
       "post": {
         "operationId": "MediaController_finalize",
         "summary": "Verify uploaded S3 metadata and activate media",
@@ -1799,7 +2405,7 @@
         ]
       }
     },
-    "/media/{id}": {
+    "/api/v1/media/{id}": {
       "delete": {
         "operationId": "MediaController_remove",
         "summary": "Delete an owned media object using its trusted key",
@@ -1823,7 +2429,7 @@
         ]
       }
     },
-    "/categories": {
+    "/api/v1/categories": {
       "get": {
         "operationId": "CategoriesController_findAll",
         "summary": "Find All",
@@ -1873,7 +2479,7 @@
         ]
       }
     },
-    "/categories/{id}": {
+    "/api/v1/categories/{id}": {
       "get": {
         "operationId": "CategoriesController_findOne",
         "summary": "Find One",
@@ -1969,7 +2575,7 @@
         ]
       }
     },
-    "/ingredients": {
+    "/api/v1/ingredients": {
       "get": {
         "operationId": "IngredientsController_findAll",
         "summary": "Find All",
@@ -2019,7 +2625,7 @@
         ]
       }
     },
-    "/ingredients/{id}": {
+    "/api/v1/ingredients/{id}": {
       "get": {
         "operationId": "IngredientsController_findOne",
         "summary": "Find One",
@@ -2115,7 +2721,7 @@
         ]
       }
     },
-    "/menu": {
+    "/api/v1/menu": {
       "get": {
         "operationId": "MenuController_list",
         "summary": "List",
@@ -2174,7 +2780,7 @@
         ]
       }
     },
-    "/menu/search": {
+    "/api/v1/menu/search": {
       "get": {
         "operationId": "MenuController_search",
         "summary": "Search",
@@ -2212,7 +2818,7 @@
         ]
       }
     },
-    "/menu/{id}": {
+    "/api/v1/menu/{id}": {
       "get": {
         "operationId": "MenuController_detail",
         "summary": "Detail",
@@ -2308,7 +2914,7 @@
         ]
       }
     },
-    "/option-groups": {
+    "/api/v1/option-groups": {
       "get": {
         "operationId": "OptionGroupsController_list",
         "summary": "List",
@@ -2367,7 +2973,7 @@
         ]
       }
     },
-    "/option-groups/{id}": {
+    "/api/v1/option-groups/{id}": {
       "get": {
         "operationId": "OptionGroupsController_detail",
         "summary": "Detail",
@@ -2433,9 +3039,34 @@
         "tags": [
           "Option Groups"
         ]
+      },
+      "delete": {
+        "operationId": "OptionGroupsController_deactivate",
+        "summary": "Deactivate",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": [
+          "Option Groups"
+        ]
       }
     },
-    "/option-groups/{id}/choices": {
+    "/api/v1/option-groups/{id}/choices": {
       "post": {
         "operationId": "OptionGroupsController_addChoice",
         "summary": "Add Choice",
@@ -2475,46 +3106,179 @@
         ]
       }
     },
-    "/pricing/calculate": {
+    "/api/v1/option-groups/{id}/choices/{choiceId}": {
+      "patch": {
+        "operationId": "OptionGroupsController_updateChoice",
+        "summary": "Update Choice",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "choiceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOptionChoiceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": [
+          "Option Groups"
+        ]
+      },
+      "delete": {
+        "operationId": "OptionGroupsController_deactivateChoice",
+        "summary": "Deactivate Choice",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "choiceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": [
+          "Option Groups"
+        ]
+      }
+    },
+    "/api/v1/pizza-builder/admin/rules": {
+      "get": {
+        "operationId": "PizzaBuilderController_listAdmin",
+        "summary": "List restaurant pizza-builder rules",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Pizza Builder"
+        ]
+      },
       "post": {
-        "operationId": "PricingController_calculate",
-        "summary": "Calculate pizza/menu item price",
-        "description": "Calculates the authoritative backend price using the selected menu item, size, options, and quantity.",
+        "operationId": "PizzaBuilderController_createAdmin",
+        "summary": "Create a restaurant pizza-builder rule",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CalculatePriceDto"
+                "$ref": "#/components/schemas/CreatePizzaBuilderRuleDto"
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Price calculated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PriceBreakdownDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid menu item size, unavailable option, or incompatible options"
-          },
-          "404": {
-            "description": "Menu item not found"
+            "description": ""
           }
         },
         "tags": [
-          "Pricing"
+          "Pizza Builder"
         ]
       }
     },
-    "/pizza-builder/{menuItemId}": {
+    "/api/v1/pizza-builder/admin/rules/{id}": {
+      "patch": {
+        "operationId": "PizzaBuilderController_updateAdmin",
+        "summary": "Update a restaurant pizza-builder rule",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePizzaBuilderRuleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Pizza Builder"
+        ]
+      },
+      "delete": {
+        "operationId": "PizzaBuilderController_deactivateAdmin",
+        "summary": "Deactivate a restaurant pizza-builder rule",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Pizza Builder"
+        ]
+      }
+    },
+    "/api/v1/pizza-builder/{menuItemId}": {
       "get": {
         "operationId": "PizzaBuilderController_configuration",
         "summary": "Configuration",
@@ -2541,7 +3305,7 @@
         ]
       }
     },
-    "/pizza-builder/build": {
+    "/api/v1/pizza-builder/build": {
       "post": {
         "operationId": "PizzaBuilderController_build",
         "summary": "Build",
@@ -2569,7 +3333,7 @@
         ]
       }
     },
-    "/cart": {
+    "/api/v1/cart": {
       "get": {
         "operationId": "CartsController_detail",
         "summary": "Detail",
@@ -2621,7 +3385,7 @@
         ]
       }
     },
-    "/cart/items": {
+    "/api/v1/cart/items": {
       "post": {
         "operationId": "CartsController_add",
         "summary": "Add",
@@ -2661,7 +3425,7 @@
         ]
       }
     },
-    "/cart/items/{id}": {
+    "/api/v1/cart/items/{id}": {
       "patch": {
         "operationId": "CartsController_update",
         "summary": "Update",
@@ -2729,7 +3493,7 @@
         ]
       }
     },
-    "/promotions": {
+    "/api/v1/promotions": {
       "get": {
         "operationId": "PromotionsController_findAll",
         "summary": "Find All",
@@ -2779,7 +3543,7 @@
         ]
       }
     },
-    "/promotions/{id}": {
+    "/api/v1/promotions/{id}": {
       "get": {
         "operationId": "PromotionsController_findOne",
         "summary": "Find One",
@@ -2875,7 +3639,7 @@
         ]
       }
     },
-    "/coupons": {
+    "/api/v1/coupons": {
       "get": {
         "operationId": "CouponsController_findAll",
         "summary": "Find All",
@@ -2925,7 +3689,7 @@
         ]
       }
     },
-    "/coupons/{id}": {
+    "/api/v1/coupons/{id}": {
       "get": {
         "operationId": "CouponsController_findOne",
         "summary": "Find One",
@@ -3021,7 +3785,7 @@
         ]
       }
     },
-    "/checkout": {
+    "/api/v1/checkout": {
       "post": {
         "operationId": "CheckoutController_checkout",
         "summary": "Checkout",
@@ -3062,7 +3826,7 @@
         ]
       }
     },
-    "/orders/me": {
+    "/api/v1/orders/me": {
       "get": {
         "operationId": "OrdersController_history",
         "summary": "History",
@@ -3083,7 +3847,7 @@
         ]
       }
     },
-    "/orders/me/{id}": {
+    "/api/v1/orders/me/{id}": {
       "get": {
         "operationId": "OrdersController_detail",
         "summary": "Detail",
@@ -3113,7 +3877,7 @@
         ]
       }
     },
-    "/orders/me/{id}/reorder": {
+    "/api/v1/orders/me/{id}/reorder": {
       "post": {
         "operationId": "OrdersController_reorder",
         "summary": "Revalidate an earlier order and add it to the active cart",
@@ -3140,7 +3904,7 @@
         ]
       }
     },
-    "/orders/me/{id}/cancel": {
+    "/api/v1/orders/me/{id}/cancel": {
       "post": {
         "operationId": "OrdersController_cancel",
         "summary": "Cancel",
@@ -3185,19 +3949,11 @@
         ]
       }
     },
-    "/orders/admin/list": {
+    "/api/v1/orders/admin/list": {
       "get": {
         "operationId": "OrdersController_adminList",
         "summary": "Admin List",
         "parameters": [
-          {
-            "name": "restaurantId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "status",
             "required": false,
@@ -3223,7 +3979,34 @@
         ]
       }
     },
-    "/orders/admin/{id}/status": {
+    "/api/v1/orders/admin/{id}": {
+      "get": {
+        "operationId": "OrdersController_adminDetail",
+        "summary": "Admin Detail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
+    "/api/v1/orders/admin/{id}/status": {
       "patch": {
         "operationId": "OrdersController_updateStatus",
         "summary": "Update Status",
@@ -3263,268 +4046,22 @@
         ]
       }
     },
-    "/payments/methods": {
+    "/api/v1/refunds/admin": {
       "get": {
-        "operationId": "PaymentsController_methods",
-        "summary": "List safe references to owned saved payment methods",
+        "operationId": "RefundsController_adminList",
+        "summary": "List refunds for the active staff restaurant",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PaymentMethodResponseDto"
-                  }
-                }
-              }
-            }
+            "description": "Paginated refund queue"
           }
         },
         "tags": [
-          "Payments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
+          "Refunds"
         ]
       }
     },
-    "/payments/methods/{id}/default": {
-      "patch": {
-        "operationId": "PaymentsController_makeMethodDefault",
-        "summary": "Make an owned saved payment method the default",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaymentMethodResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Payments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/payments/methods/{id}": {
-      "delete": {
-        "operationId": "PaymentsController_archiveMethod",
-        "summary": "Archive an owned saved payment method",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Payment method archived"
-          }
-        },
-        "tags": [
-          "Payments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/payments/checkouts": {
-      "post": {
-        "operationId": "PaymentsController_createCheckout",
-        "summary": "Create or reuse an online SumUp checkout for an owned order",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreatePaymentIntentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaymentCheckoutResponseDto"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Paid order or idempotency conflict"
-          },
-          "502": {
-            "description": "Payment provider rejected the request"
-          },
-          "503": {
-            "description": "Payment provider unavailable"
-          }
-        },
-        "tags": [
-          "Payments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/payments/orders/{orderId}/status": {
-      "get": {
-        "operationId": "PaymentsController_status",
-        "summary": "Get an owned order payment status and optionally refresh SumUp",
-        "parameters": [
-          {
-            "name": "orderId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "refresh",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaymentCheckoutResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Payments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/payments/webhooks/sumup": {
-      "post": {
-        "operationId": "PaymentsController_webhook",
-        "summary": "Receive SumUp notifications; state is verified through SumUp",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SumUpWebhookDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "Notification accepted"
-          }
-        },
-        "tags": [
-          "Payments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/payments/orders/{id}/collect": {
-      "post": {
-        "operationId": "PaymentsController_collect",
-        "summary": "Record cash or external-terminal collection on delivery",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CollectPaymentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaymentCheckoutResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Payments"
-        ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
-      }
-    },
-    "/refunds": {
+    "/api/v1/refunds": {
       "post": {
         "operationId": "RefundsController_create",
         "summary": "Create",
@@ -3555,7 +4092,7 @@
         ]
       }
     },
-    "/refunds/orders/{orderId}": {
+    "/api/v1/refunds/orders/{orderId}": {
       "get": {
         "operationId": "RefundsController_list",
         "summary": "List",
@@ -3585,7 +4122,7 @@
         ]
       }
     },
-    "/refunds/{id}": {
+    "/api/v1/refunds/{id}": {
       "get": {
         "operationId": "RefundsController_get",
         "summary": "Get refund status for an owned order",
@@ -3609,7 +4146,7 @@
         ]
       }
     },
-    "/refunds/{id}/approve": {
+    "/api/v1/refunds/{id}/approve": {
       "patch": {
         "operationId": "RefundsController_approve",
         "summary": "Approve",
@@ -3654,7 +4191,27 @@
         ]
       }
     },
-    "/deliveries/orders/{orderId}/tracking": {
+    "/api/v1/deliveries/admin": {
+      "get": {
+        "operationId": "DeliveriesController_adminList",
+        "summary": "List delivery assignments for the active restaurant",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Paginated delivery board"
+          }
+        },
+        "tags": [
+          "Deliveries"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/deliveries/orders/{orderId}/tracking": {
       "get": {
         "operationId": "DeliveriesController_tracking",
         "summary": "Tracking",
@@ -3689,7 +4246,7 @@
         ]
       }
     },
-    "/deliveries/orders/{orderId}/assign": {
+    "/api/v1/deliveries/orders/{orderId}/assign": {
       "post": {
         "operationId": "DeliveriesController_assign",
         "summary": "Assign",
@@ -3734,7 +4291,7 @@
         ]
       }
     },
-    "/deliveries/orders/{orderId}/assignment": {
+    "/api/v1/deliveries/orders/{orderId}/assignment": {
       "get": {
         "operationId": "DeliveriesController_assignment",
         "summary": "Get the assigned driver delivery record",
@@ -3766,7 +4323,7 @@
         ]
       }
     },
-    "/deliveries/orders/{orderId}/status": {
+    "/api/v1/deliveries/orders/{orderId}/status": {
       "patch": {
         "operationId": "DeliveriesController_transition",
         "summary": "Advance an assigned delivery state",
@@ -3814,7 +4371,7 @@
         ]
       }
     },
-    "/deliveries/orders/{orderId}/location": {
+    "/api/v1/deliveries/orders/{orderId}/location": {
       "patch": {
         "operationId": "DeliveriesController_updateLocation",
         "summary": "Update Location",
@@ -3859,7 +4416,7 @@
         ]
       }
     },
-    "/notifications": {
+    "/api/v1/notifications": {
       "get": {
         "operationId": "NotificationsController_list",
         "summary": "List",
@@ -3880,7 +4437,7 @@
         ]
       }
     },
-    "/notifications/unread-count": {
+    "/api/v1/notifications/unread-count": {
       "get": {
         "operationId": "NotificationsController_unread",
         "summary": "Unread",
@@ -3901,37 +4458,20 @@
         ]
       }
     },
-    "/notifications/{id}/read": {
-      "patch": {
-        "operationId": "NotificationsController_markRead",
-        "summary": "Mark Read",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+    "/api/v1/notifications/devices": {
+      "get": {
+        "operationId": "NotificationsController_listDevices",
+        "summary": "List push devices owned by the current user",
+        "parameters": [],
         "responses": {
           "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Validation or business-rule error"
-          },
-          "401": {
-            "description": "Unauthorized"
+            "description": "Owned push devices"
           }
         },
         "tags": [
           "Notifications"
         ]
-      }
-    },
-    "/notifications/devices": {
+      },
       "post": {
         "operationId": "NotificationsController_registerDevice",
         "summary": "Register Device",
@@ -3962,7 +4502,67 @@
         ]
       }
     },
-    "/notifications/devices/{id}": {
+    "/api/v1/notifications/{id}": {
+      "get": {
+        "operationId": "NotificationsController_detail",
+        "summary": "Get one owned notification",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Notification not found"
+          }
+        },
+        "tags": [
+          "Notifications"
+        ]
+      }
+    },
+    "/api/v1/notifications/{id}/read": {
+      "patch": {
+        "operationId": "NotificationsController_markRead",
+        "summary": "Mark Read",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation or business-rule error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": [
+          "Notifications"
+        ]
+      }
+    },
+    "/api/v1/notifications/devices/{id}": {
       "delete": {
         "operationId": "NotificationsController_deactivateDevice",
         "summary": "Deactivate an owned push device token",
@@ -3986,7 +4586,7 @@
         ]
       }
     },
-    "/notifications/preferences/me": {
+    "/api/v1/notifications/preferences/me": {
       "get": {
         "operationId": "NotificationsController_preferences",
         "summary": "Preferences",
@@ -4036,7 +4636,7 @@
         ]
       }
     },
-    "/favorites": {
+    "/api/v1/favorites": {
       "get": {
         "operationId": "FavoritesController_list",
         "summary": "List",
@@ -4096,7 +4696,7 @@
         ]
       }
     },
-    "/favorites/{id}/cart": {
+    "/api/v1/favorites/{id}/cart": {
       "post": {
         "operationId": "FavoritesController_addToCart",
         "summary": "Validate and add an owned favorite to the active cart",
@@ -4135,7 +4735,7 @@
         ]
       }
     },
-    "/favorites/{id}": {
+    "/api/v1/favorites/{id}": {
       "delete": {
         "operationId": "FavoritesController_remove",
         "summary": "Remove",
@@ -4170,7 +4770,7 @@
         ]
       }
     },
-    "/loyalty/balance": {
+    "/api/v1/loyalty/balance": {
       "get": {
         "operationId": "LoyaltyController_balance",
         "summary": "Balance",
@@ -4191,7 +4791,7 @@
         ]
       }
     },
-    "/loyalty/history": {
+    "/api/v1/loyalty/history": {
       "get": {
         "operationId": "LoyaltyController_history",
         "summary": "History",
@@ -4212,7 +4812,7 @@
         ]
       }
     },
-    "/loyalty/redeem": {
+    "/api/v1/loyalty/redeem": {
       "post": {
         "operationId": "LoyaltyController_redeem",
         "summary": "Redeem",
@@ -4243,7 +4843,7 @@
         ]
       }
     },
-    "/support/tickets": {
+    "/api/v1/support/tickets": {
       "get": {
         "operationId": "SupportController_list",
         "summary": "List authenticated customer conversations",
@@ -4281,7 +4881,7 @@
         ]
       }
     },
-    "/support/tickets/{id}": {
+    "/api/v1/support/tickets/{id}": {
       "get": {
         "operationId": "SupportController_detail",
         "summary": "Get an authorized conversation and unread count",
@@ -4305,7 +4905,7 @@
         ]
       }
     },
-    "/support/tickets/{id}/messages": {
+    "/api/v1/support/tickets/{id}/messages": {
       "get": {
         "operationId": "SupportController_history",
         "summary": "Get paginated chronological conversation messages",
@@ -4361,7 +4961,7 @@
         ]
       }
     },
-    "/support/tickets/{id}/read": {
+    "/api/v1/support/tickets/{id}/read": {
       "patch": {
         "operationId": "SupportController_markRead",
         "summary": "Mark the authorized side of a conversation read",
@@ -4385,7 +4985,7 @@
         ]
       }
     },
-    "/support/tickets/{id}/realtime-authorization": {
+    "/api/v1/support/tickets/{id}/realtime-authorization": {
       "get": {
         "operationId": "SupportController_realtimeAuthorization",
         "summary": "Authorize the authenticated user for a private AppSync conversation channel",
@@ -4409,7 +5009,7 @@
         ]
       }
     },
-    "/support/agent/queue": {
+    "/api/v1/support/agent/queue": {
       "get": {
         "operationId": "SupportController_queue",
         "summary": "Get filtered, paginated support queue",
@@ -4424,7 +5024,7 @@
         ]
       }
     },
-    "/support/agent/tickets/{id}/claim": {
+    "/api/v1/support/agent/tickets/{id}/claim": {
       "post": {
         "operationId": "SupportController_claim",
         "summary": "Atomically claim an unassigned support conversation",
@@ -4448,7 +5048,7 @@
         ]
       }
     },
-    "/support/agent/tickets/{id}/status": {
+    "/api/v1/support/agent/tickets/{id}/status": {
       "patch": {
         "operationId": "SupportController_status",
         "summary": "Resolve, close, or update an assigned conversation",
@@ -4482,7 +5082,7 @@
         ]
       }
     },
-    "/faq": {
+    "/api/v1/faq": {
       "get": {
         "operationId": "FaqController_findAll",
         "summary": "Find All",
@@ -4532,7 +5132,7 @@
         ]
       }
     },
-    "/faq/{id}": {
+    "/api/v1/faq/{id}": {
       "get": {
         "operationId": "FaqController_findOne",
         "summary": "Find One",
@@ -4628,7 +5228,7 @@
         ]
       }
     },
-    "/reports/sales": {
+    "/api/v1/reports/sales": {
       "get": {
         "operationId": "ReportsController_sales",
         "summary": "Sales",
@@ -4654,7 +5254,7 @@
         ]
       }
     },
-    "/reports/daily-revenue": {
+    "/api/v1/reports/daily-revenue": {
       "get": {
         "operationId": "ReportsController_daily",
         "summary": "Daily recognized and net revenue in minor units",
@@ -4674,7 +5274,7 @@
         ]
       }
     },
-    "/reports/popular-items": {
+    "/api/v1/reports/popular-items": {
       "get": {
         "operationId": "ReportsController_popular",
         "summary": "Popular",
@@ -5092,6 +5692,190 @@
           "permissionIds"
         ]
       },
+      "CreatePosOrderDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CollectPaymentDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "PricingOptionSelectionDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CalculatePriceDto": {
+        "type": "object",
+        "properties": {
+          "menuItemId": {
+            "type": "string",
+            "description": "Menu item ID",
+            "example": "4a9bb40f-5c7e-4cc5-bb08-e5d8792cab90"
+          },
+          "sizeId": {
+            "type": "string",
+            "description": "Selected menu item size ID",
+            "example": "279a8d46-a1ce-48f8-ae40-b9fb11e32f98"
+          },
+          "optionChoiceIds": {
+            "description": "Selected option choice IDs",
+            "example": [
+              "e60c7896-a469-41fb-881e-fcef61d3061b",
+              "0788df92-78cf-40b7-bc70-97d0e950d4ec"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricingOptionSelectionDto"
+            }
+          },
+          "quantity": {
+            "type": "number",
+            "description": "Quantity",
+            "example": 1,
+            "minimum": 1,
+            "default": 1
+          }
+        },
+        "required": [
+          "menuItemId"
+        ]
+      },
+      "PriceBreakdownDto": {
+        "type": "object",
+        "properties": {
+          "basePriceMinor": {
+            "type": "number"
+          },
+          "optionAdjustmentsMinor": {
+            "type": "number"
+          },
+          "unitPriceMinor": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "lineTotalMinor": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string",
+            "example": "EUR"
+          }
+        },
+        "required": [
+          "basePriceMinor",
+          "optionAdjustmentsMinor",
+          "unitPriceMinor",
+          "quantity",
+          "lineTotalMinor",
+          "currency"
+        ]
+      },
+      "PaymentMethodResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "paymentMethodType": {
+            "type": "string"
+          },
+          "cardBrand": {
+            "type": "string"
+          },
+          "cardLast4": {
+            "type": "string"
+          },
+          "expMonth": {
+            "type": "number"
+          },
+          "expYear": {
+            "type": "number"
+          },
+          "label": {
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "paymentMethodType",
+          "isDefault",
+          "createdAt"
+        ]
+      },
+      "CreatePaymentIntentDto": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "idempotencyKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "orderId",
+          "idempotencyKey"
+        ]
+      },
+      "PaymentCheckoutResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "example": "pending"
+          },
+          "amountMinor": {
+            "type": "number",
+            "example": 1299
+          },
+          "currency": {
+            "type": "string",
+            "example": "EUR"
+          },
+          "checkoutId": {
+            "type": "string"
+          },
+          "hostedCheckoutUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "orderId",
+          "status",
+          "amountMinor",
+          "currency"
+        ]
+      },
+      "SumUpWebhookDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpsertBusinessHoursDto": {
+        "type": "object",
+        "properties": {}
+      },
       "UpdateRestaurantDto": {
         "type": "object",
         "properties": {}
@@ -5121,6 +5905,10 @@
         "properties": {}
       },
       "CreateStaffMemberDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateStaffMemberDto": {
         "type": "object",
         "properties": {}
       },
@@ -5216,83 +6004,17 @@
         "type": "object",
         "properties": {}
       },
-      "PricingOptionSelectionDto": {
+      "UpdateOptionChoiceDto": {
         "type": "object",
         "properties": {}
       },
-      "CalculatePriceDto": {
+      "CreatePizzaBuilderRuleDto": {
         "type": "object",
-        "properties": {
-          "menuItemId": {
-            "type": "string",
-            "description": "Menu item ID",
-            "example": "4a9bb40f-5c7e-4cc5-bb08-e5d8792cab90"
-          },
-          "sizeId": {
-            "type": "string",
-            "description": "Selected menu item size ID",
-            "example": "279a8d46-a1ce-48f8-ae40-b9fb11e32f98"
-          },
-          "optionChoiceIds": {
-            "description": "Selected option choice IDs",
-            "example": [
-              "e60c7896-a469-41fb-881e-fcef61d3061b",
-              "0788df92-78cf-40b7-bc70-97d0e950d4ec"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "options": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PricingOptionSelectionDto"
-            }
-          },
-          "quantity": {
-            "type": "number",
-            "description": "Quantity",
-            "example": 1,
-            "minimum": 1,
-            "default": 1
-          }
-        },
-        "required": [
-          "menuItemId"
-        ]
+        "properties": {}
       },
-      "PriceBreakdownDto": {
+      "UpdatePizzaBuilderRuleDto": {
         "type": "object",
-        "properties": {
-          "basePriceMinor": {
-            "type": "number"
-          },
-          "optionAdjustmentsMinor": {
-            "type": "number"
-          },
-          "unitPriceMinor": {
-            "type": "number"
-          },
-          "quantity": {
-            "type": "number"
-          },
-          "lineTotalMinor": {
-            "type": "number"
-          },
-          "currency": {
-            "type": "string",
-            "example": "EUR"
-          }
-        },
-        "required": [
-          "basePriceMinor",
-          "optionAdjustmentsMinor",
-          "unitPriceMinor",
-          "quantity",
-          "lineTotalMinor",
-          "currency"
-        ]
+        "properties": {}
       },
       "BuildPizzaDto": {
         "type": "object",
@@ -5428,104 +6150,6 @@
         ]
       },
       "UpdateOrderStatusDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "PaymentMethodResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "paymentMethodType": {
-            "type": "string"
-          },
-          "cardBrand": {
-            "type": "string"
-          },
-          "cardLast4": {
-            "type": "string"
-          },
-          "expMonth": {
-            "type": "number"
-          },
-          "expYear": {
-            "type": "number"
-          },
-          "label": {
-            "type": "string"
-          },
-          "isDefault": {
-            "type": "boolean"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "paymentMethodType",
-          "isDefault",
-          "createdAt"
-        ]
-      },
-      "CreatePaymentIntentDto": {
-        "type": "object",
-        "properties": {
-          "orderId": {
-            "type": "string"
-          },
-          "idempotencyKey": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "orderId",
-          "idempotencyKey"
-        ]
-      },
-      "PaymentCheckoutResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "orderId": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "example": "pending"
-          },
-          "amountMinor": {
-            "type": "number",
-            "example": 1299
-          },
-          "currency": {
-            "type": "string",
-            "example": "EUR"
-          },
-          "checkoutId": {
-            "type": "string"
-          },
-          "hostedCheckoutUrl": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "orderId",
-          "status",
-          "amountMinor",
-          "currency"
-        ]
-      },
-      "SumUpWebhookDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "CollectPaymentDto": {
         "type": "object",
         "properties": {}
       },

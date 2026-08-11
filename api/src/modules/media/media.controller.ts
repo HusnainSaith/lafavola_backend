@@ -2,8 +2,10 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -18,8 +20,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
+import { AdminListQueryDto } from '../../common/dto/admin-list-query.dto';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RoleEnum } from '../roles/role.enum';
 import {
   CreateUploadUrlDto,
   MediaPurpose,
@@ -36,6 +42,18 @@ import { MediaService } from './media.service';
 @UseGuards(JwtAuthGuard)
 export class MediaController {
   constructor(private readonly service: MediaService) {}
+
+  @Get('admin')
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'List media for the active staff restaurant' })
+  @ApiResponse({ status: 200, description: 'Paginated media library' })
+  adminList(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: AdminListQueryDto,
+  ) {
+    return this.service.listAdmin(user.id, query);
+  }
 
   @Post('upload')
   @UseInterceptors(

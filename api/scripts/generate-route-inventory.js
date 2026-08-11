@@ -17,7 +17,6 @@ const publicPaths = new Set([
   '/menu/search',
   '/categories',
   '/faq',
-  '/restaurants',
   '/payments/webhooks/sumup',
 ]);
 
@@ -27,7 +26,8 @@ const customerPrefixes = [
 ];
 const adminPrefixes = [
   '/users', '/roles', '/permissions', '/role-permissions', '/staff',
-  '/reports', '/orders/admin',
+  '/reports', '/orders/admin', '/admin/dashboard', '/admin/pos', '/audit',
+  '/deliveries/admin', '/refunds/admin', '/media/admin',
 ];
 const managedWritePrefixes = [
   '/categories', '/coupons', '/faq', '/ingredients', '/menu',
@@ -75,12 +75,13 @@ function requirement(path) {
     payments: 'Payments/receipts', refunds: 'Refunds', deliveries: 'Delivery/tracking', notifications: 'Notifications',
     favorites: 'Favorites', loyalty: 'Loyalty', support: 'Customer support/live chat', faq: 'FAQ',
     restaurants: 'Restaurant/business hours', staff: 'Staff management', reports: 'Reporting', media: 'Media',
-    roles: 'RBAC', permissions: 'RBAC', 'role-permissions': 'RBAC', system: 'System health',
+    roles: 'RBAC', permissions: 'RBAC', 'role-permissions': 'RBAC', admin: 'Restaurant POS and operations', system: 'System health',
   };
   return map[first] || 'Platform administration';
 }
 
 function coverage(path) {
+  if (/^\/admin\/pos/.test(path)) return 'Unit + authenticated HTTP + Android integration journey';
   if (/auth/.test(path)) return 'Unit + DB; selected HTTP boundaries';
   if (/deliveries|payments|reports|customers\/me\/privacy/.test(path)) return 'DB journey + HTTP auth boundary';
   if (/checkout|orders|promotions|coupons|menu|pizza-builder|cart/.test(path)) return 'Unit/DB integration; no full authenticated HTTP journey';
@@ -90,6 +91,7 @@ function coverage(path) {
 
 const rows = [];
 for (const [path, pathItem] of Object.entries(document.paths || {})) {
+  const logicalPath = path.replace(/^\/api\/v1(?=\/|$)/, '') || '/';
   for (const [method, operation] of Object.entries(pathItem)) {
     if (!['get', 'post', 'put', 'patch', 'delete'].includes(method)) continue;
     const responseSchemas = Object.values(operation.responses || {})
@@ -97,8 +99,8 @@ for (const [path, pathItem] of Object.entries(document.paths || {})) {
       .filter((name) => name !== 'None');
     rows.push([
       method.toUpperCase(), path, operation.tags?.[0] || 'System', operation.summary || 'Undocumented operation',
-      access(method, path, operation), schemaName(operation.requestBody?.content),
-      [...new Set(responseSchemas)].join(', ') || 'Not explicitly typed', ownership(path), coverage(path), requirement(path),
+      access(method, logicalPath, operation), schemaName(operation.requestBody?.content),
+      [...new Set(responseSchemas)].join(', ') || 'Not explicitly typed', ownership(logicalPath), coverage(logicalPath), requirement(logicalPath),
     ]);
   }
 }

@@ -14,6 +14,8 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RoleEnum } from '../roles/role.enum';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
 import { CreateMenuItemDto } from './dto/create-menu-item.dto';
 import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
 import { MenuQueryDto } from './dto/menu-query.dto';
@@ -86,8 +88,11 @@ export class MenuController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
-  create(@Body() dto: CreateMenuItemDto) {
-    return this.service.create(dto);
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateMenuItemDto,
+  ) {
+    return this.service.create(dto, user.id);
   }
 
   @Patch(':id')
@@ -102,8 +107,12 @@ export class MenuController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
-  update(@Param('id') id: string, @Body() dto: UpdateMenuItemDto) {
-    return this.service.update(id, dto);
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateMenuItemDto,
+  ) {
+    return this.service.update(id, dto, user.id);
   }
 
   @Delete(':id')
@@ -117,8 +126,11 @@ export class MenuController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
-  async archive(@Param('id') id: string) {
-    await this.service.archive(id);
+  async archive(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    await this.service.archive(id, user.id);
     return { success: true };
   }
 }

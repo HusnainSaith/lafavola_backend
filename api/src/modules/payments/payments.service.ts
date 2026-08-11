@@ -15,6 +15,7 @@ import { OrderItem } from '../orders/entities/order-item.entity';
 import { OrderStatusHistory } from '../orders/entities/order-status-history.entity';
 import { Order } from '../orders/entities/order.entity';
 import { DeliveryAssignment } from '../deliveries/entities/delivery-assignment.entity';
+import { StaffMember } from '../staff/entities/staff-member.entity';
 import { CollectPaymentDto } from './dto/collect-payment.dto';
 import { CreatePaymentIntentDto } from './dto/create-payment-intent.dto';
 import { SumUpWebhookDto } from './dto/sumup-webhook.dto';
@@ -45,8 +46,8 @@ export class PaymentsService {
       .createQueryBuilder('method')
       .where('method.customer_id = :customerId', { customerId })
       .andWhere('method.archived_at IS NULL')
-      .orderBy('method.is_default', 'DESC')
-      .addOrderBy('method.created_at', 'DESC')
+      .orderBy('method.isDefault', 'DESC')
+      .addOrderBy('method.createdAt', 'DESC')
       .getMany();
     return methods.map((method) => this.safePaymentMethod(method));
   }
@@ -98,7 +99,7 @@ export class PaymentsService {
           .createQueryBuilder('method')
           .where('method.customer_id = :customerId', { customerId })
           .andWhere('method.archived_at IS NULL')
-          .orderBy('method.created_at', 'DESC')
+          .orderBy('method.createdAt', 'DESC')
           .getOne();
         if (replacement) {
           replacement.isDefault = true;
@@ -347,6 +348,18 @@ export class PaymentsService {
         }),
         'Order not found',
       );
+      if (isAdmin) {
+        requireEntity(
+          await manager.getRepository(StaffMember).findOne({
+            where: {
+              userId: collectorUserId,
+              restaurantId: order.restaurantId,
+              isActive: true,
+            },
+          }),
+          'Order not found',
+        );
+      }
       if (!['cash', 'card_on_delivery'].includes(String(order.paymentMethod))) {
         throw new BadRequestException(
           'Order is not configured for pay-on-delivery',
@@ -358,6 +371,27 @@ export class PaymentsService {
         throw new BadRequestException(
           'Collection method does not match the order',
         );
+      const requestHash = createHash('sha256')
+        .update(
+          JSON.stringify({
+            orderId,
+            paymentMethodType: dto.paymentMethodType,
+            amountMinor: Number(order.grandTotalMinor),
+          }),
+        )
+        .digest('hex');
+      const repo = manager.getRepository(PaymentTransaction);
+      const existing = await repo.findOne({
+        where: { orderId: order.id, idempotencyKey: dto.idempotencyKey },
+      });
+      if (existing) {
+        if (existing.requestHash !== requestHash) {
+          throw new ConflictException(
+            'Idempotency key was used for another payment collection',
+          );
+        }
+        return this.safeTransaction(existing);
+      }
       if (!isAdmin) {
         const assignment = await manager
           .getRepository(DeliveryAssignment)
@@ -372,7 +406,6 @@ export class PaymentsService {
       }
       if (order.paymentStatus === 'paid')
         throw new ConflictException('Order is already paid');
-      const repo = manager.getRepository(PaymentTransaction);
       const transaction = await repo.save(
         repo.create({
           orderId: order.id,
@@ -384,6 +417,7 @@ export class PaymentsService {
           currency: 'EUR',
           status: 'captured',
           idempotencyKey: dto.idempotencyKey,
+          requestHash,
           capturedAt: new Date(),
           metadata: { collectorUserId },
         }),

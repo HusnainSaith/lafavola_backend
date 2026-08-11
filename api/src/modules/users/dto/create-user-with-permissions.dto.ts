@@ -50,8 +50,9 @@ export class CreateUserWithPermissionsDto {
   @IsNotEmpty({ message: 'Full name is required' })
   @MinLength(2, { message: 'Full name must be at least 2 characters long' })
   @MaxLength(100, { message: 'Full name cannot exceed 100 characters' })
-  @Matches(/^[a-zA-Z\s]+$/, {
-    message: 'Full name can only contain letters and spaces',
+  @Matches(/^[\p{L}\p{M}'’ -]+$/u, {
+    message:
+      'Full name can only contain letters, spaces, apostrophes and hyphens',
   })
   @Transform(({ value }) => value?.trim())
   fullName: string;

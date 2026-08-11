@@ -1,11 +1,74 @@
+import { Global, Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { writeFileSync } from 'fs';
 import { resolve } from 'path';
-import { AppModule } from '../src/app.module';
+import { DataSource } from 'typeorm';
+import { AppController } from '../src/app.controller';
+import { AppService } from '../src/app.service';
+import { BusinessModule } from '../src/modules/business.module';
+import { AuthModule } from '../src/modules/auth/auth.module';
+import { PermissionsModule } from '../src/modules/permissions/permissions.module';
+import { RolePermissionsModule } from '../src/modules/role-permissions/role-permissions.module';
+import { RolesModule } from '../src/modules/roles/roles.module';
+import { UsersModule } from '../src/modules/users/users.module';
+import { PushModule } from '../src/integrations/push/push.module';
+import { RealtimeModule } from '../src/integrations/realtime/realtime.module';
+import { OutboxModule } from '../src/queue/outbox.module';
+import { SharedModule } from '../src/modules/shared/shared.module';
+
+const metadataDataSource = {
+  entityMetadatas: [],
+  options: { type: 'postgres' },
+  getRepository: () => ({}),
+  getTreeRepository: () => ({}),
+  getMongoRepository: () => ({}),
+};
+
+@Global()
+@Module({
+  providers: [{ provide: DataSource, useValue: metadataDataSource }],
+  exports: [DataSource],
+})
+class MetadataPersistenceModule {}
+
+// The API document is controller metadata, not a runtime health check. Keeping
+// the root module free of TypeOrmModule.forRoot avoids requiring local or live
+// database secrets solely to regenerate Swagger.
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
+    }),
+    MetadataPersistenceModule,
+    SharedModule,
+    RealtimeModule,
+    PushModule,
+    OutboxModule,
+    UsersModule,
+    RolesModule,
+    AuthModule,
+    PermissionsModule,
+    RolePermissionsModule,
+    BusinessModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+class OpenApiModule {}
 
 async function generate() {
-  const app = await NestFactory.create(AppModule, { logger: false });
+  // Swagger generation only needs controller metadata. Preview mode avoids
+  // instantiating database and provider clients, making the contract build
+  // deterministic in CI and on developer machines without production secrets.
+  const app = await NestFactory.create(OpenApiModule, {
+    logger: ['error'],
+    abortOnError: false,
+    preview: true,
+  });
+  app.setGlobalPrefix('api/v1');
   const config = new DocumentBuilder()
     .setTitle('La Favola Pizza Restaurant API')
     .setDescription(

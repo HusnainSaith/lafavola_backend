@@ -17,6 +17,7 @@ import { Order } from './entities/order.entity';
 import { OrderStatus } from './enums/order-status.enum';
 import { OrderRepository } from './repositories/order.repository';
 import { OutboxService } from '../../queue/outbox.service';
+import { StaffMember } from '../staff/entities/staff-member.entity';
 
 const TRANSITIONS: Record<string, string[]> = {
   pending_payment: ['placed', 'cancelled'],
@@ -80,6 +81,38 @@ export class OrdersService {
           .getMany()
       : [];
     return { order, items, options };
+  }
+
+  async adminDetail(orderId: string, actorUserId: string) {
+    const staff = requireEntity(
+      await this.dataSource.getRepository(StaffMember).findOne({
+        where: { userId: actorUserId, isActive: true },
+      }),
+      'Staff member not found',
+    );
+    const order = requireEntity(
+      await this.orders.findOne({
+        where: { id: orderId, restaurantId: staff.restaurantId },
+      }),
+      'Order not found',
+    );
+    const items = await this.dataSource.getRepository(OrderItem).find({
+      where: { orderId },
+      order: { createdAt: 'ASC' },
+    });
+    const options = items.length
+      ? await this.dataSource
+          .getRepository(OrderItemOption)
+          .createQueryBuilder('option')
+          .where('option.order_item_id IN (:...ids)', {
+            ids: items.map((item) => item.id),
+          })
+          .getMany()
+      : [];
+    const statusHistory = await this.dataSource
+      .getRepository(OrderStatusHistory)
+      .find({ where: { orderId }, order: { occurredAt: 'ASC' } });
+    return { order, items, options, statusHistory };
   }
 
   async reorder(customerId: string, orderId: string) {
@@ -165,14 +198,40 @@ export class OrdersService {
     }
   }
 
-  listAdmin(restaurantId?: string, status?: string) {
+  async listAdmin(actorUserId: string, status?: string) {
+    const staff = requireEntity(
+      await this.dataSource.getRepository(StaffMember).findOne({
+        where: { userId: actorUserId, isActive: true },
+      }),
+      'Staff member not found',
+    );
     return this.orders.findMany({
       where: {
-        ...(restaurantId ? { restaurantId } : {}),
+        restaurantId: staff.restaurantId,
         ...(status ? { status } : {}),
       } as any,
       order: { createdAt: 'DESC' },
     });
+  }
+
+  async updateAdminStatus(
+    orderId: string,
+    dto: UpdateOrderStatusDto,
+    actorUserId: string,
+  ): Promise<Order> {
+    const staff = requireEntity(
+      await this.dataSource.getRepository(StaffMember).findOne({
+        where: { userId: actorUserId, isActive: true },
+      }),
+      'Staff member not found',
+    );
+    requireEntity(
+      await this.orders.findOne({
+        where: { id: orderId, restaurantId: staff.restaurantId },
+      }),
+      'Order not found',
+    );
+    return this.updateStatus(orderId, dto, actorUserId);
   }
 
   async updateStatus(
@@ -193,7 +252,14 @@ export class OrdersService {
       );
       const current = String(order.status);
       const next = String(dto.status);
-      if (!(TRANSITIONS[current] ?? []).includes(next)) {
+      const allowed = [...(TRANSITIONS[current] ?? [])];
+      if (
+        current === 'ready' &&
+        ['pickup', 'dine_in', 'takeaway'].includes(String(order.orderType))
+      ) {
+        allowed.push('closed');
+      }
+      if (!allowed.includes(next)) {
         throw new BadRequestException(
           `Invalid order transition: ${current} -> ${next}`,
         );

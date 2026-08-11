@@ -1,5 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import { StaffMember } from '../staff/entities/staff-member.entity';
 import { SalesReportQueryDto } from './dto/sales-report-query.dto';
 
 const RECOGNIZED = `o.status IN ('delivered','closed') AND o.payment_status IN ('paid','partially_refunded','refunded')`;
@@ -7,6 +12,27 @@ const RECOGNIZED = `o.status IN ('delivered','closed') AND o.payment_status IN (
 @Injectable()
 export class ReportsService {
   constructor(private readonly dataSource: DataSource) {}
+
+  async salesForAdmin(actorUserId: string, query: SalesReportQueryDto) {
+    return this.sales({
+      ...query,
+      restaurantId: await this.restaurantIdForActor(actorUserId),
+    });
+  }
+
+  async dailyRevenueForAdmin(actorUserId: string, query: SalesReportQueryDto) {
+    return this.dailyRevenue({
+      ...query,
+      restaurantId: await this.restaurantIdForActor(actorUserId),
+    });
+  }
+
+  async popularItemsForAdmin(actorUserId: string, query: SalesReportQueryDto) {
+    return this.popularItems({
+      ...query,
+      restaurantId: await this.restaurantIdForActor(actorUserId),
+    });
+  }
 
   async sales(query: SalesReportQueryDto) {
     this.validateRange(query);
@@ -101,6 +127,15 @@ export class ReportsService {
           : value,
       ]),
     );
+  }
+
+  private async restaurantIdForActor(actorUserId: string) {
+    const staff = await this.dataSource.getRepository(StaffMember).findOne({
+      where: { userId: actorUserId, isActive: true },
+      select: { restaurantId: true },
+    });
+    if (!staff) throw new NotFoundException('Staff member not found');
+    return staff.restaurantId;
   }
 
   private validateRange(query: SalesReportQueryDto) {

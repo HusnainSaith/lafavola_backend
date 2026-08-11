@@ -25,6 +25,13 @@ export class NotificationsService {
       take: limit,
     });
   }
+  async detail(userId: string, id: string) {
+    const notification = await this.notifications.findOne({
+      where: { id, userId },
+    });
+    if (!notification) throw new NotFoundException('Notification not found');
+    return notification;
+  }
   unreadCount(userId: string) {
     return this.dataSource
       .getRepository(Notification)
@@ -51,6 +58,12 @@ export class NotificationsService {
     token.isActive = true;
     token.lastSeenAt = new Date();
     return repo.save(token);
+  }
+  listDevices(userId: string) {
+    return this.dataSource.getRepository(DeviceToken).find({
+      where: { userId },
+      order: { lastSeenAt: 'DESC', createdAt: 'DESC' },
+    });
   }
   async deactivateDevice(userId: string, id: string) {
     const repo = this.dataSource.getRepository(DeviceToken);

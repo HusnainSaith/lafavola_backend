@@ -3,6 +3,8 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RoleEnum } from '../roles/role.enum';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
 import { SalesReportQueryDto } from './dto/sales-report-query.dto';
 import { ReportsService } from './reports.service';
 
@@ -28,15 +30,21 @@ export class ReportsController {
     description: 'Validation or business-rule error',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  sales(@Query() query: SalesReportQueryDto) {
-    return this.service.sales(query);
+  sales(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: SalesReportQueryDto,
+  ) {
+    return this.service.salesForAdmin(user.id, query);
   }
 
   @Get('daily-revenue')
   @ApiOperation({ summary: 'Daily recognized and net revenue in minor units' })
   @ApiResponse({ status: 200, description: 'Inclusive daily series' })
-  daily(@Query() query: SalesReportQueryDto) {
-    return this.service.dailyRevenue(query);
+  daily(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: SalesReportQueryDto,
+  ) {
+    return this.service.dailyRevenueForAdmin(user.id, query);
   }
 
   @Get('popular-items')
@@ -47,7 +55,10 @@ export class ReportsController {
     description: 'Validation or business-rule error',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  popular(@Query() query: SalesReportQueryDto) {
-    return this.service.popularItems(query);
+  popular(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: SalesReportQueryDto,
+  ) {
+    return this.service.popularItemsForAdmin(user.id, query);
   }
 }

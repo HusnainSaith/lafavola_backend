@@ -1,5 +1,8 @@
 ﻿import { Injectable } from '@nestjs/common';
 import { requireEntity } from '../../common/utils/service-errors.util';
+import { NotFoundException } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+import { StaffMember } from '../staff/entities/staff-member.entity';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 import { Ingredient } from './entities/ingredient.entity';
@@ -7,7 +10,10 @@ import { IngredientRepository } from './repositories/ingredient.repository';
 
 @Injectable()
 export class IngredientsService {
-  constructor(private readonly repository: IngredientRepository) {}
+  constructor(
+    private readonly repository: IngredientRepository,
+    private readonly dataSource: DataSource,
+  ) {}
 
   findAll(): Promise<Ingredient[]> {
     return this.repository.findMany({ order: { createdAt: 'DESC' } });
@@ -20,21 +26,52 @@ export class IngredientsService {
     );
   }
 
-  create(dto: CreateIngredientDto): Promise<Ingredient> {
+  async create(
+    dto: CreateIngredientDto,
+    actorUserId: string,
+  ): Promise<Ingredient> {
+    const restaurantId = await this.restaurantForActor(actorUserId);
+    if (dto.restaurantId !== restaurantId) {
+      throw new NotFoundException('Restaurant not found');
+    }
     return this.repository.save(
       this.repository.create(dto as Partial<Ingredient>),
     );
   }
 
-  async update(id: string, dto: UpdateIngredientDto): Promise<Ingredient> {
-    const entity = await this.findById(id);
+  async update(
+    id: string,
+    dto: UpdateIngredientDto,
+    actorUserId: string,
+  ): Promise<Ingredient> {
+    const restaurantId = await this.restaurantForActor(actorUserId);
+    const entity = await this.repository.findOne({
+      where: { id, restaurantId },
+    });
+    if (!entity) throw new NotFoundException('Ingredients record not found');
+    if (dto.restaurantId && dto.restaurantId !== restaurantId) {
+      throw new NotFoundException('Restaurant not found');
+    }
     Object.assign(entity, dto);
     return this.repository.save(entity);
   }
 
-  async remove(id: string): Promise<void> {
-    const entity = await this.findById(id);
+  async remove(id: string, actorUserId: string): Promise<void> {
+    const restaurantId = await this.restaurantForActor(actorUserId);
+    const entity = await this.repository.findOne({
+      where: { id, restaurantId },
+    });
+    if (!entity) throw new NotFoundException('Ingredients record not found');
     (entity as any).isActive = false;
     await this.repository.save(entity);
+  }
+
+  private async restaurantForActor(actorUserId: string) {
+    const staff = await this.dataSource.getRepository(StaffMember).findOne({
+      where: { userId: actorUserId, isActive: true },
+      select: { restaurantId: true },
+    });
+    if (!staff) throw new NotFoundException('Staff member not found');
+    return staff.restaurantId;
   }
 }

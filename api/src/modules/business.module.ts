@@ -1,5 +1,7 @@
 ﻿import { Module } from '@nestjs/common';
 import { AddressesModule } from './addresses/addresses.module';
+import { AdminPosModule } from './admin-pos/admin-pos.module';
+import { AdminDashboardModule } from './admin-dashboard/admin-dashboard.module';
 import { AuditModule } from './audit/audit.module';
 import { CartsModule } from './carts/carts.module';
 import { CategoriesModule } from './categories/categories.module';
@@ -28,6 +30,8 @@ import { SupportModule } from './support/support.module';
 
 @Module({
   imports: [
+    AdminPosModule,
+    AdminDashboardModule,
     AuditModule,
     RestaurantsModule,
     CustomersModule,
@@ -56,6 +60,7 @@ import { SupportModule } from './support/support.module';
     ReportsModule,
   ],
   exports: [
+    AdminPosModule,
     RestaurantsModule,
     CustomersModule,
     AddressesModule,

@@ -13,14 +13,28 @@ function getAllowedOrigins() {
     .map((s) => s.trim())
     .filter(Boolean);
 
-  // Add your API/Swagger and frontend domains explicitly
-  // (adjust these to your real domains)
-  return list;
+  // The Swagger UI is served by the API itself, so its browser requests carry
+  // the API public origin. Configure this non-secret value in production.
+  const apiPublicUrl = process.env.API_PUBLIC_URL?.trim().replace(/\/$/, '');
+  if (apiPublicUrl) list.push(apiPublicUrl);
+
+  // Swagger runs from the API origin. In development this needs to include
+  // the local API host so Swagger's own Execute button is not blocked. Keep
+  // production origins explicit through FRONTEND_URLS.
+  if (process.env.NODE_ENV !== 'production') {
+    const port = process.env.PORT || '3000';
+    list.push(`http://localhost:${port}`, `http://127.0.0.1:${port}`);
+  }
+  return [...new Set(list)];
 }
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableShutdownHooks();
+
+  // URI versioning gives mobile clients a stable contract. New mobile/admin
+  // integrations must target /api/v1; breaking changes belong in /api/v2.
+  app.setGlobalPrefix('api/v1');
 
   app.getHttpAdapter().getInstance().set('trust proxy', 1);
   // Security middleware
@@ -51,7 +65,8 @@ async function bootstrap() {
     },
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Authorization',
+    allowedHeaders:
+      'Content-Type, Authorization, X-Correlation-Id, Idempotency-Key',
     exposedHeaders: 'Authorization',
   });
 
@@ -73,7 +88,14 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  app.use('/api/docs', (_request, response, next) => {
+  const http = app.getHttpAdapter().getInstance();
+  http.get('/api/docs', (_request, response) => {
+    response.redirect(308, '/api/v1/docs');
+  });
+  http.get('/api/docs-json', (_request, response) => {
+    response.redirect(308, '/api/v1/docs-json');
+  });
+  app.use('/api/v1/docs', (_request, response, next) => {
     response.setHeader(
       'Cache-Control',
       'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -82,7 +104,7 @@ async function bootstrap() {
     response.setHeader('Expires', '0');
     next();
   });
-  SwaggerModule.setup('api/docs', app, document, {
+  SwaggerModule.setup('api/v1/docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
       requestInterceptor: (request: {

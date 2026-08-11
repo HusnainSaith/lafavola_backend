@@ -13,6 +13,8 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RoleEnum } from '../roles/role.enum';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -67,8 +69,11 @@ export class CategoriesController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
-  create(@Body() dto: CreateCategoryDto) {
-    return this.service.create(dto);
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateCategoryDto,
+  ) {
+    return this.service.create(dto, user.id);
   }
 
   @Patch(':id')
@@ -83,8 +88,12 @@ export class CategoriesController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
-  update(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {
-    return this.service.update(id, dto);
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateCategoryDto,
+  ) {
+    return this.service.update(id, dto, user.id);
   }
 
   @Delete(':id')
@@ -98,8 +107,11 @@ export class CategoriesController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN)
-  async remove(@Param('id') id: string) {
-    await this.service.remove(id);
+  async remove(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    await this.service.remove(id, user.id);
     return { success: true };
   }
 }

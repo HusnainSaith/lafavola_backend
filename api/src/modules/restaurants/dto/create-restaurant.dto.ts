@@ -17,6 +17,8 @@ export class CreateRestaurantDto {
   @IsString() @MaxLength(180) slug: string;
   @IsOptional() @IsPhoneNumber() phone?: string;
   @IsOptional() @IsEmail() email?: string;
+  @IsOptional() @IsString() @MaxLength(32) vatNumber?: string;
+  @IsOptional() @IsString() @MaxLength(32) fiscalCode?: string;
   @IsOptional() @IsString() @MaxLength(255) addressLine1?: string;
   @IsOptional() @IsString() @MaxLength(255) addressLine2?: string;
   @IsOptional() @IsString() @MaxLength(120) city?: string;

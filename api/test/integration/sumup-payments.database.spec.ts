@@ -21,6 +21,7 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
     let orderId: string;
     let paymentId: string;
     let customerId: string;
+    let adminUserId: string;
     const provider: jest.Mocked<PaymentProviderPort> = {
       createCheckout: jest.fn(),
       getCheckout: jest.fn(),
@@ -41,6 +42,18 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
       [{ id: customerId }] = await dataSource.query(
         `INSERT INTO users (email,full_name,role_id) VALUES ('payments@example.com','Payments Customer',$1) RETURNING id`,
         [roleId],
+      );
+      const [{ id: adminRoleId }] = await dataSource.query(
+        `INSERT INTO roles (name,is_system) VALUES ('admin',true) RETURNING id`,
+      );
+      [{ id: adminUserId }] = await dataSource.query(
+        `INSERT INTO users (email,full_name,role_id) VALUES ('payments-admin@example.com','Payments Admin',$1) RETURNING id`,
+        [adminRoleId],
+      );
+      await dataSource.query(
+        `INSERT INTO staff_members (user_id,restaurant_id,employee_code,job_title)
+         VALUES ($1,$2,'PAY-ADMIN','Administrator')`,
+        [adminUserId, restaurantId],
       );
       [{ id: orderId }] = await dataSource.query(
         `INSERT INTO orders (restaurant_id,customer_id,order_type,payment_method,subtotal_minor,tax_minor,grand_total_minor)
@@ -166,7 +179,7 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
       });
       const service = new RefundsService(dataSource, provider);
       const results = await Promise.allSettled(
-        rows.map(({ id }) => service.approve(id)),
+        rows.map(({ id }) => service.approve(id, adminUserId)),
       );
       expect(
         results.filter(({ status }) => status === 'fulfilled'),
@@ -191,7 +204,7 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
         new Error('provider detail'),
       );
       await expect(
-        new RefundsService(dataSource, provider).approve(id),
+        new RefundsService(dataSource, provider).approve(id, adminUserId),
       ).rejects.toThrow();
       const [refund] = await dataSource.query(
         `SELECT status FROM refunds WHERE id=$1`,

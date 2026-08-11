@@ -19,7 +19,7 @@ export class MenuItemRepository extends BaseRepository<MenuItem> {
       .andWhere('(item.name ILIKE :search OR item.description ILIKE :search)', {
         search: `%${search}%`,
       })
-      .orderBy('item.popularity_score', 'DESC')
+      .orderBy('item.popularityScore', 'DESC')
       .getMany();
   }
 

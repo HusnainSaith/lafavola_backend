@@ -211,12 +211,17 @@ export class SupportService {
       qb.andWhere('ticket.status=:status', { status: filters.status });
     if (filters.priority)
       qb.andWhere('ticket.priority=:priority', { priority: filters.priority });
-    qb.orderBy(
+    qb.addSelect(
       `CASE ticket.priority WHEN 'urgent' THEN 4 WHEN 'high' THEN 3 WHEN 'normal' THEN 2 ELSE 1 END`,
-      'DESC',
+      'priority_rank',
     )
-      .addOrderBy('ticket.staff_unread_count', 'DESC')
-      .addOrderBy('COALESCE(ticket.last_message_at,ticket.created_at)', 'ASC')
+      .addSelect(
+        'COALESCE(ticket.lastMessageAt, ticket.createdAt)',
+        'activity_at',
+      )
+      .orderBy('priority_rank', 'DESC')
+      .addOrderBy('ticket.staffUnreadCount', 'DESC')
+      .addOrderBy('activity_at', 'ASC')
       .skip((page - 1) * limit)
       .take(limit);
     const [items, total] = await qb.getManyAndCount();

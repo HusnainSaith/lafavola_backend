@@ -96,7 +96,6 @@ export class OrdersController {
 
   @Get('admin/list')
   @ApiOperation({ summary: 'Admin List' })
-  @ApiQuery({ name: 'restaurantId', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
   @ApiResponse({
@@ -107,10 +106,21 @@ export class OrdersController {
   @UseGuards(RolesGuard)
   @Roles(RoleEnum.ADMIN)
   adminList(
-    @Query('restaurantId') restaurantId?: string,
+    @CurrentUser() user: AuthenticatedUser,
     @Query('status') status?: string,
   ) {
-    return this.service.listAdmin(restaurantId, status);
+    return this.service.listAdmin(user.id, status);
+  }
+
+  @Get('admin/:id')
+  @ApiOperation({ summary: 'Admin Detail' })
+  @ApiParam({ name: 'id', required: true, type: String })
+  @ApiResponse({ status: 200, description: 'Successful response' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  adminDetail(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.service.adminDetail(id, user.id);
   }
 
   @Patch('admin/:id/status')
@@ -130,6 +140,6 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() dto: UpdateOrderStatusDto,
   ) {
-    return this.service.updateStatus(id, dto, user.id);
+    return this.service.updateAdminStatus(id, dto, user.id);
   }
 }

@@ -17,6 +17,12 @@ export class Restaurant {
   @Column({ name: 'email', type: 'varchar', length: 320, nullable: true })
   email?: string;
 
+  @Column({ name: 'vat_number', type: 'varchar', length: 32, nullable: true })
+  vatNumber?: string;
+
+  @Column({ name: 'fiscal_code', type: 'varchar', length: 32, nullable: true })
+  fiscalCode?: string;
+
   @Column({
     name: 'address_line1',
     type: 'varchar',

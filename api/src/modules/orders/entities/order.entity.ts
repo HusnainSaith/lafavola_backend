@@ -94,6 +94,32 @@ export class Order {
   @Column({ name: 'customer_note', type: 'text', nullable: true })
   customerNote?: string;
 
+  @Column({ name: 'table_label', type: 'varchar', length: 40, nullable: true })
+  tableLabel?: string;
+
+  @Column({
+    name: 'walk_in_customer_name',
+    type: 'varchar',
+    length: 120,
+    nullable: true,
+  })
+  walkInCustomerName?: string;
+
+  @Column({
+    name: 'walk_in_customer_phone',
+    type: 'varchar',
+    length: 32,
+    nullable: true,
+  })
+  walkInCustomerPhone?: string;
+
+  @Column({ name: 'created_by_staff_user_id', type: 'uuid', nullable: true })
+  createdByStaffUserId?: string;
+
+  @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'created_by_staff_user_id' })
+  createdByStaffUser?: User;
+
   @Column({
     name: 'estimated_delivery_at',
     type: 'timestamptz',
