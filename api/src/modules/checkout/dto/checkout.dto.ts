@@ -1,19 +1,27 @@
 import {
   IsDateString,
+  IsDefined,
   IsEnum,
+  IsIn,
   IsOptional,
   IsString,
   IsUUID,
   MaxLength,
+  ValidateIf,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import { PaymentMethodType } from '../../payments/enums/payment-method-type.enum';
 
 export class CheckoutDto {
   @IsUUID()
   cartId: string;
 
+  @IsIn(['delivery', 'pickup'])
+  orderType: 'delivery' | 'pickup';
+
+  @ValidateIf((dto: CheckoutDto) => dto.orderType === 'delivery')
   @IsUUID()
-  deliveryAddressId: string;
+  deliveryAddressId?: string;
 
   @IsEnum(PaymentMethodType)
   paymentMethod: PaymentMethodType;
@@ -41,8 +49,9 @@ export class CheckoutDto {
   @IsDateString()
   scheduledFor?: string;
 
-  @IsOptional()
+  @IsDefined()
   @IsString()
   @MaxLength(255)
-  idempotencyKey?: string;
+  @ApiProperty({ minLength: 1, maxLength: 255 })
+  idempotencyKey: string;
 }

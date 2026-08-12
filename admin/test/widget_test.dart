@@ -86,8 +86,28 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    final selectedTile = tester.widget<ListTile>(
+      find.byKey(const Key('admin-destination-Panoramica')),
+    );
+    expect(selectedTile.selected, isTrue);
+    expect(selectedTile.selectedTileColor, isNotNull);
+    expect(selectedTile.selectedColor, isNotNull);
+    expect(selectedTile.textColor, isNotNull);
+
     for (final destination in adminDestinations) {
-      expect(find.text(destination.label), findsWidgets);
+      final tile = find.byKey(Key('admin-destination-${destination.label}'));
+      await tester.scrollUntilVisible(
+        tile,
+        64,
+        scrollable:
+            find
+                .descendant(
+                  of: find.byKey(const Key('admin-navigation-list')),
+                  matching: find.byType(Scrollable),
+                )
+                .first,
+      );
+      expect(tile, findsOneWidget);
     }
   });
 }

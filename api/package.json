@@ -24,6 +24,7 @@
     "openapi:generate": "ts-node --transpile-only -r tsconfig-paths/register scripts/generate-openapi.ts",
     "seed": "ts-node ./seeds/seed.ts",
     "seed:permissions": "ts-node seeds/permissions-seed.ts",
+    "seed:admin-demo:api": "ts-node --transpile-only scripts/seed-admin-demo-via-api.ts",
     "seed:all": "npm run seed && npm run seed:permissions",
     "db:reset": "npm run migration:revert && npm run migration:run && npm run seed",
     "test": "jest --config ./test/jest.config.js",

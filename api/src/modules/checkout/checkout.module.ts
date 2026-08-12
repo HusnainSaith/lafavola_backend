@@ -2,11 +2,12 @@
 import { CartsModule } from '../carts/carts.module';
 import { PricingModule } from '../pricing/pricing.module';
 import { PromotionsModule } from '../promotions/promotions.module';
+import { RestaurantsModule } from '../restaurants/restaurants.module';
 import { CheckoutController } from './checkout.controller';
 import { CheckoutService } from './checkout.service';
 
 @Module({
-  imports: [CartsModule, PricingModule, PromotionsModule],
+  imports: [CartsModule, PricingModule, PromotionsModule, RestaurantsModule],
   controllers: [CheckoutController],
   providers: [CheckoutService],
   exports: [CheckoutService],

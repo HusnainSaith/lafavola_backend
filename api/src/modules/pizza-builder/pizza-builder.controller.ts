@@ -7,6 +7,7 @@ import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.in
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RoleEnum } from '../roles/role.enum';
+import { Public } from '../../common/decorators/public.decorator';
 import {
   CreatePizzaBuilderRuleDto,
   UpdatePizzaBuilderRuleDto,
@@ -68,6 +69,7 @@ export class PizzaBuilderController {
   }
 
   @Get(':menuItemId')
+  @Public()
   @ApiOperation({ summary: 'Configuration' })
   @ApiParam({ name: 'menuItemId', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
@@ -76,10 +78,11 @@ export class PizzaBuilderController {
     description: 'Validation or business-rule error',
   })
   configuration(@Param('menuItemId') menuItemId: string) {
-    return this.service.getRule(menuItemId);
+    return this.service.getConfiguration(menuItemId);
   }
 
   @Post('build')
+  @Public()
   @ApiOperation({ summary: 'Build' })
   @ApiBody({ type: BuildPizzaDto })
   @ApiResponse({ status: 201, description: 'Successful response' })

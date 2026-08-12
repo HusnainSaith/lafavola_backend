@@ -19,6 +19,7 @@ import { OrderItem } from '../orders/entities/order-item.entity';
 import { OrderStatusHistory } from '../orders/entities/order-status-history.entity';
 import { Order } from '../orders/entities/order.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
+import { RestaurantsService } from '../restaurants/restaurants.service';
 import { CheckoutDto } from './dto/checkout.dto';
 import { PricingService } from '../pricing/pricing.service';
 import { OrderTotalsService } from '../pricing/order-totals.service';
@@ -36,6 +37,7 @@ export class CheckoutService {
     private readonly promotions: PromotionsService,
     private readonly orderTotals: OrderTotalsService,
     private readonly outbox: OutboxService,
+    private readonly restaurants: RestaurantsService,
   ) {}
 
   private computeCouponDiscount(coupon: Coupon, subtotalMinor: number): number {
@@ -66,7 +68,8 @@ export class CheckoutService {
       .update(
         JSON.stringify({
           cartId: dto.cartId,
-          deliveryAddressId: dto.deliveryAddressId,
+          orderType: dto.orderType,
+          deliveryAddressId: dto.deliveryAddressId ?? null,
           paymentMethod: dto.paymentMethod,
           savedPaymentMethodId: dto.savedPaymentMethodId ?? null,
           couponCode: dto.couponCode?.trim().toLowerCase() ?? null,
@@ -104,17 +107,17 @@ export class CheckoutService {
       throw new NotFoundException('Restaurant not found');
     }
 
-    const address = await this.dataSource
-      .getRepository(CustomerAddress)
-      .findOne({
-        where: {
-          id: dto.deliveryAddressId,
-          customerId,
-          isActive: true,
-        },
-      });
+    const address = dto.deliveryAddressId
+      ? await this.dataSource.getRepository(CustomerAddress).findOne({
+          where: {
+            id: dto.deliveryAddressId,
+            customerId,
+            isActive: true,
+          },
+        })
+      : null;
 
-    if (!address) {
+    if (dto.orderType === 'delivery' && !address) {
       throw new NotFoundException('Delivery address not found');
     }
 
@@ -267,7 +270,10 @@ export class CheckoutService {
         );
       }
 
-      const deliveryFeeMinor = Number(restaurant.deliveryFeeMinor ?? 0);
+      const deliveryFeeMinor =
+        dto.orderType === 'delivery'
+          ? Number(restaurant.deliveryFeeMinor ?? 0)
+          : 0;
       const menuItems = await manager.getRepository(MenuItem).find({
         where: { id: In(lockedItems.map((item) => item.menuItemId)) },
       });
@@ -308,8 +314,71 @@ export class CheckoutService {
       const { taxMinor, grandTotalMinor } = totals;
 
       const now = new Date();
-      const estimatedDeliveryAt = new Date(
-        now.getTime() + Number(restaurant.defaultDeliveryMinutes) * 60_000,
+      const preparationMinutes = Math.max(
+        1,
+        ...menuItems.map((item) => Number(item.preparationMinutes ?? 15)),
+      );
+      const scheduledFor = dto.scheduledFor
+        ? new Date(dto.scheduledFor)
+        : undefined;
+      if (
+        scheduledFor &&
+        scheduledFor.getTime() > now.getTime() + 14 * 24 * 60 * 60_000
+      ) {
+        throw new BadRequestException(
+          'Scheduled time must be within the next 14 days',
+        );
+      }
+      const requiredLeadMinutes =
+        dto.orderType === 'delivery'
+          ? Math.max(
+              preparationMinutes,
+              Number(restaurant.defaultDeliveryMinutes),
+            )
+          : preparationMinutes;
+      const earliestReadyAt = new Date(
+        now.getTime() + preparationMinutes * 60_000,
+      );
+      const earliestFulfilmentAt = new Date(
+        now.getTime() + requiredLeadMinutes * 60_000,
+      );
+      if (
+        scheduledFor &&
+        scheduledFor.getTime() < earliestFulfilmentAt.getTime()
+      ) {
+        throw new BadRequestException(
+          `Scheduled time must allow at least ${requiredLeadMinutes} minutes`,
+        );
+      }
+      await this.restaurants.assertOpenAt(
+        restaurant.id,
+        restaurant.timezone,
+        scheduledFor ?? now,
+      );
+      const scheduledTransitMinutes = Math.max(
+        5,
+        Number(restaurant.defaultDeliveryMinutes) - preparationMinutes,
+      );
+      const estimatedReadyAt =
+        scheduledFor && dto.orderType === 'delivery'
+          ? new Date(scheduledFor.getTime() - scheduledTransitMinutes * 60_000)
+          : (scheduledFor ?? earliestReadyAt);
+      const estimatedDeliveryAt =
+        dto.orderType === 'delivery'
+          ? (scheduledFor ??
+            new Date(
+              now.getTime() +
+                Math.max(
+                  preparationMinutes,
+                  Number(restaurant.defaultDeliveryMinutes),
+                ) *
+                  60_000,
+            ))
+          : undefined;
+      await this.restaurants.assertOpenAt(
+        restaurant.id,
+        restaurant.timezone,
+        estimatedReadyAt,
       );
 
       const collectionOnDelivery = ['cash', 'card_on_delivery'].includes(
@@ -321,7 +390,7 @@ export class CheckoutService {
           restaurantId: restaurant.id,
           customerId,
           cartId: lockedCart.id,
-          orderType: 'delivery',
+          orderType: dto.orderType,
           status: collectionOnDelivery ? 'placed' : 'pending_payment',
           paymentStatus: collectionOnDelivery
             ? 'collection_pending'
@@ -340,27 +409,29 @@ export class CheckoutService {
           deliveryFeeMinor,
           taxMinor,
           grandTotalMinor,
-          deliveryAddressSnapshot: {
-            id: address.id,
-            label: address.label,
-            recipientName: address.recipientName,
-            phone: address.phone,
-            addressLine1: address.addressLine1,
-            addressLine2: address.addressLine2,
-            city: address.city,
-            province: address.province,
-            postalCode: address.postalCode,
-            countryCode: address.countryCode,
-            latitude: address.latitude,
-            longitude: address.longitude,
-          },
-          deliveryInstructions:
-            dto.deliveryInstructions ?? address.deliveryInstructions,
-          customerNote: dto.customerNote,
-          estimatedDeliveryAt,
-          scheduledFor: dto.scheduledFor
-            ? new Date(dto.scheduledFor)
+          deliveryAddressSnapshot: address
+            ? {
+                label: address.label,
+                recipientName: address.recipientName,
+                phone: address.phone,
+                addressLine1: address.addressLine1,
+                addressLine2: address.addressLine2,
+                city: address.city,
+                province: address.province,
+                postalCode: address.postalCode,
+                countryCode: address.countryCode,
+                latitude: address.latitude,
+                longitude: address.longitude,
+              }
             : undefined,
+          deliveryInstructions:
+            dto.orderType === 'delivery'
+              ? (dto.deliveryInstructions ?? address?.deliveryInstructions)
+              : undefined,
+          customerNote: dto.customerNote,
+          estimatedReadyAt,
+          estimatedDeliveryAt,
+          scheduledFor,
           placedAt: collectionOnDelivery ? now : undefined,
           pricingSnapshot: {
             restaurantId: restaurant.id,
@@ -487,6 +558,9 @@ export class CheckoutService {
         loyaltyDiscountMinor,
         deliveryDiscountMinor,
         appliedPromotions: promotionResult.appliedPromotions,
+        orderType: order.orderType,
+        serverNow: now,
+        estimatedReadyAt: order.estimatedReadyAt,
         estimatedDeliveryAt: order.estimatedDeliveryAt,
       };
       if (idempotency) {

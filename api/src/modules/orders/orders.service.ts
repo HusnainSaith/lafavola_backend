@@ -18,6 +18,7 @@ import { OrderStatus } from './enums/order-status.enum';
 import { OrderRepository } from './repositories/order.repository';
 import { OutboxService } from '../../queue/outbox.service';
 import { StaffMember } from '../staff/entities/staff-member.entity';
+import { Restaurant } from '../restaurants/entities/restaurant.entity';
 
 const TRANSITIONS: Record<string, string[]> = {
   pending_payment: ['placed', 'cancelled'],
@@ -80,7 +81,91 @@ export class OrdersService {
           })
           .getMany()
       : [];
-    return { order, items, options };
+    const statusHistory = await this.dataSource
+      .getRepository(OrderStatusHistory)
+      .find({ where: { orderId }, order: { occurredAt: 'ASC' } });
+    const serverNow = new Date();
+    const targetAt = order.estimatedDeliveryAt ?? order.estimatedReadyAt;
+    return {
+      order,
+      items,
+      options,
+      statusHistory,
+      timing: {
+        serverNow,
+        estimatedReadyAt: order.estimatedReadyAt ?? null,
+        estimatedDeliveryAt: order.estimatedDeliveryAt ?? null,
+        remainingSeconds: targetAt
+          ? Math.max(
+              0,
+              Math.ceil((targetAt.getTime() - serverNow.getTime()) / 1000),
+            )
+          : null,
+        isFinal: ['delivered', 'closed', 'cancelled', 'rejected'].includes(
+          String(order.status),
+        ),
+      },
+    };
+  }
+
+  async customerReceipt(customerId: string, orderId: string) {
+    const detail = await this.customerDetail(customerId, orderId);
+    const restaurant = requireEntity(
+      await this.dataSource.getRepository(Restaurant).findOne({
+        where: { id: detail.order.restaurantId },
+      }),
+      'Restaurant not found',
+    );
+    return {
+      documentType: 'order_receipt',
+      fiscalDocument: false,
+      issuedAt: detail.order.placedAt ?? detail.order.createdAt,
+      restaurant: {
+        name: restaurant.name,
+        vatNumber: restaurant.vatNumber ?? null,
+        fiscalCode: restaurant.fiscalCode ?? null,
+        address: [
+          restaurant.addressLine1,
+          restaurant.addressLine2,
+          [restaurant.postalCode, restaurant.city].filter(Boolean).join(' '),
+          restaurant.province,
+        ].filter(Boolean),
+        phone: restaurant.phone ?? null,
+        email: restaurant.email ?? null,
+      },
+      order: {
+        number: detail.order.orderNumber,
+        type: detail.order.orderType,
+        status: detail.order.status,
+        paymentStatus: detail.order.paymentStatus,
+        paymentMethod: detail.order.paymentMethod ?? null,
+        currency: detail.order.currency,
+        items: detail.items.map((item) => ({
+          name: item.itemNameSnapshot,
+          size: item.sizeNameSnapshot ?? null,
+          quantity: item.quantity,
+          unitPriceMinor: item.unitPriceMinor,
+          lineTotalMinor: item.lineTotalMinor,
+          options: detail.options
+            .filter((option) => option.orderItemId === item.id)
+            .map((option) => ({
+              name: option.optionNameSnapshot,
+              quantity: Number(option.quantity),
+              totalPriceAdjustmentMinor: option.totalPriceAdjustmentMinor,
+            })),
+        })),
+        totals: {
+          subtotalMinor: detail.order.subtotalMinor,
+          optionChargesMinor: detail.order.optionChargesMinor,
+          discountMinor: detail.order.discountMinor,
+          deliveryFeeMinor: detail.order.deliveryFeeMinor,
+          taxMinor: detail.order.taxMinor,
+          grandTotalMinor: detail.order.grandTotalMinor,
+        },
+      },
+      notice:
+        'Order receipt only. A fiscal document is issued by the configured fiscal provider when applicable.',
+    };
   }
 
   async adminDetail(orderId: string, actorUserId: string) {

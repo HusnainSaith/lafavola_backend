@@ -1,10 +1,13 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ParseUUIDPipe } from '@nestjs/common';
+import { ApiParam, ApiResponse } from '@nestjs/swagger';
 import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CustomersService } from './customers.service';
 import { CreatePrivacyRequestDto } from './dto/create-privacy-request.dto';
+import { PrivacyRequestResponseDto } from './dto/privacy-request-response.dto';
 import { RecordPrivacyConsentDto } from './dto/record-privacy-consent.dto';
 
 @ApiTags('Privacy')
@@ -16,8 +19,25 @@ export class PrivacyController {
 
   @Get('requests')
   @ApiOperation({ summary: 'List the customer privacy-request audit trail' })
+  @ApiResponse({
+    status: 200,
+    type: PrivacyRequestResponseDto,
+    isArray: true,
+  })
   requests(@CurrentUser() user: AuthenticatedUser) {
     return this.service.privacyRequests(user.id);
+  }
+
+  @Get('requests/:id')
+  @ApiOperation({ summary: 'Get one privacy request owned by the customer' })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiResponse({ status: 200, type: PrivacyRequestResponseDto })
+  @ApiResponse({ status: 404, description: 'Privacy request not found' })
+  request(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    return this.service.privacyRequest(user.id, id);
   }
 
   @Post('requests')

@@ -83,7 +83,7 @@ class CatalogueWorkspacePage extends StatelessWidget {
         title: 'Ingredienti',
         description: 'Aggiorna disponibilità, allergeni e prezzi extra.',
         icon: Icons.eco_outlined,
-        onOpen: () => _openCrud(context, api, _ingredientsResource),
+        onOpen: () => _openCrud(context, api, ingredientsResource),
       ),
       _FeatureCard(
         title: 'Gruppi di opzioni',
@@ -95,7 +95,7 @@ class CatalogueWorkspacePage extends StatelessWidget {
                 builder:
                     (_) => OptionGroupsPage(
                       api: api,
-                      groupConfig: _optionGroupsResource,
+                      groupConfig: optionGroupsResource,
                     ),
               ),
             ),
@@ -104,7 +104,7 @@ class CatalogueWorkspacePage extends StatelessWidget {
         title: 'FAQ pubbliche',
         description: 'Aggiorna le risposte pubblicate sul sito.',
         icon: Icons.quiz_outlined,
-        onOpen: () => _openCrud(context, api, _faqResource),
+        onOpen: () => _openCrud(context, api, faqResource),
       ),
       _FeatureCard(
         title: 'Compositore pizza',
@@ -182,13 +182,13 @@ class TeamAccessWorkspacePage extends StatelessWidget {
         title: 'Ruoli',
         description: 'Definisci i ruoli disponibili per l’operatività.',
         icon: Icons.admin_panel_settings_outlined,
-        onOpen: () => _openCrud(context, api, _rolesResource),
+        onOpen: () => _openCrud(context, api, rolesResource),
       ),
       _FeatureCard(
         title: 'Permessi',
         description: 'Configura permessi ed evita di rimuovere il tuo accesso.',
         icon: Icons.key_outlined,
-        onOpen: () => _openCrud(context, api, _permissionsResource),
+        onOpen: () => _openCrud(context, api, permissionsResource),
       ),
       _FeatureCard(
         title: 'Assegnazioni ruolo',
@@ -404,7 +404,7 @@ class _CapabilityNotice extends StatelessWidget {
   );
 }
 
-const _ingredientsResource = TypedResourceConfig(
+const ingredientsResource = TypedResourceConfig(
   title: 'Ingredienti',
   subtitle: 'Gestisci disponibilità, allergeni e sovrapprezzi del catalogo.',
   endpoint: AdminApiRoutes.ingredients,
@@ -439,7 +439,7 @@ const _ingredientsResource = TypedResourceConfig(
   ],
 );
 
-const _optionGroupsResource = TypedResourceConfig(
+const optionGroupsResource = TypedResourceConfig(
   title: 'Gruppi di opzioni',
   subtitle: 'Configura varianti e limiti di selezione per i prodotti.',
   endpoint: AdminApiRoutes.optionGroups,
@@ -461,7 +461,7 @@ const _optionGroupsResource = TypedResourceConfig(
   ],
 );
 
-const _faqResource = TypedResourceConfig(
+const faqResource = TypedResourceConfig(
   title: 'FAQ',
   subtitle: 'Pubblica e ordina le domande frequenti mostrate ai clienti.',
   endpoint: AdminApiRoutes.faqs,
@@ -485,7 +485,7 @@ const _faqResource = TypedResourceConfig(
   ],
 );
 
-const _rolesResource = TypedResourceConfig(
+const rolesResource = TypedResourceConfig(
   title: 'Ruoli',
   subtitle: 'Definisci ruoli amministrativi prima di assegnarne i permessi.',
   endpoint: AdminApiRoutes.roles,
@@ -497,7 +497,7 @@ const _rolesResource = TypedResourceConfig(
   ],
 );
 
-const _permissionsResource = TypedResourceConfig(
+const permissionsResource = TypedResourceConfig(
   title: 'Permessi',
   subtitle: 'Gestisci le capacità granulari usate dal controllo accessi.',
   endpoint: AdminApiRoutes.permissions,

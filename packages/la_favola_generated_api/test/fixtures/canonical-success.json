@@ -1,0 +1,9 @@
+{
+  "service": "la-favola-api",
+  "apiVersion": "v1",
+  "contractVersion": "0.2.1",
+  "transports": {
+    "rest": "/api/v1",
+    "trpc": "/trpc"
+  }
+}

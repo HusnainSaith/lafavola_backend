@@ -26,4 +26,7 @@ export class CheckoutResultDto {
   @ApiProperty({ type: [AppliedPromotionDto] })
   appliedPromotions: AppliedPromotionDto[];
   @ApiProperty({ required: false }) estimatedDeliveryAt?: Date;
+  @ApiProperty({ required: false }) estimatedReadyAt?: Date;
+  @ApiProperty() serverNow: Date;
+  @ApiProperty({ enum: ['delivery', 'pickup'] }) orderType: string;
 }

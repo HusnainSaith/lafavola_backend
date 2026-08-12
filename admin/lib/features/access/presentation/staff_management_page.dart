@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:la_favola_admin/core/api/admin_api_client.dart';
 
 /// Staff membership is deliberately separate from user provisioning. The API
-/// requires an existing user ID, so the UI makes that dependency explicit and
-/// never asks an operator to copy/paste an unconstrained JSON payload.
+/// requires an existing user account, so the UI presents a named selector and
+/// never asks an operator to type a database ID or raw JSON payload.
 class StaffManagementPage extends StatefulWidget {
   const StaffManagementPage({super.key, required this.api});
   final AdminApiClient api;
@@ -15,6 +15,7 @@ class StaffManagementPage extends StatefulWidget {
 class _StaffManagementPageState extends State<StaffManagementPage> {
   final _search = TextEditingController();
   List<Map<String, dynamic>> _staff = const [];
+  List<Map<String, dynamic>> _users = const [];
   String? _restaurantId;
   bool _loading = true;
   bool _saving = false;
@@ -42,11 +43,13 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
       final values = await Future.wait<Object?>([
         widget.api.get(AdminApiRoutes.restaurant),
         widget.api.get(AdminApiRoutes.staff),
+        widget.api.get(AdminApiRoutes.users),
       ]);
       if (!mounted) return;
       setState(() {
         _restaurantId = _map(values[0])['id']?.toString();
         _staff = _list(values[1]);
+        _users = _list(values[2]);
       });
     } on AdminApiException catch (error) {
       if (mounted) {
@@ -70,7 +73,7 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
         : _staff
             .where(
               (row) =>
-                  '${row['employeeCode'] ?? ''} ${row['jobTitle'] ?? ''} ${row['userId'] ?? ''}'
+                  '${row['employeeCode'] ?? ''} ${row['jobTitle'] ?? ''} ${_userName(row['userId'])}'
                       .toLowerCase()
                       .contains(term),
             )
@@ -88,6 +91,7 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
           (_) => _StaffEditor(
             api: widget.api,
             restaurantId: _restaurantId!,
+            users: _users,
             existing: existing,
           ),
     );
@@ -159,7 +163,7 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
                   controller: _search,
                   decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.search),
-                    labelText: 'Cerca per ruolo, codice o ID',
+                    labelText: 'Cerca per nome, ruolo o codice',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -209,7 +213,7 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
             leading: const CircleAvatar(child: Icon(Icons.badge_outlined)),
             title: Text(member['jobTitle']?.toString() ?? 'Membro del team'),
             subtitle: Text(
-              'Codice: ${code?.isNotEmpty == true ? code : '—'}\nUtente: ${member['userId'] ?? '—'}',
+              'Codice: ${code?.isNotEmpty == true ? code : '—'}\n${_userName(member['userId'])}',
             ),
             isThreeLine: true,
             trailing: Wrap(
@@ -232,16 +236,25 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
       },
     );
   }
+
+  String _userName(Object? userId) {
+    final id = userId?.toString();
+    final user = _users.where((row) => row['id']?.toString() == id).firstOrNull;
+    if (user == null) return 'Account non disponibile';
+    return '${user['fullName'] ?? 'Utente'} · ${user['email'] ?? 'senza email'}';
+  }
 }
 
 class _StaffEditor extends StatefulWidget {
   const _StaffEditor({
     required this.api,
     required this.restaurantId,
+    required this.users,
     this.existing,
   });
   final AdminApiClient api;
   final String restaurantId;
+  final List<Map<String, dynamic>> users;
   final Map<String, dynamic>? existing;
   @override
   State<_StaffEditor> createState() => _StaffEditorState();
@@ -249,7 +262,7 @@ class _StaffEditor extends StatefulWidget {
 
 class _StaffEditorState extends State<_StaffEditor> {
   final _form = GlobalKey<FormState>();
-  late final TextEditingController _userId;
+  String? _userId;
   late final TextEditingController _employeeCode;
   late final TextEditingController _jobTitle;
   bool _saving = false;
@@ -257,7 +270,7 @@ class _StaffEditorState extends State<_StaffEditor> {
   void initState() {
     super.initState();
     final item = widget.existing ?? const <String, dynamic>{};
-    _userId = TextEditingController(text: item['userId']?.toString() ?? '');
+    _userId = item['userId']?.toString();
     _employeeCode = TextEditingController(
       text: item['employeeCode']?.toString() ?? '',
     );
@@ -266,7 +279,6 @@ class _StaffEditorState extends State<_StaffEditor> {
 
   @override
   void dispose() {
-    _userId.dispose();
     _employeeCode.dispose();
     _jobTitle.dispose();
     super.dispose();
@@ -281,10 +293,7 @@ class _StaffEditorState extends State<_StaffEditor> {
       'jobTitle': _optional(_jobTitle),
     };
     if (id == null) {
-      body.addAll({
-        'userId': _userId.text.trim(),
-        'restaurantId': widget.restaurantId,
-      });
+      body.addAll({'userId': _userId, 'restaurantId': widget.restaurantId});
     }
     try {
       if (id == null) {
@@ -323,10 +332,32 @@ class _StaffEditorState extends State<_StaffEditor> {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (widget.existing == null) ...[
-              _field(_userId, 'ID utente esistente', required: true),
+              DropdownButtonFormField<String>(
+                value:
+                    widget.users.any((row) => row['id']?.toString() == _userId)
+                        ? _userId
+                        : null,
+                isExpanded: true,
+                decoration: const InputDecoration(labelText: 'Account utente'),
+                items: [
+                  for (final user in widget.users)
+                    DropdownMenuItem(
+                      value: user['id']?.toString(),
+                      child: Text(
+                        '${user['fullName'] ?? 'Utente'} · ${user['email'] ?? 'senza email'}',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+                onChanged:
+                    _saving ? null : (value) => setState(() => _userId = value),
+                validator:
+                    (value) =>
+                        value == null ? 'Seleziona un account utente' : null,
+              ),
               const SizedBox(height: 12),
               const Text(
-                'Prima crea l’account utente nella sezione Utenti, poi incolla qui il suo ID.',
+                'Se l’account non è presente, crealo prima nella sezione Utenti.',
                 textAlign: TextAlign.left,
               ),
             ],

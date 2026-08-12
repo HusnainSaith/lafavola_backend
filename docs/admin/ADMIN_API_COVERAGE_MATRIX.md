@@ -12,7 +12,7 @@ part of authorization and ownership checks.
 | Dashboard | `GET /admin/dashboard/summary` | Live operational KPIs and quick links | Complete |
 | Orders and payment | admin list/detail/status, on-delivery collection | Queue, detail, timeline, state actions, guarded collection | Complete |
 | Refunds | create, per-order reads, admin queue, approve | Order refund request and finance approval queue | Complete |
-| Deliveries | admin queue, assignment, tracking, assign, status, location | Dispatch list/detail, driver assignment and state actions | Complete; driver GPS writes are not general admin navigation |
+| Deliveries | admin queue, dispatch board, driver CRUD, assignment, tracking, status, location | Order and named-driver selectors, driver directory/editor and state actions | Complete; no raw UUID entry or display |
 | Support | agent queue, claim, ticket, messages, read, status | Conversation-first support desk | Complete |
 | Catalogue | menu and categories CRUD | Typed catalogue/category editor | Complete |
 | Ingredients | CRUD with dietary and allergen fields | Typed ingredient editor | Complete |
@@ -21,7 +21,7 @@ part of authorization and ownership checks.
 | Offers | promotion and coupon CRUD | Typed offer editors | Complete |
 | FAQ | CRUD | Typed question/answer editor | Complete |
 | Media | admin list, direct upload, delete | Media library, target selection and file upload | Complete; provider upload needs configured S3 |
-| People | users, direct permissions, staff CRUD | User, staff and direct-permission editors | Complete |
+| People | users, direct permissions, staff CRUD | Customer-filtered users, user selector for staff, staff and direct-permission editors | Complete |
 | Access | roles, permissions, role assignments | RBAC matrix with inherited permissions protected | Complete |
 | Restaurant | singleton profile and weekday hours | La Favola profile/hours settings | Complete |
 | Reports | sales, daily revenue, popular items | Date filters, KPIs, chart/table panels | Complete |
@@ -35,17 +35,11 @@ methods, loyalty redemption, customer order history/reorder/cancel, privacy
 requests, OAuth callback endpoints, provider webhooks, worker routes and raw
 driver GPS publishing are not admin-tablet destinations.
 
-## Live delta at verification time
+## Contract and fixture evidence
 
-The public live contract exposed 163 operations while the local contract
-exposed 173. These ten operations must be deployed before every local admin
-screen is operational against production:
-
-- `GET /api/v1/admin/dashboard/summary`
-- `GET /api/v1/audit`
-- `GET /api/v1/deliveries/admin`
-- `GET /api/v1/media/admin`
-- `GET /api/v1/notifications/devices`
-- `GET /api/v1/refunds/admin`
-- `GET|POST /api/v1/pizza-builder/admin/rules`
-- `PATCH|DELETE /api/v1/pizza-builder/admin/rules/{id}`
+The regenerated local `api/openapi.json` exposes 183 operations. The isolated
+PostgreSQL API-seed test migrates a fresh database, authenticates as an admin,
+copies all 5 public-site categories and all 48 public menu products, and creates
+representative ingredients, options, FAQ, offers, driver, customer, POS,
+delivery and support data through HTTP. It runs the fixture twice to prove it
+is idempotent. Deployment status must be checked independently at release time.

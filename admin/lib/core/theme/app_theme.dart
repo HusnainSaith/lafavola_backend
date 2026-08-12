@@ -81,6 +81,43 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(16),
         ),
       ),
+      menuTheme: MenuThemeData(
+        style: MenuStyle(
+          backgroundColor: const WidgetStatePropertyAll(BrandColors.paper),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+          side: const WidgetStatePropertyAll(
+            BorderSide(color: BrandColors.divider),
+          ),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+        ),
+      ),
+      dropdownMenuTheme: const DropdownMenuThemeData(
+        textStyle: TextStyle(color: BrandColors.ink, fontFamily: 'Poppins'),
+        menuStyle: MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(BrandColors.paper),
+        ),
+      ),
+      popupMenuTheme: const PopupMenuThemeData(
+        color: BrandColors.paper,
+        surfaceTintColor: Colors.transparent,
+        textStyle: TextStyle(color: BrandColors.ink, fontFamily: 'Poppins'),
+      ),
+      dialogTheme: const DialogThemeData(
+        backgroundColor: BrandColors.paper,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: TextStyle(
+          color: BrandColors.ink,
+          fontFamily: 'Poppins',
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        contentTextStyle: TextStyle(
+          color: BrandColors.ink,
+          fontFamily: 'Poppins',
+        ),
+      ),
     );
   }
 }

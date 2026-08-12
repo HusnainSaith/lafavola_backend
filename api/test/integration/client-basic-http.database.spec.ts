@@ -185,6 +185,15 @@ function findValue(value: unknown, key: string): unknown {
         .expect(({ body }) =>
           expect(JSON.stringify(body)).toContain('Margherita'),
         );
+      await request(app.getHttpServer())
+        .get('/restaurant/availability')
+        .query({ orderType: 'delivery', menuItemId })
+        .expect(200)
+        .expect(({ body }) => {
+          expect(findValue(body, 'timezone')).toBeTruthy();
+          expect(findValue(body, 'leadMinutes')).toEqual(expect.any(Number));
+          expect(findValue(body, 'serverNow')).toBeTruthy();
+        });
 
       await request(app.getHttpServer())
         .post('/cart/items')
@@ -211,11 +220,16 @@ function findValue(value: unknown, key: string): unknown {
         .set(auth())
         .send({
           cartId,
+          orderType: 'delivery',
           deliveryAddressId: addressId,
           paymentMethod: 'cash',
           idempotencyKey: 'basic-client-cash-checkout',
         })
         .expect(201);
+      expect(findValue(checkout.body, 'orderType')).toBe('delivery');
+      expect(findValue(checkout.body, 'serverNow')).toBeTruthy();
+      expect(findValue(checkout.body, 'estimatedReadyAt')).toBeTruthy();
+      expect(findValue(checkout.body, 'estimatedDeliveryAt')).toBeTruthy();
       orderId = String(findValue(checkout.body, 'orderId'));
       const [order] = await database.query(
         `SELECT subtotal_minor,tax_minor,delivery_fee_minor,grand_total_minor,payment_status,status
@@ -231,6 +245,59 @@ function findValue(value: unknown, key: string): unknown {
         status: 'placed',
       });
       expect(orderId).toMatch(/^[0-9a-f-]{36}$/i);
+    });
+
+    it('checks out pickup without an address, delivery fee, or raw customer input identifiers', async () => {
+      await request(app.getHttpServer())
+        .post('/cart/items')
+        .query({ restaurantId })
+        .set(auth())
+        .send({ menuItemId, menuItemSizeId: sizeId, quantity: 1 })
+        .expect(201);
+      const [{ id: pickupCartId }] = await database.query(
+        `SELECT id FROM carts WHERE customer_id=$1 AND restaurant_id=$2 AND status='active'`,
+        [customerId, restaurantId],
+      );
+
+      const checkout = await request(app.getHttpServer())
+        .post('/checkout')
+        .set(auth())
+        .send({
+          cartId: pickupCartId,
+          orderType: 'pickup',
+          paymentMethod: 'cash',
+          idempotencyKey: 'basic-client-pickup-checkout',
+        })
+        .expect(201);
+      orderId = String(findValue(checkout.body, 'orderId'));
+      const [order] = await database.query(
+        `SELECT order_type,delivery_fee_minor,delivery_address_snapshot,
+                estimated_ready_at,estimated_delivery_at
+         FROM orders WHERE id=$1`,
+        [orderId],
+      );
+      expect(order).toMatchObject({
+        order_type: 'pickup',
+        delivery_fee_minor: 0,
+        delivery_address_snapshot: null,
+        estimated_delivery_at: null,
+      });
+      expect(order.estimated_ready_at).toBeTruthy();
+
+      const detail = await request(app.getHttpServer())
+        .get(`/orders/me/${orderId}`)
+        .set(auth())
+        .expect(200);
+      expect(findValue(detail.body, 'remainingSeconds')).toEqual(
+        expect.any(Number),
+      );
+      const receipt = await request(app.getHttpServer())
+        .get(`/orders/me/${orderId}/receipt`)
+        .set(auth())
+        .expect(200);
+      expect(findValue(receipt.body, 'documentType')).toBe('order_receipt');
+      expect(findValue(receipt.body, 'fiscalDocument')).toBe(false);
+      expect(JSON.stringify(receipt.body)).not.toContain(addressId);
     });
 
     it('reads owned orders, favorites and quick reorder, then uses support and notifications', async () => {

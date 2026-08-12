@@ -6,9 +6,14 @@ import 'package:la_favola_admin/core/api/admin_api_client.dart';
 /// reachable from the catalogue landing page because they have more specialised
 /// dependent data than a simple row editor.
 class CatalogueInventoryPage extends StatefulWidget {
-  const CatalogueInventoryPage({super.key, required this.api});
+  const CatalogueInventoryPage({
+    super.key,
+    required this.api,
+    this.initialView = 'menu',
+  });
 
   final AdminApiClient api;
+  final String initialView;
 
   @override
   State<CatalogueInventoryPage> createState() => _CatalogueInventoryPageState();
@@ -22,11 +27,12 @@ class _CatalogueInventoryPageState extends State<CatalogueInventoryPage> {
   String? _restaurantId;
   List<Map<String, dynamic>> _categories = const [];
   List<Map<String, dynamic>> _items = const [];
-  String _view = 'menu';
+  late String _view;
 
   @override
   void initState() {
     super.initState();
+    _view = widget.initialView;
     _searchController.addListener(() => setState(() {}));
     _load();
   }

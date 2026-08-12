@@ -127,6 +127,9 @@ export class Order {
   })
   estimatedDeliveryAt?: Date;
 
+  @Column({ name: 'estimated_ready_at', type: 'timestamptz', nullable: true })
+  estimatedReadyAt?: Date;
+
   @Column({ name: 'scheduled_for', type: 'timestamptz', nullable: true })
   scheduledFor?: Date;
 

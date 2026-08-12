@@ -2,8 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:la_favola_admin/core/api/admin_api_client.dart';
 
 class UserManagementPage extends StatefulWidget {
-  const UserManagementPage({super.key, required this.api});
+  const UserManagementPage({
+    super.key,
+    required this.api,
+    this.roleFilter,
+    this.title = 'Utenti',
+    this.subtitle =
+        'Crea account operativi, assegna un ruolo e mantieni il minimo privilegio.',
+  });
   final AdminApiClient api;
+  final String? roleFilter;
+  final String title;
+  final String subtitle;
 
   @override
   State<UserManagementPage> createState() => _UserManagementPageState();
@@ -65,9 +75,18 @@ class _UserManagementPageState extends State<UserManagementPage> {
 
   List<Map<String, dynamic>> get _rows {
     final term = _search.text.trim().toLowerCase();
+    final scoped =
+        widget.roleFilter == null
+            ? _users
+            : _users.where((user) {
+              final role = user['role'];
+              final name =
+                  role is Map ? role['name']?.toString() : role?.toString();
+              return name?.toLowerCase() == widget.roleFilter;
+            }).toList();
     return term.isEmpty
-        ? _users
-        : _users
+        ? scoped
+        : scoped
             .where(
               (v) =>
                   '${v['fullName'] ?? ''} ${v['email'] ?? ''} ${v['phone'] ?? ''}'
@@ -86,6 +105,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
             roles: _roles,
             permissions: _permissions,
             existing: user,
+            initialRoleName: widget.roleFilter,
           ),
     );
     if (changed == true) await _load();
@@ -160,12 +180,9 @@ class _UserManagementPageState extends State<UserManagementPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Utenti', style: Theme.of(context).textTheme.headlineMedium),
+          Text(widget.title, style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 6),
-          Text(
-            'Crea account operativi, assegna un ruolo e mantieni il minimo privilegio.',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
+          Text(widget.subtitle, style: Theme.of(context).textTheme.bodyLarge),
           const SizedBox(height: 20),
           Row(
             children: [
@@ -410,11 +427,13 @@ class _UserEditor extends StatefulWidget {
     required this.roles,
     required this.permissions,
     this.existing,
+    this.initialRoleName,
   });
   final AdminApiClient api;
   final List<Map<String, dynamic>> roles;
   final List<Map<String, dynamic>> permissions;
   final Map<String, dynamic>? existing;
+  final String? initialRoleName;
   @override
   State<_UserEditor> createState() => _UserEditorState();
 }
@@ -437,6 +456,17 @@ class _UserEditorState extends State<_UserEditor> {
     _password = TextEditingController();
     final role = user['role'];
     _roleId = role is Map ? role['id']?.toString() : user['roleId']?.toString();
+    if (_roleId == null && widget.initialRoleName != null) {
+      _roleId =
+          widget.roles
+              .where(
+                (role) =>
+                    role['name']?.toString().toLowerCase() ==
+                    widget.initialRoleName,
+              )
+              .firstOrNull?['id']
+              ?.toString();
+    }
     _status = user['status']?.toString() ?? 'active';
   }
 

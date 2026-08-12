@@ -4,6 +4,7 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CalculatePriceDto } from './dto/calculate-price.dto';
 import { PriceBreakdownDto } from './dto/price-breakdown.dto';
 import { PricingService } from './pricing.service';
+import { Public } from '../../common/decorators/public.decorator';
 
 @ApiTags('Pricing')
 @Controller('pricing')
@@ -11,6 +12,7 @@ export class PricingController {
   constructor(private readonly service: PricingService) {}
 
   @Post('calculate')
+  @Public()
   @ApiOperation({
     summary: 'Calculate pizza/menu item price',
     description:

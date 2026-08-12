@@ -299,6 +299,9 @@ abstract final class AdminApiRoutes {
   static String orderDetail(String id) => '/orders/admin/$id';
   static String orderStatus(String id) => '/orders/admin/$id/status';
   static const deliveriesAdmin = '/deliveries/admin';
+  static const dispatchBoard = '/deliveries/admin/dispatch-board';
+  static const drivers = '/deliveries/drivers';
+  static String driver(String id) => '/deliveries/drivers/$id';
   static String deliveryTracking(String orderId) =>
       '/deliveries/orders/$orderId/tracking';
   static String deliveryAssignment(String orderId) =>

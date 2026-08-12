@@ -1,0 +1,13 @@
+{
+  "path": {},
+  "query": {},
+  "headers": {
+    "X-Correlation-Id": "golden-correlation-002",
+    "Idempotency-Key": "register-001"
+  },
+  "body": {
+    "email": "cliente@example.test",
+    "password": "synthetic-pass-123",
+    "displayName": "Cliente locale"
+  }
+}

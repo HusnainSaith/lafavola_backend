@@ -9,6 +9,12 @@ import { SecurityUtil } from '../src/common/utils/security.util';
 // Import the permissions seeding function
 import { seedPermissions } from './permissions-seed';
 
+function requiredSeedVariable(name: string): string {
+  const value = process.env[name]?.trim();
+  if (!value) throw new Error(name + ' is required for local seeding');
+  return value;
+}
+
 async function seed() {
   await AppDataSource.initialize(); // Initialize connection once
 
@@ -49,13 +55,16 @@ async function seed() {
 
     // Seed admin user...
     // ... (Your admin user seeding logic) ...
-    const adminEmail = 'admin_labverse@gmail.com';
+    const adminEmail = requiredSeedVariable('SEED_ADMIN_EMAIL');
     let adminUser = await userRepo.findOne({ where: { email: adminEmail } });
     if (!adminUser) {
       const adminRole = await roleRepo.findOne({
         where: { name: RoleEnum.ADMIN },
       });
-      const password = await bcrypt.hash('Admin@12345', 10);
+      const password = await bcrypt.hash(
+        requiredSeedVariable('SEED_ADMIN_PASSWORD'),
+        10,
+      );
       adminUser = userRepo.create({
         email: adminEmail,
         password,
@@ -64,7 +73,7 @@ async function seed() {
       });
       await userRepo.save(adminUser);
       console.log(
-        `Admin user "${adminEmail}" created with password: Admin@12345`,
+        `Admin user "${SecurityUtil.sanitizeLogMessage(adminEmail)}" created.`,
       );
     } else {
       console.log(`Admin user "${adminEmail}" already exists.`);

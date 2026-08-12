@@ -1,0 +1,15 @@
+{
+  "error": {
+    "code": "VERSION_CONFLICT",
+    "messageKey": "resource.version_conflict",
+    "message": "Conflitto di versione.",
+    "correlationId": "golden-correlation-001",
+    "retryable": false,
+    "versionConflict": {
+      "currentVersion": "3",
+      "changedFields": [
+        "displayName"
+      ]
+    }
+  }
+}

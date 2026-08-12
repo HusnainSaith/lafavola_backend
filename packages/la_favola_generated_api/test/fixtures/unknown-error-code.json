@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "FUTURE_SAFE_CODE",
+    "messageKey": "future.safe",
+    "message": "Operazione non disponibile.",
+    "correlationId": "golden-correlation-005",
+    "retryable": false
+  }
+}

@@ -60,6 +60,16 @@ export class OrdersController {
     return this.service.customerDetail(user.id, id);
   }
 
+  @Get('me/:id/receipt')
+  @ApiOperation({
+    summary: 'Customer-readable order receipt with authoritative totals',
+  })
+  @ApiParam({ name: 'id', required: true, type: String })
+  @ApiResponse({ status: 200, description: 'Order receipt' })
+  receipt(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.service.customerReceipt(user.id, id);
+  }
+
   @Post('me/:id/reorder')
   @ApiOperation({
     summary: 'Revalidate an earlier order and add it to the active cart',

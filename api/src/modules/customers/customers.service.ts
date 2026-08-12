@@ -1,14 +1,18 @@
-﻿import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { RefreshToken } from '../auth/entities/refresh-token.entity';
 import { UpdateCustomerPreferencesDto } from './dto/update-customer-preferences.dto';
 import { UpdateCustomerProfileDto } from './dto/update-customer-profile.dto';
 import { CreatePrivacyRequestDto } from './dto/create-privacy-request.dto';
 import { RecordPrivacyConsentDto } from './dto/record-privacy-consent.dto';
+import { PrivacyRequestResponseDto } from './dto/privacy-request-response.dto';
 import { CustomerPreference } from './entities/customer-preference.entity';
+import { CustomerProfile } from './entities/customer-profile.entity';
 import { PrivacyConsent } from './entities/privacy-consent.entity';
 import { PrivacyRequest } from './entities/privacy-request.entity';
 import { CustomerProfileRepository } from './repositories/customer-profile.repository';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class CustomersService {
@@ -29,37 +33,145 @@ export class CustomersService {
         }),
       );
     }
-    return profile;
+    const user = await this.dataSource.getRepository(User).findOne({
+      where: { id: userId },
+    });
+    if (!user) throw new NotFoundException('Customer account not found');
+    return {
+      displayName: user.fullName,
+      email: user.email ?? '',
+      emailVerified: Boolean(user.emailVerifiedAt),
+      phone: user.phone ?? null,
+      locale: profile.preferredLanguage,
+      avatarUrl: profile.avatarUrl ?? null,
+      dateOfBirth: profile.dateOfBirth ?? null,
+      loyaltyOptIn: profile.loyaltyOptIn,
+      marketingOptIn: profile.marketingOptIn,
+      version: profile.updatedAt.toISOString(),
+    };
   }
 
   async updateProfile(userId: string, dto: UpdateCustomerProfileDto) {
-    const profile = await this.profile(userId);
-    Object.assign(profile, dto);
-    return this.profiles.save(profile);
+    let profile = await this.profiles.findOne({ where: { userId } });
+    if (!profile) {
+      await this.profile(userId);
+      profile = await this.profiles.findOne({ where: { userId } });
+    }
+    if (!profile) throw new NotFoundException('Customer profile not found');
+    const { displayName, phone, ...profileChanges } = dto;
+    await this.dataSource.transaction(async (manager) => {
+      Object.assign(profile, profileChanges);
+      await manager.getRepository(CustomerProfile).save(profile);
+      if (displayName !== undefined || phone !== undefined) {
+        const user = await manager.getRepository(User).findOne({
+          where: { id: userId },
+        });
+        if (!user) throw new NotFoundException('Customer account not found');
+        if (displayName !== undefined) user.fullName = displayName.trim();
+        if (phone !== undefined) user.phone = phone.trim() || undefined;
+        await manager.getRepository(User).save(user);
+      }
+    });
+    return this.profile(userId);
   }
 
   async preferences(userId: string) {
     const repo = this.dataSource.getRepository(CustomerPreference);
     let preference = await repo.findOne({ where: { customerId: userId } });
     if (!preference) {
-      preference = await repo.save(repo.create({ customerId: userId }));
+      await repo.save(repo.create({ customerId: userId }));
+      preference = await repo.findOne({ where: { customerId: userId } });
     }
-    return preference;
+    if (!preference) {
+      throw new NotFoundException('Customer preferences not found');
+    }
+    const profile = await this.profiles.findOne({ where: { userId } });
+    return {
+      ...preference,
+      marketingEmailOptIn: profile?.marketingOptIn ?? false,
+      securityAlertsEnabled: true,
+      version: preference.updatedAt.toISOString(),
+    };
   }
 
   async updatePreferences(userId: string, dto: UpdateCustomerPreferencesDto) {
     const repo = this.dataSource.getRepository(CustomerPreference);
-    const preference = await this.preferences(userId);
-    Object.assign(preference, dto);
-    return repo.save(preference);
+    await this.preferences(userId);
+    const preference = await repo.findOne({ where: { customerId: userId } });
+    if (!preference)
+      throw new NotFoundException('Customer preferences not found');
+    const { marketingEmailOptIn, ...dietaryPreferences } = dto;
+    Object.assign(preference, dietaryPreferences);
+    await repo.save(preference);
+    if (marketingEmailOptIn !== undefined) {
+      let profile = await this.profiles.findOne({ where: { userId } });
+      if (!profile) {
+        await this.profile(userId);
+        profile = await this.profiles.findOne({ where: { userId } });
+      }
+      if (!profile) throw new NotFoundException('Customer profile not found');
+      profile.marketingOptIn = marketingEmailOptIn;
+      await this.profiles.save(profile);
+    }
+    return this.preferences(userId);
   }
 
-  privacyRequests(userId: string) {
-    return this.dataSource.getRepository(PrivacyRequest).find({
+  async privacyRequests(userId: string) {
+    const requests = await this.dataSource.getRepository(PrivacyRequest).find({
       where: { userId },
       order: { requestedAt: 'DESC' },
       take: 100,
     });
+    return requests.map((request) => this.privacyRequestView(request));
+  }
+
+  private privacyRequestView(
+    request: PrivacyRequest,
+  ): PrivacyRequestResponseDto {
+    return {
+      id: request.id,
+      requestType:
+        request.requestType as PrivacyRequestResponseDto['requestType'],
+      status: request.status as PrivacyRequestResponseDto['status'],
+      requestedAt: request.requestedAt,
+      completedAt: request.completedAt ?? null,
+    };
+  }
+
+  async privacyRequest(userId: string, requestId: string) {
+    const request = await this.dataSource
+      .getRepository(PrivacyRequest)
+      .findOne({ where: { id: requestId, userId } });
+    if (!request) throw new NotFoundException('Privacy request not found');
+    return this.privacyRequestView(request);
+  }
+
+  async securitySessions(userId: string) {
+    const sessions = await this.dataSource.getRepository(RefreshToken).find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+      take: 100,
+    });
+    return sessions.map((session) => ({
+      id: session.id,
+      createdAt: session.createdAt,
+      expiresAt: session.expiresAt,
+      revoked: session.isRevoked,
+      revokedAt: session.revokedAt ?? null,
+    }));
+  }
+
+  async revokeSecuritySession(userId: string, sessionId: string) {
+    const repo = this.dataSource.getRepository(RefreshToken);
+    const session = await repo.findOne({
+      where: { id: sessionId, userId },
+    });
+    if (!session) throw new NotFoundException('Refresh session not found');
+    if (!session.isRevoked) {
+      session.isRevoked = true;
+      session.revokedAt = new Date();
+      await repo.save(session);
+    }
   }
 
   createPrivacyRequest(userId: string, dto: CreatePrivacyRequestDto) {

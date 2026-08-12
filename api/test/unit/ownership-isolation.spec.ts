@@ -6,6 +6,8 @@ import { SupportService } from '../../src/modules/support/support.service';
 import { DeliveriesService } from '../../src/modules/deliveries/deliveries.service';
 import { RolesGuard } from '../../src/common/guards/roles.guard';
 import { RoleEnum } from '../../src/modules/roles/role.enum';
+import { MenuItem } from '../../src/modules/menu/entities/menu-item.entity';
+import { MenuItemSize } from '../../src/modules/menu/entities/menu-item-size.entity';
 
 describe('customer ownership isolation', () => {
   it('does not treat any recognized role as satisfying an admin requirement', () => {
@@ -82,6 +84,53 @@ describe('customer ownership isolation', () => {
     );
   });
 
+  it('resolves an active default size when saving a menu favorite', async () => {
+    const favorites = {
+      findOne: jest.fn().mockResolvedValue(null),
+      create: jest.fn((value) => value),
+      save: jest.fn(async (value) => ({ id: 'favorite-a', ...value })),
+    };
+    const menuItems = {
+      findOne: jest.fn().mockResolvedValue({
+        id: 'menu-a',
+        restaurantId: 'restaurant-a',
+        isActive: true,
+        archivedAt: null,
+      }),
+    };
+    const sizes = {
+      findOne: jest.fn().mockResolvedValue({ id: 'size-a' }),
+    };
+    const dataSource = {
+      getRepository: jest.fn((entity) => {
+        if (entity === MenuItem) return menuItems;
+        if (entity === MenuItemSize) return sizes;
+        throw new Error('Unexpected entity: ' + String(entity));
+      }),
+    };
+    const service = new FavoritesService(
+      favorites as never,
+      {} as never,
+      dataSource as never,
+    );
+
+    await service.create('user-a', {
+      restaurantId: 'restaurant-a',
+      menuItemId: 'menu-a',
+      label: 'Pizza preferita',
+    });
+
+    expect(sizes.findOne).toHaveBeenCalledWith({
+      where: { menuItemId: 'menu-a', isActive: true },
+      order: { displayOrder: 'ASC', basePriceMinor: 'ASC' },
+    });
+    expect(favorites.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerId: 'user-a',
+        configurationSnapshot: { menuItemSizeId: 'size-a' },
+      }),
+    );
+  });
   it('scopes order detail by the authenticated customer', async () => {
     const orders = { findOne: jest.fn().mockResolvedValue(null) };
     const service = new OrdersService(

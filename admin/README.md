@@ -40,11 +40,13 @@ payment, signing or administrator credentials into the app.
 
 ## Coverage
 
-The shell exposes dashboard, orders/payment/refunds, delivery dispatch,
-support, Cassa, catalogue/categories/ingredients/options/pizza rules, offers,
-media, users/staff/RBAC, restaurant settings and hours, reports,
-notifications/devices and audit activity. Customer-owned and provider webhook
-routes are excluded.
+The shell exposes 25 directly labelled workspaces: dashboard, Cassa, orders,
+delivery dispatch, driver directory, refunds, customers, menu, categories,
+ingredients, option groups, pizza rules, media, offers, FAQ, notifications,
+support, staff, users, roles, permissions, the RBAC matrix,
+restaurant/hours, reports and audit activity.
+Driver and staff forms use selectable business records; operators never type
+or see database UUIDs.
 
 Printed tickets are explicitly marked `COPIA DI CORTESIA - NON FISCALE`.
 Physical-printer acceptance must still be performed on the client's exact

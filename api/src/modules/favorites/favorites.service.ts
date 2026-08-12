@@ -5,6 +5,8 @@ import { AddCartItemDto } from '../carts/dto/add-cart-item.dto';
 import { CartsService } from '../carts/carts.service';
 import { OrderItemOption } from '../orders/entities/order-item-option.entity';
 import { OrderItem } from '../orders/entities/order-item.entity';
+import { MenuItem } from '../menu/entities/menu-item.entity';
+import { MenuItemSize } from '../menu/entities/menu-item-size.entity';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { FavoriteRepository } from './repositories/favorite.repository';
 
@@ -23,12 +25,51 @@ export class FavoritesService {
     });
   }
 
-  create(customerId: string, dto: CreateFavoriteDto) {
+  async create(customerId: string, dto: CreateFavoriteDto) {
+    const configurationSnapshot = { ...(dto.configurationSnapshot ?? {}) };
+    if (dto.menuItemId && !dto.sourceOrderItemId) {
+      const item = await this.dataSource.getRepository(MenuItem).findOne({
+        where: {
+          id: dto.menuItemId,
+          restaurantId: dto.restaurantId,
+          isActive: true,
+        },
+      });
+      if (!item || item.archivedAt) {
+        throw new BadRequestException('Favorite menu item is not available');
+      }
+      if (!configurationSnapshot.menuItemSizeId) {
+        const defaultSize = await this.dataSource
+          .getRepository(MenuItemSize)
+          .findOne({
+            where: { menuItemId: dto.menuItemId, isActive: true },
+            order: { displayOrder: 'ASC', basePriceMinor: 'ASC' },
+          });
+        if (!defaultSize) {
+          throw new BadRequestException(
+            'Favorite menu item has no available size',
+          );
+        }
+        configurationSnapshot.menuItemSizeId = defaultSize.id;
+      }
+      const existing = await this.favorites.findOne({
+        where: {
+          customerId,
+          restaurantId: dto.restaurantId,
+          menuItemId: dto.menuItemId,
+        },
+      });
+      if (existing) {
+        existing.label = dto.label ?? existing.label;
+        existing.configurationSnapshot = configurationSnapshot;
+        return this.favorites.save(existing);
+      }
+    }
     return this.favorites.save(
       this.favorites.create({
         ...dto,
         customerId,
-        configurationSnapshot: dto.configurationSnapshot ?? {},
+        configurationSnapshot,
       }),
     );
   }

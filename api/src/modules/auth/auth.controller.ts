@@ -157,15 +157,16 @@ export class AuthController extends BaseController {
   }
 
   @Post('resend-verification')
+  @Public()
   @Throttle({ default: { limit: 3, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Resend verification for the authenticated account',
   })
   @ApiResponse({ status: 200, description: 'Verification request accepted' })
-  resendVerification(@Request() request: { user: { id: string } }) {
+  resendVerification(@Body() dto: PasswordResetDto) {
     return this.handleAsyncOperation(
-      this.authService.resendEmailVerification(request.user.id),
+      this.authService.resendEmailVerificationForEmail(dto.email),
     );
   }
 }

@@ -77,7 +77,6 @@ export class PermissionsGuard implements CanActivate {
         );
       }
 
-      console.log('PERMISSION GRANTED');
       request.userPermissions = Array.from(permissionNames);
 
       return true;

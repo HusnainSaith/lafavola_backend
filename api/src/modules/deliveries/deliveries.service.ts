@@ -3,7 +3,8 @@ import {
   ConflictException,
   Injectable,
 } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import * as bcrypt from 'bcryptjs';
+import { DataSource, In } from 'typeorm';
 import { AdminListQueryDto } from '../../common/dto/admin-list-query.dto';
 import { requireEntity } from '../../common/utils/service-errors.util';
 import { Order } from '../orders/entities/order.entity';
@@ -17,6 +18,11 @@ import { DeliveryAssignmentStatus } from './enums/delivery-assignment-status.enu
 import { OutboxService } from '../../queue/outbox.service';
 import { OrderStatusHistory } from '../orders/entities/order-status-history.entity';
 import { StaffMember } from '../staff/entities/staff-member.entity';
+import { User } from '../users/entities/user.entity';
+import { Role } from '../roles/entities/role.entity';
+import { RoleEnum } from '../roles/role.enum';
+import { CreateDriverDto } from './dto/create-driver.dto';
+import { UpdateDriverDto } from './dto/update-driver.dto';
 
 const DELIVERY_TRANSITIONS: Record<string, DeliveryAssignmentStatus[]> = {
   assigned: [
@@ -82,13 +88,212 @@ export class DeliveriesService {
     };
   }
 
-  async getTracking(customerId: string, orderId: string) {
-    requireEntity(
-      await this.dataSource.getRepository(Order).findOne({
-        where: { id: orderId, customerId },
-      }),
-      'Delivery tracking not found',
-    );
+  async dispatchBoard(actorUserId: string) {
+    const staff = await this.activeStaff(actorUserId);
+    return this.dataSource
+      .getRepository(Order)
+      .createQueryBuilder('order')
+      .leftJoinAndMapOne(
+        'order.assignment',
+        DeliveryAssignment,
+        'assignment',
+        'assignment.order_id = order.id',
+      )
+      .leftJoinAndMapOne(
+        'assignment.driverUser',
+        User,
+        'driver',
+        'driver.id = assignment.driver_user_id',
+      )
+      .where('order.restaurant_id = :restaurantId', {
+        restaurantId: staff.restaurantId,
+      })
+      .andWhere('order.order_type = :orderType', { orderType: 'delivery' })
+      .andWhere('order.status IN (:...statuses)', {
+        statuses: ['ready', 'driver_assigned', 'out_for_delivery'],
+      })
+      .orderBy('order.created_at', 'ASC')
+      .getMany();
+  }
+
+  async listDrivers(actorUserId: string) {
+    const actor = await this.activeStaff(actorUserId);
+    const drivers = await this.dataSource
+      .getRepository(StaffMember)
+      .createQueryBuilder('staff')
+      .innerJoinAndSelect('staff.user', 'user')
+      .innerJoinAndSelect('user.role', 'role')
+      .where('staff.restaurant_id = :restaurantId', {
+        restaurantId: actor.restaurantId,
+      })
+      .andWhere('LOWER(staff.job_title) = :jobTitle', { jobTitle: 'driver' })
+      .andWhere('role.name = :role', { role: RoleEnum.EMPLOYEE })
+      .orderBy('staff.is_active', 'DESC')
+      .addOrderBy('user.full_name', 'ASC')
+      .getMany();
+    return drivers.map((staff) => this.driverResponse(staff, staff.user));
+  }
+
+  async createDriver(actorUserId: string, dto: CreateDriverDto) {
+    const actor = await this.activeStaff(actorUserId);
+    return this.dataSource.transaction(async (manager) => {
+      const users = manager.getRepository(User);
+      const existing = await users
+        .createQueryBuilder('user')
+        .where('LOWER(user.email) = LOWER(:email)', { email: dto.email })
+        .andWhere('user.archived_at IS NULL')
+        .getOne();
+      if (existing)
+        throw new ConflictException('A user with this email already exists');
+      if (dto.phone) {
+        const phoneExists = await users.findOne({
+          where: { phone: dto.phone },
+        });
+        if (phoneExists)
+          throw new ConflictException('A user with this phone already exists');
+      }
+      const role = requireEntity(
+        await manager.getRepository(Role).findOne({
+          where: { name: RoleEnum.EMPLOYEE },
+        }),
+        'Employee role not found',
+      );
+      const user = await users.save(
+        users.create({
+          email: dto.email,
+          phone: dto.phone,
+          fullName: dto.fullName,
+          password: await bcrypt.hash(dto.temporaryPassword, 10),
+          roleId: role.id,
+          status: 'active',
+        }),
+      );
+      const staff = await manager.getRepository(StaffMember).save(
+        manager.getRepository(StaffMember).create({
+          userId: user.id,
+          restaurantId: actor.restaurantId,
+          employeeCode: dto.employeeCode,
+          jobTitle: 'Driver',
+          isActive: true,
+        }),
+      );
+      return this.driverResponse(staff, user);
+    });
+  }
+
+  async updateDriver(
+    actorUserId: string,
+    staffId: string,
+    dto: UpdateDriverDto,
+  ) {
+    const actor = await this.activeStaff(actorUserId);
+    return this.dataSource.transaction(async (manager) => {
+      const staff = requireEntity(
+        await manager.getRepository(StaffMember).findOne({
+          where: { id: staffId, restaurantId: actor.restaurantId },
+          relations: { user: true },
+        }),
+        'Driver not found',
+      );
+      if (staff.jobTitle?.toLowerCase() !== 'driver')
+        throw new BadRequestException('Driver not found');
+      const user = staff.user;
+      if (dto.email && dto.email !== user.email) {
+        const conflict = await manager
+          .getRepository(User)
+          .createQueryBuilder('candidate')
+          .where('LOWER(candidate.email) = LOWER(:email)', { email: dto.email })
+          .andWhere('candidate.id <> :userId', { userId: user.id })
+          .andWhere('candidate.archived_at IS NULL')
+          .getOne();
+        if (conflict) throw new ConflictException('Email already exists');
+      }
+      if (dto.phone && dto.phone !== user.phone) {
+        const conflict = await manager.getRepository(User).findOne({
+          where: { phone: dto.phone },
+        });
+        if (conflict) throw new ConflictException('Phone already exists');
+      }
+      if (dto.fullName !== undefined) user.fullName = dto.fullName;
+      if (dto.email !== undefined) user.email = dto.email;
+      if (dto.phone !== undefined) user.phone = dto.phone;
+      if (dto.temporaryPassword)
+        user.password = await bcrypt.hash(dto.temporaryPassword, 10);
+      if (dto.employeeCode !== undefined)
+        staff.employeeCode = dto.employeeCode || undefined;
+      if (dto.isActive !== undefined) {
+        staff.isActive = dto.isActive;
+        user.status = dto.isActive ? 'active' : 'disabled';
+      }
+      await manager.getRepository(User).save(user);
+      await manager.getRepository(StaffMember).save(staff);
+      return this.driverResponse(staff, user);
+    });
+  }
+
+  async deactivateDriver(actorUserId: string, staffId: string) {
+    const actor = await this.activeStaff(actorUserId);
+    return this.dataSource.transaction(async (manager) => {
+      const staff = requireEntity(
+        await manager.getRepository(StaffMember).findOne({
+          where: { id: staffId, restaurantId: actor.restaurantId },
+          relations: { user: true },
+        }),
+        'Driver not found',
+      );
+      if (staff.jobTitle?.toLowerCase() !== 'driver')
+        throw new BadRequestException('Driver not found');
+      const activeAssignments = await manager
+        .getRepository(DeliveryAssignment)
+        .count({
+          where: {
+            driverUserId: staff.userId,
+            status: In([
+              'assigned',
+              'accepted',
+              'picked_up',
+              'en_route',
+              'arriving',
+            ]),
+          },
+        });
+      if (activeAssignments > 0)
+        throw new ConflictException(
+          'Reassign active deliveries before deactivating this driver',
+        );
+      staff.isActive = false;
+      staff.user.status = 'disabled';
+      await manager.getRepository(StaffMember).save(staff);
+      await manager.getRepository(User).save(staff.user);
+      await manager.query('DELETE FROM refresh_tokens WHERE user_id=$1', [
+        staff.userId,
+      ]);
+      return this.driverResponse(staff, staff.user);
+    });
+  }
+
+  async getTracking(actorUserId: string, orderId: string, isAdmin = false) {
+    if (isAdmin) {
+      const staff = await this.activeStaff(actorUserId);
+      requireEntity(
+        await this.dataSource.getRepository(Order).findOne({
+          where: { id: orderId, restaurantId: staff.restaurantId },
+        }),
+        'Delivery tracking not found',
+      );
+    } else {
+      const assigned = await this.dataSource
+        .getRepository(DeliveryAssignment)
+        .findOne({ where: { orderId, driverUserId: actorUserId } });
+      if (!assigned) {
+        requireEntity(
+          await this.dataSource.getRepository(Order).findOne({
+            where: { id: orderId, customerId: actorUserId },
+          }),
+          'Delivery tracking not found',
+        );
+      }
+    }
     return requireEntity(
       await this.tracking.findByOrderId(orderId),
       'Delivery tracking not found',
@@ -120,16 +325,38 @@ export class DeliveriesService {
       if (!['ready', 'driver_assigned'].includes(String(order.status)))
         throw new BadRequestException('Order is not ready for delivery');
 
+      const driver = requireEntity(
+        await manager
+          .getRepository(StaffMember)
+          .createQueryBuilder('driverStaff')
+          .innerJoin('driverStaff.user', 'driverUser')
+          .innerJoin('driverUser.role', 'driverRole')
+          .where('driverStaff.user_id = :driverUserId', {
+            driverUserId: dto.driverUserId,
+          })
+          .andWhere('driverStaff.restaurant_id = :restaurantId', {
+            restaurantId: staff.restaurantId,
+          })
+          .andWhere('driverStaff.is_active = true')
+          .andWhere('driverUser.status = :status', { status: 'active' })
+          .andWhere('LOWER(driverStaff.job_title) = :jobTitle', {
+            jobTitle: 'driver',
+          })
+          .andWhere('driverRole.name = :role', { role: RoleEnum.EMPLOYEE })
+          .getOne(),
+        'Active driver not found',
+      );
+
       let assignment = await assignmentRepo.findOne({ where: { orderId } });
       if (!assignment) {
         assignment = assignmentRepo.create({
           orderId,
-          driverUserId: dto.driverUserId,
+          driverUserId: driver.userId,
           assignedByUserId,
           status: 'assigned',
         });
       } else {
-        assignment.driverUserId = dto.driverUserId;
+        assignment.driverUserId = driver.userId;
         assignment.assignedByUserId = assignedByUserId;
         assignment.status = 'assigned' as any;
         assignment.assignedAt = new Date();
@@ -408,5 +635,27 @@ export class DeliveriesService {
       eventType: 'order.status_changed',
       payload: { orderId: order.id, status: next },
     });
+  }
+
+  private async activeStaff(actorUserId: string) {
+    return requireEntity(
+      await this.dataSource.getRepository(StaffMember).findOne({
+        where: { userId: actorUserId, isActive: true },
+      }),
+      'Staff member not found',
+    );
+  }
+
+  private driverResponse(staff: StaffMember, user: User) {
+    return {
+      id: staff.id,
+      userId: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      phone: user.phone,
+      employeeCode: staff.employeeCode,
+      jobTitle: staff.jobTitle,
+      isActive: staff.isActive,
+    };
   }
 }

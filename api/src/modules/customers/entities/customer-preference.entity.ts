@@ -1,4 +1,4 @@
-﻿import {
+import {
   Column,
   Entity,
   JoinColumn,
@@ -34,9 +34,17 @@ export class CustomerPreference {
   @Column({ name: 'default_payment_method_id', type: 'uuid', nullable: true })
   defaultPaymentMethodId?: string;
 
-  @Column({ name: 'created_at', type: 'timestamptz' })
+  @Column({
+    name: 'created_at',
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   createdAt: Date;
 
-  @Column({ name: 'updated_at', type: 'timestamptz' })
+  @Column({
+    name: 'updated_at',
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   updatedAt: Date;
 }

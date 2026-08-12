@@ -5,8 +5,13 @@ import 'package:la_favola_admin/core/api/admin_api_client.dart';
 /// deactivate/archive. The editor only sends values accepted by the OpenAPI
 /// contract and never applies an offer to a customer order from the tablet.
 class OffersManagementPage extends StatefulWidget {
-  const OffersManagementPage({super.key, required this.api});
+  const OffersManagementPage({
+    super.key,
+    required this.api,
+    this.initialKind = 'promotions',
+  });
   final AdminApiClient api;
+  final String initialKind;
 
   @override
   State<OffersManagementPage> createState() => _OffersManagementPageState();
@@ -14,7 +19,7 @@ class OffersManagementPage extends StatefulWidget {
 
 class _OffersManagementPageState extends State<OffersManagementPage> {
   final _search = TextEditingController();
-  String _kind = 'promotions';
+  late String _kind;
   String? _restaurantId;
   List<Map<String, dynamic>> _promotions = const [];
   List<Map<String, dynamic>> _coupons = const [];
@@ -25,6 +30,7 @@ class _OffersManagementPageState extends State<OffersManagementPage> {
   @override
   void initState() {
     super.initState();
+    _kind = widget.initialKind;
     _search.addListener(() => setState(() {}));
     _load();
   }

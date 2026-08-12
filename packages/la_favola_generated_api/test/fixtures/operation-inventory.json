@@ -1,0 +1,212 @@
+[
+  {
+    "operationId": "customerVerifyEmail",
+    "method": "POST",
+    "path": "/api/v1/auth/customer/email-verifications",
+    "audience": "public"
+  },
+  {
+    "operationId": "customerResendEmailVerification",
+    "method": "POST",
+    "path": "/api/v1/auth/customer/email-verifications/resend",
+    "audience": "public"
+  },
+  {
+    "operationId": "customerFederatedCompletion",
+    "method": "POST",
+    "path": "/api/v1/auth/customer/federated-completions",
+    "audience": "public"
+  },
+  {
+    "operationId": "customerFederatedIntent",
+    "method": "POST",
+    "path": "/api/v1/auth/customer/federated-intents",
+    "audience": "public"
+  },
+  {
+    "operationId": "customerPasswordRecovery",
+    "method": "POST",
+    "path": "/api/v1/auth/customer/password-recoveries",
+    "audience": "public"
+  },
+  {
+    "operationId": "customerPasswordReset",
+    "method": "POST",
+    "path": "/api/v1/auth/customer/password-resets",
+    "audience": "public"
+  },
+  {
+    "operationId": "customerReauthenticate",
+    "method": "POST",
+    "path": "/api/v1/auth/customer/reauthentications",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerRegister",
+    "method": "POST",
+    "path": "/api/v1/auth/customer/registrations",
+    "audience": "public"
+  },
+  {
+    "operationId": "customerLogout",
+    "method": "DELETE",
+    "path": "/api/v1/auth/customer/session",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerSessionRefresh",
+    "method": "POST",
+    "path": "/api/v1/auth/customer/session-refreshes",
+    "audience": "customer_refresh"
+  },
+  {
+    "operationId": "customerLogin",
+    "method": "POST",
+    "path": "/api/v1/auth/customer/sessions",
+    "audience": "public"
+  },
+  {
+    "operationId": "customerGetAddresses",
+    "method": "GET",
+    "path": "/api/v1/customer/addresses",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerCreateAddress",
+    "method": "POST",
+    "path": "/api/v1/customer/addresses",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerGetAddress",
+    "method": "GET",
+    "path": "/api/v1/customer/addresses/{id}",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerUpdateAddress",
+    "method": "PATCH",
+    "path": "/api/v1/customer/addresses/{id}",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerDeleteAddress",
+    "method": "DELETE",
+    "path": "/api/v1/customer/addresses/{id}",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerGetPreferences",
+    "method": "GET",
+    "path": "/api/v1/customer/preferences",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerUpdatePreferences",
+    "method": "PATCH",
+    "path": "/api/v1/customer/preferences",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerRequestPrivacyDeletion",
+    "method": "POST",
+    "path": "/api/v1/customer/privacy/deletions",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerRequestPrivacyExport",
+    "method": "POST",
+    "path": "/api/v1/customer/privacy/exports",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerGetPrivacyRequestState",
+    "method": "GET",
+    "path": "/api/v1/customer/privacy/requests/{id}",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerGetProfile",
+    "method": "GET",
+    "path": "/api/v1/customer/profile",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerPatchProfile",
+    "method": "PATCH",
+    "path": "/api/v1/customer/profile",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerGetSecuritySessions",
+    "method": "GET",
+    "path": "/api/v1/customer/security/sessions",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerRevokeSecuritySession",
+    "method": "DELETE",
+    "path": "/api/v1/customer/security/sessions/{id}",
+    "audience": "customer"
+  },
+  {
+    "operationId": "publicGetMenuCategories",
+    "method": "GET",
+    "path": "/api/v1/menu/categories",
+    "audience": "public"
+  },
+  {
+    "operationId": "publicGetMenuItem",
+    "method": "GET",
+    "path": "/api/v1/menu/items/{id}",
+    "audience": "public"
+  },
+  {
+    "operationId": "getApiMetadata",
+    "method": "GET",
+    "path": "/api/v1/metadata",
+    "audience": "public"
+  },
+  {
+    "operationId": "customerListOrders",
+    "method": "GET",
+    "path": "/api/v1/orders",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerCreateOrder",
+    "method": "POST",
+    "path": "/api/v1/orders",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerGetOrder",
+    "method": "GET",
+    "path": "/api/v1/orders/{id}",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerRequestOrderCancellation",
+    "method": "POST",
+    "path": "/api/v1/orders/{id}/cancellation",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerCreateQuote",
+    "method": "POST",
+    "path": "/api/v1/quotes",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerGetQuote",
+    "method": "GET",
+    "path": "/api/v1/quotes/{id}",
+    "audience": "customer"
+  },
+  {
+    "operationId": "customerApplyQuotePromotion",
+    "method": "POST",
+    "path": "/api/v1/quotes/{id}/promotions",
+    "audience": "customer"
+  }
+]

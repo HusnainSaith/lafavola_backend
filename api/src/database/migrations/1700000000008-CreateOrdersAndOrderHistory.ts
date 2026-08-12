@@ -42,6 +42,7 @@ CREATE SEQUENCE order_number_seq START WITH 1000 INCREMENT BY 1;
         delivery_address_snapshot jsonb,
         delivery_instructions text,
         customer_note text,
+        estimated_ready_at timestamptz,
         estimated_delivery_at timestamptz,
         scheduled_for timestamptz,
         placed_at timestamptz,

@@ -338,6 +338,20 @@ export class AuthService {
     return { success: true, message: 'Verification request accepted' };
   }
 
+  async resendEmailVerificationForEmail(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (
+      user &&
+      user.status === UserStatus.ACTIVE &&
+      !user.archivedAt &&
+      !user.emailVerifiedAt &&
+      user.email
+    ) {
+      await this.sendEmailVerification(user.id, user.email, true);
+    }
+    return { success: true, message: 'Verification request accepted' };
+  }
+
   async verifyEmail(rawToken: string) {
     const tokenHash = this.digest(rawToken);
     await this.dataSource.transaction(async (manager) => {

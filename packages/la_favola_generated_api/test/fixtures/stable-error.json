@@ -1,0 +1,15 @@
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "messageKey": "request.invalid",
+    "message": "Richiesta non valida.",
+    "correlationId": "golden-correlation-004",
+    "retryable": false,
+    "fieldErrors": [
+      {
+        "path": "body.displayName",
+        "code": "INVALID_VALUE"
+      }
+    ]
+  }
+}

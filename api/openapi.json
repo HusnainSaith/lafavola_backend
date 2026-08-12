@@ -820,6 +820,16 @@
         "operationId": "AuthController_resendVerification",
         "summary": "Resend verification for the authenticated account",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Verification request accepted"
@@ -1801,6 +1811,53 @@
         ]
       }
     },
+    "/api/v1/restaurant": {
+      "get": {
+        "operationId": "PublicRestaurantsController_getPublicRestaurant",
+        "summary": "Get the public La Favola location and fulfilment settings",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Public restaurant configuration"
+          }
+        },
+        "tags": [
+          "Restaurant"
+        ]
+      }
+    },
+    "/api/v1/restaurant/availability": {
+      "get": {
+        "operationId": "PublicRestaurantsController_getAvailability",
+        "summary": "List server-authoritative La Favola fulfilment time slots",
+        "parameters": [
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "menuItemId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ASAP state and scheduled slots"
+          }
+        },
+        "tags": [
+          "Restaurant"
+        ]
+      }
+    },
     "/api/v1/customers/me/profile": {
       "get": {
         "operationId": "CustomersController_profile",
@@ -1819,6 +1876,11 @@
         },
         "tags": [
           "Customers"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
         ]
       },
       "patch": {
@@ -1848,6 +1910,11 @@
         },
         "tags": [
           "Customers"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
         ]
       }
     },
@@ -1869,6 +1936,11 @@
         },
         "tags": [
           "Customers"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
         ]
       },
       "patch": {
@@ -1898,6 +1970,74 @@
         },
         "tags": [
           "Customers"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/customers/me/security/sessions": {
+      "get": {
+        "operationId": "CustomersController_securitySessions",
+        "summary": "List refresh sessions owned by the customer",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomerSecuritySessionResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Customers"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/customers/me/security/sessions/{id}": {
+      "delete": {
+        "operationId": "CustomersController_revokeSecuritySession",
+        "summary": "Revoke an owned refresh session",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Refresh session revoked"
+          },
+          "404": {
+            "description": "Refresh session not found"
+          }
+        },
+        "tags": [
+          "Customers"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
         ]
       }
     },
@@ -1908,7 +2048,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PrivacyRequestResponseDto"
+                  }
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -1937,6 +2087,46 @@
         "responses": {
           "201": {
             "description": ""
+          }
+        },
+        "tags": [
+          "Privacy"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/customers/me/privacy/requests/{id}": {
+      "get": {
+        "operationId": "PrivacyController_request",
+        "summary": "Get one privacy request owned by the customer",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivacyRequestResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Privacy request not found"
           }
         },
         "tags": [
@@ -3877,6 +4067,30 @@
         ]
       }
     },
+    "/api/v1/orders/me/{id}/receipt": {
+      "get": {
+        "operationId": "OrdersController_receipt",
+        "summary": "Customer-readable order receipt with authoritative totals",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order receipt"
+          }
+        },
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
     "/api/v1/orders/me/{id}/reorder": {
       "post": {
         "operationId": "OrdersController_reorder",
@@ -4199,6 +4413,142 @@
         "responses": {
           "200": {
             "description": "Paginated delivery board"
+          }
+        },
+        "tags": [
+          "Deliveries"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/deliveries/admin/dispatch-board": {
+      "get": {
+        "operationId": "DeliveriesController_dispatchBoard",
+        "summary": "List delivery orders available to dispatch",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Restaurant dispatch board"
+          }
+        },
+        "tags": [
+          "Deliveries"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/deliveries/drivers": {
+      "get": {
+        "operationId": "DeliveriesController_drivers",
+        "summary": "List La Favola delivery drivers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Driver directory"
+          }
+        },
+        "tags": [
+          "Deliveries"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "DeliveriesController_createDriver",
+        "summary": "Create a driver account and staff profile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDriverDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Driver created"
+          }
+        },
+        "tags": [
+          "Deliveries"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/deliveries/drivers/{id}": {
+      "patch": {
+        "operationId": "DeliveriesController_updateDriver",
+        "summary": "Update a driver account and staff profile",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Staff member ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDriverDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Driver updated"
+          }
+        },
+        "tags": [
+          "Deliveries"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "DeliveriesController_deactivateDriver",
+        "summary": "Deactivate a driver account",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Staff member ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Driver deactivated"
           }
         },
         "tags": [
@@ -5888,6 +6238,81 @@
         "type": "object",
         "properties": {}
       },
+      "CustomerSecuritySessionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "revoked": {
+            "type": "boolean"
+          },
+          "revokedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Present only after the refresh session has been revoked"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "expiresAt",
+          "revoked"
+        ]
+      },
+      "PrivacyRequestResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "requestType": {
+            "type": "string",
+            "enum": [
+              "export",
+              "rectification",
+              "deletion",
+              "restriction"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing",
+              "completed",
+              "rejected"
+            ]
+          },
+          "requestedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "completedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Present only after the request has completed"
+          }
+        },
+        "required": [
+          "id",
+          "requestType",
+          "status",
+          "requestedAt"
+        ]
+      },
       "CreatePrivacyRequestDto": {
         "type": "object",
         "properties": {}
@@ -6046,7 +6471,16 @@
       },
       "CheckoutDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "idempotencyKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "idempotencyKey"
+        ]
       },
       "AppliedPromotionDto": {
         "type": "object",
@@ -6129,6 +6563,21 @@
           "estimatedDeliveryAt": {
             "format": "date-time",
             "type": "string"
+          },
+          "estimatedReadyAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "serverNow": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "orderType": {
+            "type": "string",
+            "enum": [
+              "delivery",
+              "pickup"
+            ]
           }
         },
         "required": [
@@ -6146,7 +6595,9 @@
           "couponDiscountMinor",
           "loyaltyDiscountMinor",
           "deliveryDiscountMinor",
-          "appliedPromotions"
+          "appliedPromotions",
+          "serverNow",
+          "orderType"
         ]
       },
       "UpdateOrderStatusDto": {
@@ -6179,6 +6630,14 @@
           "reason",
           "idempotencyKey"
         ]
+      },
+      "CreateDriverDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateDriverDto": {
+        "type": "object",
+        "properties": {}
       },
       "AssignDriverDto": {
         "type": "object",

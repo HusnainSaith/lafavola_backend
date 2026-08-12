@@ -11,12 +11,12 @@ class DeliveryDispatchPage extends StatefulWidget {
 }
 
 class _DeliveryDispatchPageState extends State<DeliveryDispatchPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _orderId = TextEditingController();
-  final _driverId = TextEditingController();
   Map<String, Object?>? _assignment;
   Map<String, Object?>? _tracking;
-  List<Map<String, dynamic>> _assignments = const [];
+  List<Map<String, dynamic>> _orders = const [];
+  List<Map<String, dynamic>> _drivers = const [];
+  String? _selectedOrderId;
+  String? _selectedDriverUserId;
   String? _error;
   var _loading = false;
   var _boardLoading = true;
@@ -28,33 +28,40 @@ class _DeliveryDispatchPageState extends State<DeliveryDispatchPage> {
     _loadBoard();
   }
 
-  @override
-  void dispose() {
-    _orderId.dispose();
-    _driverId.dispose();
-    super.dispose();
-  }
-
   Future<void> _loadBoard() async {
     setState(() {
       _boardLoading = true;
       _error = null;
     });
     try {
-      final value = await widget.api.get(AdminApiRoutes.deliveriesAdmin);
-      final data = value is Map ? value['data'] : value;
-      final rows =
-          data is List
-              ? data
-                  .whereType<Map>()
-                  .map((row) => Map<String, dynamic>.from(row))
-                  .toList()
-              : <Map<String, dynamic>>[];
+      final values = await Future.wait<Object?>([
+        widget.api.get(AdminApiRoutes.dispatchBoard),
+        widget.api.get(AdminApiRoutes.drivers),
+      ]);
+      final orders = _list(values[0]);
+      final drivers = _list(values[1]);
       if (!mounted) return;
-      setState(() => _assignments = rows);
-      if (_orderId.text.isEmpty && rows.isNotEmpty) {
-        _orderId.text = rows.first['orderId']?.toString() ?? '';
-      }
+      setState(() {
+        _orders = orders;
+        _drivers = drivers;
+        if (_selectedOrderId == null ||
+            !orders.any((row) => row['id']?.toString() == _selectedOrderId)) {
+          _selectedOrderId = orders.firstOrNull?['id']?.toString();
+        }
+        if (_selectedDriverUserId == null ||
+            !drivers.any(
+              (row) =>
+                  row['userId']?.toString() == _selectedDriverUserId &&
+                  row['isActive'] == true,
+            )) {
+          _selectedDriverUserId =
+              drivers
+                  .where((row) => row['isActive'] == true)
+                  .firstOrNull?['userId']
+                  ?.toString();
+        }
+      });
+      await _loadSelection();
     } on AdminApiException catch (error) {
       if (mounted) setState(() => _error = error.message);
     } finally {
@@ -62,9 +69,9 @@ class _DeliveryDispatchPageState extends State<DeliveryDispatchPage> {
     }
   }
 
-  Future<void> _load() async {
-    if (!_formKey.currentState!.validate()) return;
-    final id = _orderId.text.trim();
+  Future<void> _loadSelection() async {
+    final id = _selectedOrderId;
+    if (id == null) return;
     setState(() {
       _loading = true;
       _error = null;
@@ -72,6 +79,12 @@ class _DeliveryDispatchPageState extends State<DeliveryDispatchPage> {
       _tracking = null;
     });
     try {
+      final order = _orders.firstWhere((row) => row['id']?.toString() == id);
+      final assignment = order['assignment'];
+      if (assignment is! Map) {
+        if (mounted) setState(() => _loading = false);
+        return;
+      }
       final values = await Future.wait<Object?>([
         widget.api.get(AdminApiRoutes.deliveryAssignment(id)),
         widget.api.get(AdminApiRoutes.deliveryTracking(id)),
@@ -90,15 +103,19 @@ class _DeliveryDispatchPageState extends State<DeliveryDispatchPage> {
   }
 
   Future<void> _assign() async {
-    if (!_formKey.currentState!.validate()) return;
-    final driver = _driverId.text.trim();
-    if (driver.isEmpty) {
-      setState(() => _error = 'Inserisci l’ID del driver da assegnare.');
+    final orderId = _selectedOrderId;
+    final driver = _selectedDriverUserId;
+    if (orderId == null) {
+      setState(() => _error = 'Seleziona un ordine pronto per la consegna.');
+      return;
+    }
+    if (driver == null) {
+      setState(() => _error = 'Crea o attiva un driver prima di assegnare.');
       return;
     }
     await _mutate(
       () => widget.api.post(
-        AdminApiRoutes.deliveryAssign(_orderId.text.trim()),
+        AdminApiRoutes.deliveryAssign(orderId),
         body: {'driverUserId': driver},
       ),
     );
@@ -106,7 +123,7 @@ class _DeliveryDispatchPageState extends State<DeliveryDispatchPage> {
 
   Future<void> _transition(String status) => _mutate(
     () => widget.api.patch(
-      AdminApiRoutes.deliveryStatus(_orderId.text.trim()),
+      AdminApiRoutes.deliveryStatus(_selectedOrderId!),
       body: {'status': status},
     ),
   );
@@ -118,7 +135,6 @@ class _DeliveryDispatchPageState extends State<DeliveryDispatchPage> {
     });
     try {
       await action();
-      await _load();
       await _loadBoard();
       if (mounted) {
         ScaffoldMessenger.of(
@@ -149,92 +165,25 @@ class _DeliveryDispatchPageState extends State<DeliveryDispatchPage> {
         const SizedBox(height: 20),
         if (_boardLoading)
           const LinearProgressIndicator()
-        else if (_assignments.isEmpty)
+        else if (_orders.isEmpty)
           const _DispatchNotice(
-            message:
-                'Non ci sono consegne attive. Gli ordini pronti possono essere assegnati qui.',
+            message: 'Non ci sono ordini di consegna pronti o in corso.',
           )
         else
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: DropdownButtonFormField<String>(
-                value:
-                    _assignments.any(
-                          (row) => '${row['orderId']}' == _orderId.text,
-                        )
-                        ? _orderId.text
-                        : null,
-                decoration: const InputDecoration(labelText: 'Consegna attiva'),
-                items: [
-                  for (final row in _assignments)
-                    DropdownMenuItem(
-                      value: row['orderId']?.toString(),
-                      child: Text(
-                        '${(row['order'] as Map?)?['orderNumber'] ?? row['orderId']} · ${row['status'] ?? ''}',
-                      ),
-                    ),
-                ],
-                onChanged:
-                    _saving
-                        ? null
-                        : (value) {
-                          if (value == null) return;
-                          _orderId.text = value;
-                          _load();
-                        },
-              ),
-            ),
+          _DispatchSelectors(
+            orders: _orders,
+            drivers: _drivers,
+            selectedOrderId: _selectedOrderId,
+            selectedDriverUserId: _selectedDriverUserId,
+            saving: _saving,
+            onOrderChanged: (value) {
+              setState(() => _selectedOrderId = value);
+              _loadSelection();
+            },
+            onDriverChanged:
+                (value) => setState(() => _selectedDriverUserId = value),
+            onAssign: _assign,
           ),
-        const SizedBox(height: 12),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Form(
-              key: _formKey,
-              child: Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                crossAxisAlignment: WrapCrossAlignment.end,
-                children: [
-                  SizedBox(
-                    width: 420,
-                    child: TextFormField(
-                      controller: _orderId,
-                      autocorrect: false,
-                      decoration: const InputDecoration(labelText: 'ID ordine'),
-                      validator:
-                          (value) =>
-                              value == null || value.trim().isEmpty
-                                  ? 'Inserisci l’ID ordine.'
-                                  : null,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 420,
-                    child: TextField(
-                      controller: _driverId,
-                      autocorrect: false,
-                      decoration: const InputDecoration(
-                        labelText: 'ID utente driver',
-                      ),
-                    ),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: _loading || _saving ? null : _load,
-                    icon: const Icon(Icons.search_rounded),
-                    label: const Text('Verifica consegna'),
-                  ),
-                  FilledButton.icon(
-                    onPressed: _loading || _saving ? null : _assign,
-                    icon: const Icon(Icons.person_add_alt_1_outlined),
-                    label: const Text('Assegna driver'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
         const SizedBox(height: 16),
         if (_loading)
           const Card(
@@ -254,24 +203,140 @@ class _DeliveryDispatchPageState extends State<DeliveryDispatchPage> {
           _DeliveryStatus(
             assignment: _assignment,
             tracking: _tracking,
+            driverName: _selectedDriverName,
             saving: _saving,
             onTransition: _transition,
           ),
       ],
     ),
   );
+
+  String? get _selectedDriverName {
+    final assignedUserId = _assignment?['driverUserId']?.toString();
+    if (assignedUserId == null) return null;
+    for (final driver in _drivers) {
+      if (driver['userId']?.toString() == assignedUserId) {
+        final user = driver['user'];
+        if (user is Map &&
+            user['fullName']?.toString().trim().isNotEmpty == true) {
+          return user['fullName'].toString();
+        }
+        return driver['fullName']?.toString();
+      }
+    }
+    return 'Driver assegnato';
+  }
+}
+
+class _DispatchSelectors extends StatelessWidget {
+  const _DispatchSelectors({
+    required this.orders,
+    required this.drivers,
+    required this.selectedOrderId,
+    required this.selectedDriverUserId,
+    required this.saving,
+    required this.onOrderChanged,
+    required this.onDriverChanged,
+    required this.onAssign,
+  });
+
+  final List<Map<String, dynamic>> orders;
+  final List<Map<String, dynamic>> drivers;
+  final String? selectedOrderId;
+  final String? selectedDriverUserId;
+  final bool saving;
+  final ValueChanged<String?> onOrderChanged;
+  final ValueChanged<String?> onDriverChanged;
+  final VoidCallback onAssign;
+
+  @override
+  Widget build(BuildContext context) {
+    final activeDrivers = drivers.where((row) => row['isActive'] == true);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          crossAxisAlignment: WrapCrossAlignment.end,
+          children: [
+            SizedBox(
+              width: 420,
+              child: DropdownButtonFormField<String>(
+                value: selectedOrderId,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Ordine da consegnare',
+                  prefixIcon: Icon(Icons.receipt_long_outlined),
+                ),
+                items: [
+                  for (final order in orders)
+                    DropdownMenuItem(
+                      value: order['id']?.toString(),
+                      child: Text(
+                        '${order['orderNumber'] ?? 'Ordine'} · ${_orderStatusLabel(order['status']?.toString())}',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+                onChanged: saving ? null : onOrderChanged,
+              ),
+            ),
+            SizedBox(
+              width: 420,
+              child: DropdownButtonFormField<String>(
+                value:
+                    activeDrivers.any(
+                          (row) =>
+                              row['userId']?.toString() == selectedDriverUserId,
+                        )
+                        ? selectedDriverUserId
+                        : null,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Driver disponibile',
+                  prefixIcon: Icon(Icons.delivery_dining_outlined),
+                ),
+                items: [
+                  for (final driver in activeDrivers)
+                    DropdownMenuItem(
+                      value: driver['userId']?.toString(),
+                      child: Text(
+                        '${driver['fullName'] ?? 'Driver'}${driver['employeeCode'] == null ? '' : ' · ${driver['employeeCode']}'}',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+                onChanged: saving ? null : onDriverChanged,
+              ),
+            ),
+            FilledButton.icon(
+              onPressed:
+                  saving || selectedOrderId == null || activeDrivers.isEmpty
+                      ? null
+                      : onAssign,
+              icon: const Icon(Icons.assignment_ind_outlined),
+              label: const Text('Assegna driver'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _DeliveryStatus extends StatelessWidget {
   const _DeliveryStatus({
     required this.assignment,
     required this.tracking,
+    required this.driverName,
     required this.saving,
     required this.onTransition,
   });
 
   final Map<String, Object?>? assignment;
   final Map<String, Object?>? tracking;
+  final String? driverName;
   final bool saving;
   final ValueChanged<String> onTransition;
 
@@ -298,7 +363,7 @@ class _DeliveryStatus extends StatelessWidget {
               runSpacing: 12,
               children: [
                 Chip(label: Text(_deliveryLabel(status))),
-                if (_text(assignment?['driverUserId']) case final driver?)
+                if (driverName case final driver?)
                   Chip(label: Text('Driver: $driver')),
                 if (_text(tracking?['updatedAt']) case final updated?)
                   Chip(label: Text('Aggiornato: $updated')),
@@ -383,3 +448,20 @@ String _deliveryLabel(String status) => switch (status) {
   'cancelled' => 'Annullato',
   _ => status,
 };
+
+String _orderStatusLabel(String? status) => switch (status) {
+  'ready' => 'Pronto',
+  'driver_assigned' => 'Driver assegnato',
+  'out_for_delivery' => 'In consegna',
+  _ => status ?? 'Da gestire',
+};
+
+List<Map<String, dynamic>> _list(Object? value) {
+  final raw = value is Map ? value['items'] ?? value['data'] : value;
+  return raw is List
+      ? raw
+          .whereType<Map>()
+          .map((row) => Map<String, dynamic>.from(row))
+          .toList()
+      : const [];
+}

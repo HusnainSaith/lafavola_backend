@@ -1,6 +1,7 @@
 ﻿import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -17,8 +18,10 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RoleEnum } from '../roles/role.enum';
 import { DeliveriesService } from './deliveries.service';
 import { AssignDriverDto } from './dto/assign-driver.dto';
+import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
 import { UpdateDeliveryStatusDto } from './dto/update-delivery-status.dto';
+import { UpdateDriverDto } from './dto/update-driver.dto';
 
 import {
   ApiBody,
@@ -48,6 +51,65 @@ export class DeliveriesController {
     return this.service.listAdmin(user.id, query);
   }
 
+  @Get('admin/dispatch-board')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'List delivery orders available to dispatch' })
+  @ApiResponse({ status: 200, description: 'Restaurant dispatch board' })
+  dispatchBoard(@CurrentUser() user: AuthenticatedUser) {
+    return this.service.dispatchBoard(user.id);
+  }
+
+  @Get('drivers')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'List La Favola delivery drivers' })
+  @ApiResponse({ status: 200, description: 'Driver directory' })
+  drivers(@CurrentUser() user: AuthenticatedUser) {
+    return this.service.listDrivers(user.id);
+  }
+
+  @Post('drivers')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Create a driver account and staff profile' })
+  @ApiBody({ type: CreateDriverDto })
+  @ApiResponse({ status: 201, description: 'Driver created' })
+  createDriver(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateDriverDto,
+  ) {
+    return this.service.createDriver(user.id, dto);
+  }
+
+  @Patch('drivers/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Update a driver account and staff profile' })
+  @ApiParam({ name: 'id', description: 'Staff member ID' })
+  @ApiBody({ type: UpdateDriverDto })
+  @ApiResponse({ status: 200, description: 'Driver updated' })
+  updateDriver(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateDriverDto,
+  ) {
+    return this.service.updateDriver(user.id, id, dto);
+  }
+
+  @Delete('drivers/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Deactivate a driver account' })
+  @ApiParam({ name: 'id', description: 'Staff member ID' })
+  @ApiResponse({ status: 200, description: 'Driver deactivated' })
+  deactivateDriver(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    return this.service.deactivateDriver(user.id, id);
+  }
+
   @Get('orders/:orderId/tracking')
   @ApiOperation({ summary: 'Tracking' })
   @ApiParam({ name: 'orderId', required: true, type: String })
@@ -62,7 +124,7 @@ export class DeliveriesController {
     @CurrentUser() user: AuthenticatedUser,
     @Param('orderId') orderId: string,
   ) {
-    return this.service.getTracking(user.id, orderId);
+    return this.service.getTracking(user.id, orderId, isAdmin(user));
   }
 
   @Post('orders/:orderId/assign')

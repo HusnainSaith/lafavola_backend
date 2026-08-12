@@ -12,6 +12,15 @@ import 'package:la_favola_admin/features/media/presentation/media_library_page.d
 import 'package:la_favola_admin/features/pos/presentation/pos_page.dart';
 import 'package:la_favola_admin/features/navigation/presentation/admin_feature_hubs.dart';
 import 'package:la_favola_admin/features/reports/presentation/reports_page.dart';
+import 'package:la_favola_admin/features/catalogue/presentation/catalogue_inventory_page.dart';
+import 'package:la_favola_admin/features/catalogue/presentation/option_groups_page.dart';
+import 'package:la_favola_admin/features/catalogue/presentation/pizza_builder_rules_page.dart';
+import 'package:la_favola_admin/features/deliveries/presentation/driver_management_page.dart';
+import 'package:la_favola_admin/features/access/presentation/staff_management_page.dart';
+import 'package:la_favola_admin/features/access/presentation/user_management_page.dart';
+import 'package:la_favola_admin/features/access/presentation/role_permissions_page.dart';
+import 'package:la_favola_admin/features/offers/presentation/offers_management_page.dart';
+import 'package:la_favola_admin/shared/presentation/typed_resource_page.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final session = ref.watch(sessionControllerProvider);
@@ -61,24 +70,109 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 (_, __) =>
                     SupportWorkspacePage(api: ref.read(apiClientProvider)),
           ),
+          GoRoute(path: '/catalogue', redirect: (_, __) => '/catalogue/menu'),
           GoRoute(
-            path: '/catalogue',
+            path: '/catalogue/menu',
+            builder:
+                (_, __) => CatalogueInventoryPage(
+                  api: ref.read(apiClientProvider),
+                  initialView: 'menu',
+                ),
+          ),
+          GoRoute(
+            path: '/catalogue/categories',
+            builder:
+                (_, __) => CatalogueInventoryPage(
+                  api: ref.read(apiClientProvider),
+                  initialView: 'categories',
+                ),
+          ),
+          GoRoute(
+            path: '/catalogue/ingredients',
+            builder:
+                (_, __) => TypedResourcePage(
+                  api: ref.read(apiClientProvider),
+                  config: ingredientsResource,
+                ),
+          ),
+          GoRoute(
+            path: '/catalogue/options',
+            builder:
+                (_, __) => OptionGroupsPage(
+                  api: ref.read(apiClientProvider),
+                  groupConfig: optionGroupsResource,
+                ),
+          ),
+          GoRoute(
+            path: '/catalogue/pizza-builder',
             builder:
                 (_, __) =>
-                    CatalogueWorkspacePage(api: ref.read(apiClientProvider)),
+                    PizzaBuilderRulesPage(api: ref.read(apiClientProvider)),
           ),
           GoRoute(
             path: '/offers',
             builder:
                 (_, __) =>
-                    OffersWorkspacePage(api: ref.read(apiClientProvider)),
+                    OffersManagementPage(api: ref.read(apiClientProvider)),
           ),
           GoRoute(path: '/media', builder: (_, __) => const MediaLibraryPage()),
+          GoRoute(path: '/people', redirect: (_, __) => '/staff'),
           GoRoute(
-            path: '/people',
+            path: '/staff',
             builder:
                 (_, __) =>
-                    TeamAccessWorkspacePage(api: ref.read(apiClientProvider)),
+                    StaffManagementPage(api: ref.read(apiClientProvider)),
+          ),
+          GoRoute(
+            path: '/users',
+            builder:
+                (_, __) => UserManagementPage(api: ref.read(apiClientProvider)),
+          ),
+          GoRoute(
+            path: '/customers',
+            builder:
+                (_, __) => UserManagementPage(
+                  api: ref.read(apiClientProvider),
+                  roleFilter: 'client',
+                  title: 'Clienti',
+                  subtitle:
+                      'Gestisci gli account cliente e verifica i recapiti utilizzati negli ordini.',
+                ),
+          ),
+          GoRoute(
+            path: '/drivers',
+            builder: (_, __) => const DriverManagementPage(),
+          ),
+          GoRoute(path: '/access', redirect: (_, __) => '/access/assignments'),
+          GoRoute(
+            path: '/access/roles',
+            builder:
+                (_, __) => TypedResourcePage(
+                  api: ref.read(apiClientProvider),
+                  config: rolesResource,
+                ),
+          ),
+          GoRoute(
+            path: '/access/permissions',
+            builder:
+                (_, __) => TypedResourcePage(
+                  api: ref.read(apiClientProvider),
+                  config: permissionsResource,
+                ),
+          ),
+          GoRoute(
+            path: '/access/assignments',
+            builder:
+                (_, __) =>
+                    RolePermissionsPage(api: ref.read(apiClientProvider)),
+          ),
+          GoRoute(
+            path: '/faq',
+            builder:
+                (_, __) => TypedResourcePage(
+                  api: ref.read(apiClientProvider),
+                  config: faqResource,
+                ),
           ),
           GoRoute(
             path: '/restaurant',

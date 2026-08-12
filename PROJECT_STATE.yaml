@@ -1,0 +1,90 @@
+project: la_favola
+updated: 2026-08-12
+status: in_progress
+source_of_truth:
+  - PROJECT.md
+  - DECISIONS.md
+  - docs/customer/CUSTOMER_APP_MODERNIZATION_PLAN.md
+current_phase: customer_implementation
+phases:
+  customer_requirements_baseline:
+    status: accepted
+    iteration: 1
+    max_iterations: 3
+    inputs:
+      - docs/customer/CUSTOMER_APP_MODERNIZATION_PLAN.md
+    deliverables:
+      - docs/customer/CUSTOMER_FEATURE_COVERAGE_AUDIT.md
+    validators:
+      - referenced path and API operation inspection
+    reviewer: hengshi-requirements-analyst
+    findings: pending baseline audit
+    gate: implementation baseline only; no new product policy
+    next_action: finish coverage audit
+  stitch_customer_design:
+    status: in_progress
+    iteration: 1
+    max_iterations: 2
+    inputs:
+      - assets/8453361971917840780
+      - projects/15736357098573745733
+    deliverables: []
+    validators:
+      - private owner destination preflight
+      - one-to-one additive screen ledger
+      - visual inspection
+    reviewer: independent design and accessibility reviewers
+    findings: pending
+    gate: no edit, delete, publish, or share action
+    next_action: root coordinator completes bounded Stitch evidence pass
+  customer_implementation:
+    status: in_progress
+    iteration: 1
+    max_iterations: 2
+    inputs:
+      - docs/customer/CUSTOMER_APP_MODERNIZATION_PLAN.md
+      - docs/architecture/ADMIN_FLUTTER_ARCHITECTURE.md
+      - api/openapi.json
+    deliverables:
+      - customer application code and tests
+      - generated customer contract package and tests
+      - customer-facing API contract fixes and tests when proven necessary
+    validators:
+      - customer format analyze test and debug Android build
+      - generated package format analyze and test
+      - API format lint build and focused customer contract tests
+    reviewer: pending independent code review
+    findings: pending
+    gate: no production or credential action
+    next_action: finish bounded frontend and backend producers
+  customer_quality_gates:
+    status: not_started
+    iteration: 0
+    max_iterations: 2
+    inputs:
+      - frozen customer implementation diff
+    deliverables:
+      - independent design review
+      - independent code review
+      - accessibility audit
+      - security review
+      - emulator QA report
+    validators:
+      - deterministic project checks and safe local runtime evidence
+    reviewer: independent specialists
+    findings: pending
+    gate: zero unresolved P0 or P1 findings
+    next_action: start after producer validation passes
+  deployment:
+    status: not_started
+    iteration: 0
+    max_iterations: 2
+    inputs: []
+    deliverables: []
+    validators: []
+    reviewer: independent deployment reviewer
+    findings: production deployment excluded from current task
+    gate: explicit human production approval required
+    next_action: none in current scope
+blockers: []
+next_action: complete customer implementation producers and local validation

@@ -9,6 +9,16 @@
 
 export class UpdateCustomerProfileDto {
   @IsOptional()
+  @IsString()
+  @MaxLength(160)
+  displayName?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  phone?: string;
+
+  @IsOptional()
   @IsUrl({ require_protocol: true })
   avatarUrl?: string;
 
