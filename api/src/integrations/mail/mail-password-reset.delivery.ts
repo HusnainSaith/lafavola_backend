@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PasswordResetDelivery } from '../../modules/auth/interfaces/password-reset-delivery.interface';
 import { MAIL_PROVIDER, MailProvider } from './mail.interface';
-import { linkTemplate } from './templates/template.util';
+import { escapeHtml, linkTemplate } from './templates/template.util';
 
 @Injectable()
 export class MailPasswordResetDelivery implements PasswordResetDelivery {
@@ -22,6 +22,8 @@ export class MailPasswordResetDelivery implements PasswordResetDelivery {
       url: url.toString(),
       expiration: 'This link expires in one hour and can be used once.',
     });
+    template.text += `\n\nReset token (for manual entry):\n${rawToken}`;
+    template.html += `<p><strong>Reset token (for manual entry):</strong></p><p><code style="word-break:break-all">${escapeHtml(rawToken)}</code></p>`;
     await this.mail.send({
       to: email,
       subject: 'Reset your La Favola password',

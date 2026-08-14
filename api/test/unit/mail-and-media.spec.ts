@@ -4,7 +4,7 @@ import { MediaPurpose } from '../../src/modules/media/dto/create-upload-url.dto'
 import { MediaService } from '../../src/modules/media/media.service';
 
 describe('mail templates and media storage boundary', () => {
-  it('delivers a password reset token only inside the configured link', async () => {
+  it('delivers a password reset token in the link and as visible text', async () => {
     const mail = { send: jest.fn().mockResolvedValue({}) };
     const config = {
       getOrThrow: jest.fn().mockReturnValue('https://app.example/reset'),
@@ -15,6 +15,16 @@ describe('mail templates and media storage boundary', () => {
       expect.objectContaining({
         to: 'customer@example.com',
         text: expect.stringContaining('token=raw-secret'),
+      }),
+    );
+    expect(mail.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        html: expect.stringContaining(
+          '<code style="word-break:break-all">raw-secret</code>',
+        ),
+        text: expect.stringContaining(
+          'Reset token (for manual entry):\nraw-secret',
+        ),
       }),
     );
     expect(config.getOrThrow).toHaveBeenCalledWith('PASSWORD_RESET_URL');

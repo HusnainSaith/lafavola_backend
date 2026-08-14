@@ -8,6 +8,7 @@ import { MenuItemSize } from '../menu/entities/menu-item-size.entity';
 import { MenuItem } from '../menu/entities/menu-item.entity';
 import { OptionChoice } from '../option-groups/entities/option-choice.entity';
 import { PricingService } from '../pricing/pricing.service';
+import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { CartItemOption } from './entities/cart-item-option.entity';
@@ -23,7 +24,8 @@ export class CartsService {
     private readonly pricing: PricingService,
   ) {}
 
-  async getActive(customerId: string, restaurantId: string): Promise<Cart> {
+  async getActive(customerId: string, restaurantId?: string): Promise<Cart> {
+    restaurantId = await this.resolveRestaurantId(restaurantId);
     let cart = await this.carts.findOne({
       where: { customerId, restaurantId, status: 'active' },
     });
@@ -43,7 +45,7 @@ export class CartsService {
     return cart;
   }
 
-  async detail(customerId: string, restaurantId: string) {
+  async detail(customerId: string, restaurantId?: string) {
     const cart = await this.getActive(customerId, restaurantId);
     return this.loadCart(cart);
   }
@@ -84,7 +86,12 @@ export class CartsService {
     return { cart, items, options, subtotalMinor };
   }
 
-  async addItem(customerId: string, restaurantId: string, dto: AddCartItemDto) {
+  async addItem(
+    customerId: string,
+    restaurantId: string | undefined,
+    dto: AddCartItemDto,
+  ) {
+    restaurantId = await this.resolveRestaurantId(restaurantId);
     const cart = await this.getActive(customerId, restaurantId);
     const itemRepo = this.dataSource.getRepository(MenuItem);
     const sizeRepo = this.dataSource.getRepository(MenuItemSize);
@@ -254,7 +261,8 @@ export class CartsService {
     await repo.delete(item.id);
   }
 
-  async clear(customerId: string, restaurantId: string): Promise<void> {
+  async clear(customerId: string, restaurantId?: string): Promise<void> {
+    restaurantId = await this.resolveRestaurantId(restaurantId);
     const cart = await this.carts.findOne({
       where: { customerId, restaurantId, status: 'active' },
     });
@@ -265,9 +273,10 @@ export class CartsService {
 
   async addItemsAtomic(
     customerId: string,
-    restaurantId: string,
+    restaurantId: string | undefined,
     additions: AddCartItemDto[],
   ) {
+    restaurantId = await this.resolveRestaurantId(restaurantId);
     return this.dataSource.transaction(async (manager) => {
       const menuItemIds = [
         ...new Set(additions.map((item) => item.menuItemId)),
@@ -441,5 +450,18 @@ export class CartsService {
         0,
       ),
     };
+  }
+
+  private async resolveRestaurantId(restaurantId?: string): Promise<string> {
+    if (restaurantId) return restaurantId;
+
+    const restaurant = await this.dataSource.getRepository(Restaurant).findOne({
+      where: { isActive: true },
+      order: { createdAt: 'ASC' },
+    });
+    if (!restaurant) {
+      throw new NotFoundException('Active restaurant is not configured');
+    }
+    return restaurant.id;
   }
 }

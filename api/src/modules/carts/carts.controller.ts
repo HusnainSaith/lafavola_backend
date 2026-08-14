@@ -4,6 +4,7 @@
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -32,7 +33,13 @@ export class CartsController {
 
   @Get()
   @ApiOperation({ summary: 'Detail' })
-  @ApiQuery({ name: 'restaurantId', required: false, type: String })
+  @ApiQuery({
+    name: 'restaurantId',
+    required: false,
+    schema: { type: 'string', format: 'uuid' },
+    description:
+      'Restaurant whose active cart should be returned; defaults to the active restaurant',
+  })
   @ApiResponse({ status: 200, description: 'Successful response' })
   @ApiResponse({
     status: 400,
@@ -41,7 +48,11 @@ export class CartsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   detail(
     @CurrentUser() user: AuthenticatedUser,
-    @Query('restaurantId') restaurantId: string,
+    @Query(
+      'restaurantId',
+      new ParseUUIDPipe({ version: '4', optional: true }),
+    )
+    restaurantId?: string,
   ) {
     return this.service.detail(user.id, restaurantId);
   }
@@ -49,7 +60,13 @@ export class CartsController {
   @Post('items')
   @ApiOperation({ summary: 'Add' })
   @ApiBody({ type: AddCartItemDto })
-  @ApiQuery({ name: 'restaurantId', required: false, type: String })
+  @ApiQuery({
+    name: 'restaurantId',
+    required: false,
+    schema: { type: 'string', format: 'uuid' },
+    description:
+      'Restaurant that owns the menu item and cart; defaults to the active restaurant',
+  })
   @ApiResponse({ status: 201, description: 'Successful response' })
   @ApiResponse({
     status: 400,
@@ -58,7 +75,11 @@ export class CartsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   add(
     @CurrentUser() user: AuthenticatedUser,
-    @Query('restaurantId') restaurantId: string,
+    @Query(
+      'restaurantId',
+      new ParseUUIDPipe({ version: '4', optional: true }),
+    )
+    restaurantId: string | undefined,
     @Body() dto: AddCartItemDto,
   ) {
     return this.service.addItem(user.id, restaurantId, dto);
@@ -101,10 +122,18 @@ export class CartsController {
 
   @Delete()
   @ApiOperation({ summary: 'Clear the authenticated customer cart' })
-  @ApiQuery({ name: 'restaurantId', required: true, type: String })
+  @ApiQuery({
+    name: 'restaurantId',
+    required: false,
+    schema: { type: 'string', format: 'uuid' },
+  })
   async clear(
     @CurrentUser() user: AuthenticatedUser,
-    @Query('restaurantId') restaurantId: string,
+    @Query(
+      'restaurantId',
+      new ParseUUIDPipe({ version: '4', optional: true }),
+    )
+    restaurantId?: string,
   ) {
     await this.service.clear(user.id, restaurantId);
     return { success: true };

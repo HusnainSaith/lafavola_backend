@@ -3533,8 +3533,10 @@
             "required": false,
             "in": "query",
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Restaurant whose active cart should be returned; defaults to the active restaurant"
           }
         ],
         "responses": {
@@ -3558,10 +3560,11 @@
         "parameters": [
           {
             "name": "restaurantId",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -3585,8 +3588,10 @@
             "required": false,
             "in": "query",
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Restaurant that owns the menu item and cart; defaults to the active restaurant"
           }
         ],
         "requestBody": {

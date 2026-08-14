@@ -22,13 +22,15 @@ import {
 export class S3StorageProvider implements StorageProvider {
   readonly providerName = 'aws_s3';
   readonly bucket: string;
-  private readonly client: S3Client;
+  private readonly client?: S3Client;
   private readonly logger = new Logger(S3StorageProvider.name);
 
   constructor(private readonly config: ConfigService) {
     this.bucket = this.config.get<string>('AWS_S3_BUCKET', '');
+    if (!this.config.get<boolean>('AWS_S3_ENABLED', false)) return;
+
     this.client = new S3Client({
-      region: this.config.get<string>('AWS_REGION'),
+      region: this.config.getOrThrow<string>('AWS_REGION'),
       ...(this.config.get<string>('AWS_ACCESS_KEY_ID') &&
       this.config.get<string>('AWS_SECRET_ACCESS_KEY')
         ? {
@@ -47,7 +49,7 @@ export class S3StorageProvider implements StorageProvider {
     this.assertConfigured();
     try {
       return await getSignedUrl(
-        this.client,
+        this.client!,
         new PutObjectCommand({
           Bucket: this.bucket,
           Key: input.key,
@@ -64,7 +66,7 @@ export class S3StorageProvider implements StorageProvider {
   async put(input: PutObjectInput): Promise<void> {
     this.assertConfigured();
     try {
-      await this.client.send(
+      await this.client!.send(
         new PutObjectCommand({
           Bucket: this.bucket,
           Key: input.key,
@@ -80,7 +82,7 @@ export class S3StorageProvider implements StorageProvider {
   async head(key: string): Promise<StoredObjectMetadata> {
     this.assertConfigured();
     try {
-      const result = await this.client.send(
+      const result = await this.client!.send(
         new HeadObjectCommand({ Bucket: this.bucket, Key: key }),
       );
       return {
@@ -95,7 +97,7 @@ export class S3StorageProvider implements StorageProvider {
   async delete(key: string): Promise<void> {
     this.assertConfigured();
     try {
-      await this.client.send(
+      await this.client!.send(
         new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
       );
     } catch {
@@ -113,7 +115,7 @@ export class S3StorageProvider implements StorageProvider {
   }
 
   private assertConfigured() {
-    if (!this.bucket || !this.config.get<string>('AWS_REGION')) {
+    if (!this.client || !this.bucket) {
       throw new ServiceUnavailableException('Object storage is unavailable');
     }
   }

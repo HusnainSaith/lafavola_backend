@@ -58,11 +58,32 @@ export class SesMailProvider implements MailProvider {
         }),
       );
       return { messageId: result.MessageId };
-    } catch {
-      this.logger.error('SES delivery failed');
+    } catch (error: unknown) {
+      // Keep recipient addresses and message contents out of logs, while
+      // retaining the AWS error metadata needed to diagnose credentials,
+      // permissions, sandbox restrictions, and unverified identities.
+      const details = this.safeErrorDetails(error);
+      this.logger.error(`SES delivery failed: ${JSON.stringify(details)}`);
       throw new ServiceUnavailableException(
         'Email delivery is temporarily unavailable',
       );
     }
+  }
+
+  private safeErrorDetails(error: unknown): Record<string, unknown> {
+    if (!error || typeof error !== 'object') return { name: 'UnknownError' };
+
+    const awsError = error as {
+      name?: unknown;
+      code?: unknown;
+      $metadata?: { httpStatusCode?: unknown; requestId?: unknown };
+    };
+    return {
+      name:
+        typeof awsError.name === 'string' ? awsError.name : 'UnknownError',
+      code: typeof awsError.code === 'string' ? awsError.code : undefined,
+      statusCode: awsError.$metadata?.httpStatusCode,
+      requestId: awsError.$metadata?.requestId,
+    };
   }
 }
