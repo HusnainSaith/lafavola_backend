@@ -35,7 +35,7 @@ void main() {
       await gateway.resendVerification('cliente.demo@example.invalid');
       await gateway.requestPasswordRecovery('cliente.demo@example.invalid');
       await gateway.resetPassword(
-        token: 'reset-demo-token',
+        code: '123456',
         password: 'password-demo-2',
       );
       final session = await gateway.login(

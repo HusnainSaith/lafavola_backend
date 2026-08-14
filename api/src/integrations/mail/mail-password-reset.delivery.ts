@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PasswordResetDelivery } from '../../modules/auth/interfaces/password-reset-delivery.interface';
 import { MAIL_PROVIDER, MailProvider } from './mail.interface';
-import { escapeHtml, linkTemplate } from './templates/template.util';
+import { escapeHtml } from './templates/template.util';
 
 @Injectable()
 export class MailPasswordResetDelivery implements PasswordResetDelivery {
@@ -11,19 +11,12 @@ export class MailPasswordResetDelivery implements PasswordResetDelivery {
     private readonly config: ConfigService,
   ) {}
 
-  async sendPasswordReset(email: string, rawToken: string): Promise<void> {
-    const base = this.config.getOrThrow<string>('PASSWORD_RESET_URL');
-    const url = new URL(base);
-    url.searchParams.set('token', rawToken);
-    const template = linkTemplate({
-      heading: 'Reset your La Favola password',
-      introduction: 'Use the secure link below to choose a new password.',
-      linkLabel: 'Reset password',
-      url: url.toString(),
-      expiration: 'This link expires in one hour and can be used once.',
-    });
-    template.text += `\n\nReset token (for manual entry):\n${rawToken}`;
-    template.html += `<p><strong>Reset token (for manual entry):</strong></p><p><code style="word-break:break-all">${escapeHtml(rawToken)}</code></p>`;
+  async sendPasswordReset(email: string, resetCode: string): Promise<void> {
+    const safeCode = escapeHtml(resetCode);
+    const template = {
+      text: `Reset your La Favola password\n\nYour password reset code is: ${resetCode}\n\nThis code expires in 15 minutes and can be used once.`,
+      html: `<h1>Reset your La Favola password</h1><p>Your password reset code is:</p><p style="font-size:32px;font-weight:bold;letter-spacing:8px"><code>${safeCode}</code></p><p>This code expires in 15 minutes and can be used once.</p>`,
+    };
     await this.mail.send({
       to: email,
       subject: 'Reset your La Favola password',

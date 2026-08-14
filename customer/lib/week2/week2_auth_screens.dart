@@ -515,7 +515,7 @@ final class _VerificationScreenState extends State<VerificationScreen> {
 
   Future<void> _verify() async {
     final strings = appStrings(context);
-    if (_token.text.length < 8) {
+    if (!RegExp(r'^\d{6}$').hasMatch(_token.text.trim())) {
       setState(() {
         _tokenError = strings.verificationCodeMinError;
         _failure = Week2Failure(
@@ -528,7 +528,7 @@ final class _VerificationScreenState extends State<VerificationScreen> {
       return;
     }
     await _run(
-      () => widget.gateway.verifyEmail(_token.text),
+      () => widget.gateway.verifyEmail(_token.text.trim()),
       strings.emailVerifiedSuccess,
     );
   }
@@ -714,8 +714,11 @@ final class _RecoveryScreenState extends State<RecoveryScreen> {
 
   Future<void> _reset() async {
     final strings = appStrings(context);
-    if (_token.text.length < 8 || _password.text.length < 8) {
-      _tokenError = _token.text.length < 8 ? strings.resetTokenMinError : null;
+    if (!RegExp(r'^\d{6}$').hasMatch(_token.text.trim()) ||
+        _password.text.length < 8) {
+      _tokenError = !RegExp(r'^\d{6}$').hasMatch(_token.text.trim())
+          ? strings.resetTokenMinError
+          : null;
       _passwordError =
           _password.text.length < 8 ? strings.passwordMinError : null;
       setState(
@@ -731,7 +734,7 @@ final class _RecoveryScreenState extends State<RecoveryScreen> {
     }
     await _run(
       () => widget.gateway.resetPassword(
-        token: _token.text,
+        code: _token.text.trim(),
         password: _password.text,
       ),
       strings.passwordResetSuccess,

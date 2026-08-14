@@ -16,7 +16,7 @@ import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { CustomerSecuritySessionResponseDto } from './dto/customer-security-session-response.dto';
 
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-@ApiTags('Customers')
+@ApiTags('Customer App - Profile')
 @ApiBearerAuth('JWT-auth')
 @Controller('customers/me')
 @UseGuards(JwtAuthGuard)

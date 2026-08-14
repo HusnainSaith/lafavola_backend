@@ -81,12 +81,20 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
       if (dataSource?.isInitialized) await dataSource.destroy();
     });
 
-    async function register(email: string) {
-      return auth.register({
+    async function register(email: string, verify = true) {
+      const result = await auth.register({
         fullName: 'Test Customer',
         email,
         password: 'SecurePass1',
       });
+      if (verify) {
+        const message = mail.send.mock.calls.at(-1)?.[0] as
+          | { text: string }
+          | undefined;
+        const code = message?.text.match(/verification code is: (\d{6})/)?.[1];
+        await auth.verifyEmail(code!);
+      }
+      return result;
     }
 
     it('creates a customer and reusable refresh session from verified Google identity', async () => {
@@ -149,6 +157,43 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
       ).rejects.toThrow('A verified email is required');
     });
 
+    it('blocks password login until the registration email is verified', async () => {
+      await register('pending-login@example.com', false);
+
+      await expect(
+        auth.login({
+          email: 'pending-login@example.com',
+          password: 'SecurePass1',
+        }),
+      ).rejects.toThrow('Please verify your email before signing in');
+
+      const message = mail.send.mock.calls.at(-1)?.[0] as { text: string };
+      const verificationCode = message.text.match(
+        /verification code is: (\d{6})/,
+      )?.[1];
+      await auth.verifyEmail(verificationCode!);
+
+      await expect(
+        auth.login({
+          email: 'pending-login@example.com',
+          password: 'SecurePass1',
+        }),
+      ).resolves.toMatchObject({ message: 'Login successful' });
+    });
+
+    it('sends a replacement verification code for a pending account', async () => {
+      await register('resend-code@example.com', false);
+      await dataSource.query(
+        "UPDATE verification_tokens SET created_at = NOW() - INTERVAL '2 minutes' WHERE type = 'email_verify'",
+      );
+      mail.send.mockClear();
+
+      await auth.resendEmailVerificationForEmail('resend-code@example.com');
+
+      const message = mail.send.mock.calls[0]?.[0] as { text: string };
+      expect(message.text).toMatch(/verification code is: \d{6}/);
+    });
+
     it('persists refresh digests, rotates them, rejects reuse, and logs out', async () => {
       await register('refresh@example.com');
       const login = await auth.login({
@@ -187,7 +232,7 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
-    it('uses one-time reset tokens, changes password, and revokes sessions', async () => {
+    it('uses one-time six-digit reset codes, changes password, and revokes sessions', async () => {
       await register('reset@example.com');
       const login = await auth.login({
         email: 'reset@example.com',
@@ -201,18 +246,25 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
       });
       expect(unknown).toEqual(generic);
 
-      const raw = delivery.sendPasswordReset.mock.calls[0][1];
+      const code = delivery.sendPasswordReset.mock.calls[0][1];
       const stored = await dataSource
         .getRepository(VerificationToken)
         .createQueryBuilder('token')
         .addSelect('token.tokenHash')
         .where('token.type = :type', { type: 'password_reset' })
         .getOneOrFail();
-      expect(stored.tokenHash).not.toBe(raw);
+      expect(code).toMatch(/^\d{6}$/);
+      expect(stored.tokenHash).not.toBe(code);
 
-      await auth.resetPassword({ token: raw, password: 'ChangedPass1' });
+      await auth.resetPassword({
+        code,
+        password: 'ChangedPass1',
+      });
       await expect(
-        auth.resetPassword({ token: raw, password: 'ChangedAgain1' }),
+        auth.resetPassword({
+          code,
+          password: 'ChangedAgain1',
+        }),
       ).rejects.toBeInstanceOf(UnauthorizedException);
       await expect(
         auth.refreshToken({ refreshToken: login.data.refreshToken }),
@@ -222,33 +274,34 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
       ).resolves.toBeDefined();
     });
 
-    it('rejects expired and already-consumed reset tokens', async () => {
+    it('rejects expired and already-consumed reset codes', async () => {
       await register('expiry@example.com');
       await auth.requestPasswordReset({ email: 'expiry@example.com' });
-      const raw = delivery.sendPasswordReset.mock.calls[0][1];
+      const code = delivery.sendPasswordReset.mock.calls[0][1];
       await dataSource.query(
         "UPDATE verification_tokens SET expires_at = NOW() - INTERVAL '1 minute'",
       );
       await expect(
-        auth.resetPassword({ token: raw, password: 'ChangedPass1' }),
+        auth.resetPassword({
+          code,
+          password: 'ChangedPass1',
+        }),
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
     it('stores email verification as a digest and consumes it once', async () => {
-      await register('verify@example.com');
+      await register('verify@example.com', false);
       const message = mail.send.mock.calls[0][0] as { text: string };
-      const raw = new URL(
-        message.text.match(/https?:\/\/\S+/)?.[0] ?? '',
-      ).searchParams.get('token');
-      expect(raw).toBeTruthy();
+      const code = message.text.match(/verification code is: (\d{6})/)?.[1];
+      expect(code).toMatch(/^\d{6}$/);
       const token = await dataSource
         .getRepository(VerificationToken)
         .findOneByOrFail({
           type: 'email_verify',
         });
-      expect(token.tokenHash).not.toBe(raw);
-      await auth.verifyEmail(raw!);
-      await expect(auth.verifyEmail(raw!)).rejects.toBeInstanceOf(
+      expect(token.tokenHash).not.toBe(code);
+      await auth.verifyEmail(code!);
+      await expect(auth.verifyEmail(code!)).rejects.toBeInstanceOf(
         UnauthorizedException,
       );
       expect(

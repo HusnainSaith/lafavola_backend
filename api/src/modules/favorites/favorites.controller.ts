@@ -22,7 +22,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-@ApiTags('Favorites')
+@ApiTags('Customer App - Favorites')
 @ApiBearerAuth('JWT-auth')
 @Controller('favorites')
 @UseGuards(JwtAuthGuard)

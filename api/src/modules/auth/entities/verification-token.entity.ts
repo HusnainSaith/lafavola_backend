@@ -22,7 +22,7 @@ export class VerificationToken {
   @Column({ name: 'type', type: 'varchar', length: 30 })
   type: string;
 
-  @Column({ name: 'token_hash', type: 'varchar', length: 255, unique: true })
+  @Column({ name: 'token_hash', type: 'varchar', length: 255 })
   tokenHash: string;
 
   @Column({ name: 'attempts', type: 'integer', default: 0 })

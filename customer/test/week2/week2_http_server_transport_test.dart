@@ -167,7 +167,7 @@ Future<void> _successRouter(
     'POST /api/v1/auth/register' => {'message': 'Registration accepted'},
     'POST /api/v1/auth/login' => _session(),
     'POST /api/v1/auth/verify-email' => {'message': 'Email verified'},
-    'POST /api/v1/auth/resend-verification' => {
+    'POST /api/v1/auth/request-email-verification' => {
       'message': 'Verification request accepted',
     },
     'POST /api/v1/auth/forgot-password' => {
@@ -282,7 +282,7 @@ void main() {
         await gateway.resendVerification('cliente@local.invalid');
         await gateway.requestPasswordRecovery('cliente@local.invalid');
         await gateway.resetPassword(
-          token: 'recovery-token-0001',
+          code: '123456',
           password: 'password-nuova',
         );
         final intent = await gateway.startFederated('google');
@@ -354,7 +354,7 @@ void main() {
           'POST /api/v1/auth/register',
           'POST /api/v1/auth/login',
           'POST /api/v1/auth/verify-email',
-          'POST /api/v1/auth/resend-verification',
+          'POST /api/v1/auth/request-email-verification',
           'POST /api/v1/auth/forgot-password',
           'POST /api/v1/auth/reset-password',
           'POST /api/v1/auth/customer/federated-intents',

@@ -528,13 +528,13 @@ final class DeterministicWeek2Gateway implements Week2Gateway {
 
   @override
   Future<void> resetPassword({
-    required String token,
+    required String code,
     required String password,
   }) {
     return _perform(
       operation: Week2Operation.resetPassword,
       contract: generated.customerPasswordResetContract,
-      request: _request(body: {'token': token, 'password': password}),
+      request: _request(body: {'code': code, 'password': password}),
       success: const {'message': 'Password reset successful'},
       result: () {},
     );

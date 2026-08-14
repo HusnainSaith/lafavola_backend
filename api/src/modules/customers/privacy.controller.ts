@@ -10,7 +10,7 @@ import { CreatePrivacyRequestDto } from './dto/create-privacy-request.dto';
 import { PrivacyRequestResponseDto } from './dto/privacy-request-response.dto';
 import { RecordPrivacyConsentDto } from './dto/record-privacy-consent.dto';
 
-@ApiTags('Privacy')
+@ApiTags('Customer App - Privacy')
 @ApiBearerAuth('JWT-auth')
 @Controller('customers/me/privacy')
 @UseGuards(JwtAuthGuard)

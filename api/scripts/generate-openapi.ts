@@ -17,6 +17,7 @@ import { PushModule } from '../src/integrations/push/push.module';
 import { RealtimeModule } from '../src/integrations/realtime/realtime.module';
 import { OutboxModule } from '../src/queue/outbox.module';
 import { SharedModule } from '../src/modules/shared/shared.module';
+import { labelSwaggerAudiences } from '../src/config/swagger-audience';
 
 const metadataDataSource = {
   entityMetadatas: [],
@@ -72,9 +73,16 @@ async function generate() {
   const config = new DocumentBuilder()
     .setTitle('La Favola Pizza Restaurant API')
     .setDescription(
-      'Customer ordering, pizza customization, checkout, payments, delivery tracking, promotions, support, and restaurant administration API',
+      'Routes are grouped by audience. Customer app developers should use sections prefixed "Customer App" and "Audience: Public / Customer App". Administrative and staff operations declare their required roles in their Audience tag and x-required-roles metadata.',
     )
     .setVersion('1.0')
+    .addTag('Audience: Public / Customer App', 'No login required')
+    .addTag('Audience: Admin App', 'Requires the admin role')
+    .addTag('Audience: Support App', 'Requires the support role')
+    .addTag(
+      'Audience: Employee / Driver App',
+      'Requires the employee/driver role',
+    )
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'JWT-auth',
@@ -82,6 +90,7 @@ async function generate() {
     .addSecurityRequirements('JWT-auth')
     .build();
   const document = SwaggerModule.createDocument(app, config);
+  labelSwaggerAudiences(document);
   writeFileSync(
     resolve(process.cwd(), 'openapi.json'),
     `${JSON.stringify(document, null, 2)}\n`,

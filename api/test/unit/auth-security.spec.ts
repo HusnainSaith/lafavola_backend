@@ -32,6 +32,13 @@ function fixture() {
   const verificationTokens = {
     create: jest.fn((value) => value),
     save: jest.fn().mockResolvedValue(undefined),
+    createQueryBuilder: jest.fn(() => ({
+      update: jest.fn().mockReturnThis(),
+      set: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      execute: jest.fn().mockResolvedValue({ affected: 0 }),
+    })),
   };
   const delivery = {
     sendPasswordReset: jest.fn().mockResolvedValue(undefined),
@@ -120,6 +127,7 @@ describe('P0 authentication security', () => {
       email: 'mario@example.com',
       fullName: 'Mario Rossi',
       status: UserStatus.ACTIVE,
+      emailVerifiedAt: new Date(),
       password: await bcrypt.hash('SecurePass1', 4),
     });
     const result = await service.login({
@@ -130,6 +138,21 @@ describe('P0 authentication security', () => {
     expect(result.data.refreshToken).not.toBe(persisted.tokenHash);
     expect(persisted.tokenHash).toHaveLength(64);
     expect(result.data.user).not.toHaveProperty('password');
+  });
+
+  it('denies a correct password until the email is verified', async () => {
+    const { service, users, refreshTokens } = fixture();
+    users.findByEmail.mockResolvedValue({
+      id: 'user-id',
+      email: 'mario@example.com',
+      status: UserStatus.PENDING_VERIFICATION,
+      password: await bcrypt.hash('SecurePass1', 4),
+    });
+
+    await expect(
+      service.login({ email: 'mario@example.com', password: 'SecurePass1' }),
+    ).rejects.toThrow('Please verify your email before signing in');
+    expect(refreshTokens.save).not.toHaveBeenCalled();
   });
 
   it('assigns the client role server-side and returns a safe response', async () => {
@@ -150,7 +173,10 @@ describe('P0 authentication security', () => {
       password: 'SecurePass1',
     });
     expect(users.create).toHaveBeenCalledWith(
-      expect.objectContaining({ roleId: 'client-role' }),
+      expect.objectContaining({
+        roleId: 'client-role',
+        status: UserStatus.PENDING_VERIFICATION,
+      }),
     );
     expect(result.user).not.toHaveProperty('password');
   });
@@ -189,7 +215,7 @@ describe('P0 authentication security', () => {
     expect(delivery.sendPasswordReset).not.toHaveBeenCalled();
   });
 
-  it('stores only a reset-token digest', async () => {
+  it('sends a six-digit reset code and stores only its digest', async () => {
     const { service, users, verificationTokens, delivery } = fixture();
     users.findByEmail.mockResolvedValue({
       id: 'user-id',
@@ -197,10 +223,11 @@ describe('P0 authentication security', () => {
       status: UserStatus.ACTIVE,
     });
     await service.requestPasswordReset({ email: 'mario@example.com' });
-    const rawToken = delivery.sendPasswordReset.mock.calls[0][1];
+    const resetCode = delivery.sendPasswordReset.mock.calls[0][1];
     const persisted = verificationTokens.create.mock.calls[0][0];
+    expect(resetCode).toMatch(/^\d{6}$/);
     expect(persisted.tokenHash).toHaveLength(64);
-    expect(persisted.tokenHash).not.toBe(rawToken);
+    expect(persisted.tokenHash).not.toBe(resetCode);
   });
 
   it('keeps the generic forgot-password response when delivery fails', async () => {

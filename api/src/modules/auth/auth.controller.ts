@@ -19,10 +19,10 @@ import {
 } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
-import { VerifyTokenDto } from './dto/verify-token.dto';
+import { VerifyEmailCodeDto } from './dto/verify-token.dto';
 import { SocialProvider } from './enums/social-provider.enum';
 
-@ApiTags('Auth')
+@ApiTags('Customer App - Authentication')
 @Controller('auth')
 export class AuthController extends BaseController {
   constructor(private readonly authService: AuthService) {
@@ -34,7 +34,10 @@ export class AuthController extends BaseController {
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: 'Register a customer or user account' })
   @ApiBody({ type: RegisterDto })
-  @ApiResponse({ status: 201, description: 'Account created successfully' })
+  @ApiResponse({
+    status: 201,
+    description: 'Account created; email verification is required before login',
+  })
   @ApiResponse({ status: 400, description: 'Validation failed' })
   @ApiResponse({
     status: 409,
@@ -51,7 +54,10 @@ export class AuthController extends BaseController {
   @ApiOperation({ summary: 'Log in with account credentials' })
   @ApiBody({ type: AuthCredentialsDto })
   @ApiResponse({ status: 200, description: 'Authentication successful' })
-  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid credentials or email has not been verified',
+  })
   login(@Body() dto: AuthCredentialsDto) {
     return this.handleAsyncOperation(this.authService.login(dto));
   }
@@ -133,12 +139,12 @@ export class AuthController extends BaseController {
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Reset the account password using a valid token' })
+  @ApiOperation({ summary: 'Reset password using only the emailed code' })
   @ApiBody({ type: ResetPasswordDto })
   @ApiResponse({ status: 200, description: 'Password reset successfully' })
   @ApiResponse({
-    status: 400,
-    description: 'Reset token is invalid or expired',
+    status: 401,
+    description: 'Reset code is invalid, expired, or attempt-limited',
   })
   resetPassword(@Body() dto: ResetPasswordDto) {
     return this.handleAsyncOperation(this.authService.resetPassword(dto));
@@ -148,12 +154,25 @@ export class AuthController extends BaseController {
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Consume a single-use email verification token' })
-  @ApiBody({ type: VerifyTokenDto })
+  @ApiOperation({ summary: 'Verify an email using the emailed 6-digit code' })
+  @ApiBody({ type: VerifyEmailCodeDto })
   @ApiResponse({ status: 200, description: 'Email verified' })
-  @ApiResponse({ status: 401, description: 'Token invalid or expired' })
-  verifyEmail(@Body() dto: VerifyTokenDto) {
-    return this.handleAsyncOperation(this.authService.verifyEmail(dto.token));
+  @ApiResponse({ status: 401, description: 'Code invalid or expired' })
+  verifyEmail(@Body() dto: VerifyEmailCodeDto) {
+    return this.handleAsyncOperation(this.authService.verifyEmail(dto.code));
+  }
+
+  @Post('request-email-verification')
+  @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Send a new 6-digit email verification code' })
+  @ApiBody({ type: PasswordResetDto })
+  @ApiResponse({ status: 200, description: 'Verification request accepted' })
+  requestEmailVerification(@Body() dto: PasswordResetDto) {
+    return this.handleAsyncOperation(
+      this.authService.resendEmailVerificationForEmail(dto.email),
+    );
   }
 
   @Post('resend-verification')
@@ -161,7 +180,7 @@ export class AuthController extends BaseController {
   @Throttle({ default: { limit: 3, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Resend verification for the authenticated account',
+    summary: 'Resend a 6-digit email verification code',
   })
   @ApiResponse({ status: 200, description: 'Verification request accepted' })
   resendVerification(@Body() dto: PasswordResetDto) {

@@ -6,7 +6,7 @@ import { RedeemLoyaltyPointsDto } from './dto/redeem-loyalty-points.dto';
 import { LoyaltyService } from './loyalty.service';
 
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-@ApiTags('Loyalty')
+@ApiTags('Customer App - Loyalty')
 @Controller('loyalty')
 @UseGuards(JwtAuthGuard)
 export class LoyaltyController {

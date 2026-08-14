@@ -31,7 +31,7 @@ import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { PermissionsService } from './permissions.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
-@ApiTags('permissions')
+@ApiTags('Admin App - Permissions')
 @Controller('permissions')
 export class PermissionsController extends BaseController {
   constructor(private readonly permissionsService: PermissionsService) {
@@ -39,7 +39,6 @@ export class PermissionsController extends BaseController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Use Guards' })
   @ApiBody({ type: CreatePermissionDto })
   @ApiResponse({ status: 201, description: 'Successful response' })
   @ApiResponse({
@@ -57,7 +56,6 @@ export class PermissionsController extends BaseController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Use Guards' })
   @ApiResponse({ status: 200, description: 'Successful response' })
   @ApiResponse({
     status: 400,
@@ -73,7 +71,6 @@ export class PermissionsController extends BaseController {
   }
 
   @Get('resources')
-  @ApiOperation({ summary: 'Use Guards' })
   @ApiResponse({ status: 200, description: 'Successful response' })
   @ApiResponse({
     status: 400,
@@ -89,7 +86,6 @@ export class PermissionsController extends BaseController {
   }
 
   @Get('actions')
-  @ApiOperation({ summary: 'Use Guards' })
   @ApiResponse({ status: 200, description: 'Successful response' })
   @ApiResponse({
     status: 400,
@@ -105,7 +101,6 @@ export class PermissionsController extends BaseController {
   }
 
   @Get('by-resource')
-  @ApiOperation({ summary: 'Use Guards' })
   @ApiQuery({ name: 'resource', required: false, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
   @ApiResponse({
@@ -124,7 +119,6 @@ export class PermissionsController extends BaseController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Use Guards' })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
   @ApiResponse({
@@ -142,7 +136,6 @@ export class PermissionsController extends BaseController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Use Guards' })
   @ApiBody({ type: UpdatePermissionDto })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })

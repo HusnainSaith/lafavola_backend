@@ -34,7 +34,7 @@ import { PaymentMethodResponseDto } from './dto/payment-method-response.dto';
 import { SumUpWebhookDto } from './dto/sumup-webhook.dto';
 import { PaymentsService } from './payments.service';
 
-@ApiTags('Payments')
+@ApiTags('Customer App - Payments')
 @ApiBearerAuth('JWT-auth')
 @Controller('payments')
 @UseGuards(JwtAuthGuard)

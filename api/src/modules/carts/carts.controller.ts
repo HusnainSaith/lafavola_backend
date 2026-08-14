@@ -25,7 +25,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-@ApiTags('Carts')
+@ApiTags('Customer App - Carts')
 @Controller('cart')
 @UseGuards(JwtAuthGuard)
 export class CartsController {

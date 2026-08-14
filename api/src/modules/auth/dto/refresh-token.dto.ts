@@ -1,4 +1,5 @@
 import { Transform } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
@@ -16,6 +17,7 @@ export class RefreshTokenDto {
 }
 
 export class PasswordResetDto {
+  @ApiProperty({ example: 'customer@example.com' })
   @IsEmail({}, { message: 'Please provide a valid email address' })
   @IsNotEmpty({ message: 'Email is required' })
   @MaxLength(255, { message: 'Email cannot exceed 255 characters' })
@@ -24,11 +26,20 @@ export class PasswordResetDto {
 }
 
 export class ResetPasswordDto {
-  @IsString({ message: 'Token must be a string' })
-  @IsNotEmpty({ message: 'Reset token is required' })
+  @ApiProperty({
+    example: '123456',
+    pattern: '^\\d{6}$',
+    minLength: 6,
+    maxLength: 6,
+    description: 'Single-use code sent by email',
+  })
+  @IsString({ message: 'Reset code must be a string' })
+  @IsNotEmpty({ message: 'Reset code is required' })
+  @Matches(/^\d{6}$/, { message: 'Reset code must contain exactly 6 digits' })
   @Transform(({ value }) => value?.trim())
-  token: string;
+  code: string;
 
+  @ApiProperty({ example: 'NewSecurePass1', minLength: 8, maxLength: 128 })
   @IsString({ message: 'Password must be a string' })
   @IsNotEmpty({ message: 'Password is required' })
   @MinLength(8, { message: 'Password must be at least 8 characters long' })

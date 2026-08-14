@@ -22,7 +22,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-@ApiTags('Addresses')
+@ApiTags('Customer App - Addresses')
 @Controller('customers/me/addresses')
 @UseGuards(JwtAuthGuard)
 export class AddressesController {

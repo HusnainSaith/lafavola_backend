@@ -4,30 +4,29 @@ import { MediaPurpose } from '../../src/modules/media/dto/create-upload-url.dto'
 import { MediaService } from '../../src/modules/media/media.service';
 
 describe('mail templates and media storage boundary', () => {
-  it('delivers a password reset token in the link and as visible text', async () => {
+  it('delivers a visible six-digit password reset code', async () => {
     const mail = { send: jest.fn().mockResolvedValue({}) };
     const config = {
       getOrThrow: jest.fn().mockReturnValue('https://app.example/reset'),
     };
     const delivery = new MailPasswordResetDelivery(mail, config as never);
-    await delivery.sendPasswordReset('customer@example.com', 'raw-secret');
+    await delivery.sendPasswordReset('customer@example.com', '123456');
     expect(mail.send).toHaveBeenCalledWith(
       expect.objectContaining({
         to: 'customer@example.com',
-        text: expect.stringContaining('token=raw-secret'),
+        text: expect.stringContaining('reset code is: 123456'),
       }),
     );
     expect(mail.send).toHaveBeenCalledWith(
       expect.objectContaining({
         html: expect.stringContaining(
-          '<code style="word-break:break-all">raw-secret</code>',
+          '<code>123456</code>',
         ),
         text: expect.stringContaining(
-          'Reset token (for manual entry):\nraw-secret',
+          'reset code is: 123456',
         ),
       }),
     );
-    expect(config.getOrThrow).toHaveBeenCalledWith('PASSWORD_RESET_URL');
   });
 
   function mediaFixture() {

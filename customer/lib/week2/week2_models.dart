@@ -827,7 +827,10 @@ abstract interface class Week2Gateway {
   Future<void> resendVerification(String email);
   Future<void> requestPasswordRecovery(String email);
 
-  Future<void> resetPassword({required String token, required String password});
+  Future<void> resetPassword({
+    required String code,
+    required String password,
+  });
 
   Future<ProviderIntent> startFederated(String provider);
 

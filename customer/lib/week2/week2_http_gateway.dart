@@ -680,14 +680,14 @@ final class HttpWeek2Gateway implements Week2Gateway {
 
   @override
   Future<void> verifyEmail(String token) async {
-    await _api('POST', '/api/v1/auth/verify-email', body: {'token': token});
+    await _api('POST', '/api/v1/auth/verify-email', body: {'code': token});
   }
 
   @override
   Future<void> resendVerification(String email) async {
     await _api(
       'POST',
-      '/api/v1/auth/resend-verification',
+      '/api/v1/auth/request-email-verification',
       body: {'email': email},
       authenticated: _accessToken != null,
     );
@@ -700,13 +700,13 @@ final class HttpWeek2Gateway implements Week2Gateway {
 
   @override
   Future<void> resetPassword({
-    required String token,
+    required String code,
     required String password,
   }) async {
     await _api(
       'POST',
       '/api/v1/auth/reset-password',
-      body: {'token': token, 'password': password},
+      body: {'code': code, 'password': password},
     );
   }
 

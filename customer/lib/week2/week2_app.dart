@@ -95,9 +95,9 @@ final class _SessionAwareGateway implements Week2Gateway {
       delegate.requestPasswordRecovery(email);
   @override
   Future<void> resetPassword({
-    required String token,
+    required String code,
     required String password,
-  }) => delegate.resetPassword(token: token, password: password);
+  }) => delegate.resetPassword(code: code, password: password);
   @override
   Future<ProviderIntent> startFederated(String provider) =>
       delegate.startFederated(provider);

@@ -7,7 +7,7 @@ import { CheckoutDto } from './dto/checkout.dto';
 import { CheckoutResultDto } from './dto/checkout-result.dto';
 
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-@ApiTags('Checkout')
+@ApiTags('Customer App - Checkout')
 @Controller('checkout')
 @UseGuards(JwtAuthGuard)
 export class CheckoutController {

@@ -4,7 +4,7 @@
     "/api/v1": {
       "get": {
         "operationId": "AppController_getHello",
-        "summary": "Get Hello",
+        "summary": "[PUBLIC / INFRASTRUCTURE] Get Hello",
         "parameters": [],
         "responses": {
           "200": {
@@ -15,14 +15,17 @@
           }
         },
         "tags": [
-          "System"
-        ]
+          "Public API - System"
+        ],
+        "description": "Audience: Public / Infrastructure",
+        "x-audience-label": "Public / Infrastructure",
+        "security": []
       }
     },
     "/api/v1/health": {
       "get": {
         "operationId": "AppController_health",
-        "summary": "Process liveness; does not probe providers",
+        "summary": "[PUBLIC / INFRASTRUCTURE] Process liveness; does not probe providers",
         "parameters": [],
         "responses": {
           "200": {
@@ -30,14 +33,17 @@
           }
         },
         "tags": [
-          "System"
-        ]
+          "Public API - System"
+        ],
+        "description": "Audience: Public / Infrastructure",
+        "x-audience-label": "Public / Infrastructure",
+        "security": []
       }
     },
     "/api/v1/ready": {
       "get": {
         "operationId": "AppController_ready",
-        "summary": "Readiness based on configuration and PostgreSQL",
+        "summary": "[PUBLIC / INFRASTRUCTURE] Readiness based on configuration and PostgreSQL",
         "parameters": [],
         "responses": {
           "503": {
@@ -45,14 +51,17 @@
           }
         },
         "tags": [
-          "System"
-        ]
+          "Public API - System"
+        ],
+        "description": "Audience: Public / Infrastructure",
+        "x-audience-label": "Public / Infrastructure",
+        "security": []
       }
     },
     "/api/v1/users": {
       "post": {
         "operationId": "UsersController_create",
-        "summary": "create users",
+        "summary": "[ADMIN APP] create users",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -76,17 +85,19 @@
           }
         },
         "tags": [
-          "Users"
+          "Admin App - Users"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "get": {
         "operationId": "UsersController_findAll",
-        "summary": "Get users",
+        "summary": "[ADMIN APP] Get users",
         "parameters": [],
         "responses": {
           "200": {
@@ -100,19 +111,21 @@
           }
         },
         "tags": [
-          "Users"
+          "Admin App - Users"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/users/with-permissions": {
       "post": {
         "operationId": "UsersController_createWithPermissions",
-        "summary": "create user with permissions",
+        "summary": "[ADMIN APP] create user with permissions",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -136,19 +149,21 @@
           }
         },
         "tags": [
-          "Users"
+          "Admin App - Users"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/users/{id}/permissions": {
       "post": {
         "operationId": "UsersController_assignPermissions",
-        "summary": "assign permissions to user by id",
+        "summary": "[ADMIN APP] assign permissions to user by id",
         "parameters": [
           {
             "name": "id",
@@ -181,17 +196,19 @@
           }
         },
         "tags": [
-          "Users"
+          "Admin App - Users"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "get": {
         "operationId": "UsersController_getUserPermissions",
-        "summary": "get user permissions by id",
+        "summary": "[ADMIN APP] get user permissions by id",
         "parameters": [
           {
             "name": "id",
@@ -214,19 +231,21 @@
           }
         },
         "tags": [
-          "Users"
+          "Admin App - Users"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/users/available-features": {
       "get": {
         "operationId": "UsersController_getAvailableFeatures",
-        "summary": "get all features",
+        "summary": "[ADMIN APP] get all features",
         "parameters": [],
         "responses": {
           "200": {
@@ -240,19 +259,21 @@
           }
         },
         "tags": [
-          "Users"
+          "Admin App - Users"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/users/available-features/{feature}/actions": {
       "get": {
         "operationId": "UsersController_getAvailableActionsForFeature",
-        "summary": "Get permidssion of any feature",
+        "summary": "[ADMIN APP] Get permidssion of any feature",
         "parameters": [
           {
             "name": "feature",
@@ -275,19 +296,21 @@
           }
         },
         "tags": [
-          "Users"
+          "Admin App - Users"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/users/{id}": {
       "get": {
         "operationId": "UsersController_findOne",
-        "summary": "get user by id",
+        "summary": "[ADMIN APP] get user by id",
         "parameters": [
           {
             "name": "id",
@@ -310,17 +333,19 @@
           }
         },
         "tags": [
-          "Users"
+          "Admin App - Users"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "patch": {
         "operationId": "UsersController_update",
-        "summary": "update user by id",
+        "summary": "[ADMIN APP] update user by id",
         "parameters": [
           {
             "name": "id",
@@ -353,17 +378,19 @@
           }
         },
         "tags": [
-          "Users"
+          "Admin App - Users"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "delete": {
         "operationId": "UsersController_remove",
-        "summary": "delete user by id",
+        "summary": "[ADMIN APP] delete user by id",
         "parameters": [
           {
             "name": "id",
@@ -386,19 +413,24 @@
           }
         },
         "tags": [
-          "Users"
+          "Admin App - Users"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/roles": {
       "post": {
         "operationId": "RolesController_create",
-        "summary": "Create a new role",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Create a new role",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -422,17 +454,22 @@
           }
         },
         "tags": [
-          "Roles"
+          "Admin App - Roles"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "get": {
         "operationId": "RolesController_findAll",
-        "summary": "Retrieve all roles",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Retrieve all roles",
         "parameters": [],
         "responses": {
           "200": {
@@ -446,19 +483,24 @@
           }
         },
         "tags": [
-          "Roles"
+          "Admin App - Roles"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/roles/{id}": {
       "get": {
         "operationId": "RolesController_findOne",
-        "summary": "Retrieve a role by ID",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Retrieve a role by ID",
         "parameters": [
           {
             "name": "id",
@@ -481,17 +523,22 @@
           }
         },
         "tags": [
-          "Roles"
+          "Admin App - Roles"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "patch": {
         "operationId": "RolesController_update",
-        "summary": "Update a role by ID",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Update a role by ID",
         "parameters": [
           {
             "name": "id",
@@ -524,17 +571,22 @@
           }
         },
         "tags": [
-          "Roles"
+          "Admin App - Roles"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "delete": {
         "operationId": "RolesController_remove",
-        "summary": "Remove a role by ID",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Remove a role by ID",
         "parameters": [
           {
             "name": "id",
@@ -557,19 +609,22 @@
           }
         },
         "tags": [
-          "Roles"
+          "Admin App - Roles"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/auth/register": {
       "post": {
         "operationId": "AuthController_register",
-        "summary": "Register a customer or user account",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Register a customer or user account",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -583,7 +638,7 @@
         },
         "responses": {
           "201": {
-            "description": "Account created successfully"
+            "description": "Account created; email verification is required before login"
           },
           "400": {
             "description": "Validation failed"
@@ -593,14 +648,18 @@
           }
         },
         "tags": [
-          "Auth"
-        ]
+          "Customer App - Authentication"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
     "/api/v1/auth/login": {
       "post": {
         "operationId": "AuthController_login",
-        "summary": "Log in with account credentials",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Log in with account credentials",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -617,18 +676,22 @@
             "description": "Authentication successful"
           },
           "401": {
-            "description": "Invalid credentials"
+            "description": "Invalid credentials or email has not been verified"
           }
         },
         "tags": [
-          "Auth"
-        ]
+          "Customer App - Authentication"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
     "/api/v1/auth/oauth/google": {
       "post": {
         "operationId": "AuthController_googleLogin",
-        "summary": "Sign in or register with a Google identity token",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Sign in or register with a Google identity token",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -649,14 +712,18 @@
           }
         },
         "tags": [
-          "Auth"
-        ]
+          "Customer App - Authentication"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
     "/api/v1/auth/oauth/apple": {
       "post": {
         "operationId": "AuthController_appleLogin",
-        "summary": "Sign in or register with an Apple identity token",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Sign in or register with an Apple identity token",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -677,14 +744,18 @@
           }
         },
         "tags": [
-          "Auth"
-        ]
+          "Customer App - Authentication"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
     "/api/v1/auth/refresh": {
       "post": {
         "operationId": "AuthController_refresh",
-        "summary": "Exchange a refresh token for a new access token",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Exchange a refresh token for a new access token",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -705,14 +776,17 @@
           }
         },
         "tags": [
-          "Auth"
-        ]
+          "Customer App - Authentication"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
     "/api/v1/auth/logout": {
       "post": {
         "operationId": "AuthController_logout",
-        "summary": "Revoke a refresh token and log out",
+        "summary": "[CUSTOMER APP] Revoke a refresh token and log out",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -730,14 +804,17 @@
           }
         },
         "tags": [
-          "Auth"
-        ]
+          "Customer App - Authentication"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/auth/forgot-password": {
       "post": {
         "operationId": "AuthController_requestPasswordReset",
-        "summary": "Request a password-reset flow",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Request a password-reset flow",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -755,14 +832,18 @@
           }
         },
         "tags": [
-          "Auth"
-        ]
+          "Customer App - Authentication"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
     "/api/v1/auth/reset-password": {
       "post": {
         "operationId": "AuthController_resetPassword",
-        "summary": "Reset the account password using a valid token",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Reset password using only the emailed code",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -778,26 +859,30 @@
           "200": {
             "description": "Password reset successfully"
           },
-          "400": {
-            "description": "Reset token is invalid or expired"
+          "401": {
+            "description": "Reset code is invalid, expired, or attempt-limited"
           }
         },
         "tags": [
-          "Auth"
-        ]
+          "Customer App - Authentication"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
     "/api/v1/auth/verify-email": {
       "post": {
         "operationId": "AuthController_verifyEmail",
-        "summary": "Consume a single-use email verification token",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Verify an email using the emailed 6-digit code",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/VerifyTokenDto"
+                "$ref": "#/components/schemas/VerifyEmailCodeDto"
               }
             }
           }
@@ -807,18 +892,22 @@
             "description": "Email verified"
           },
           "401": {
-            "description": "Token invalid or expired"
+            "description": "Code invalid or expired"
           }
         },
         "tags": [
-          "Auth"
-        ]
+          "Customer App - Authentication"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
-    "/api/v1/auth/resend-verification": {
+    "/api/v1/auth/request-email-verification": {
       "post": {
-        "operationId": "AuthController_resendVerification",
-        "summary": "Resend verification for the authenticated account",
+        "operationId": "AuthController_requestEmailVerification",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Send a new 6-digit email verification code",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -836,14 +925,49 @@
           }
         },
         "tags": [
-          "Auth"
-        ]
+          "Customer App - Authentication"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
+      }
+    },
+    "/api/v1/auth/resend-verification": {
+      "post": {
+        "operationId": "AuthController_resendVerification",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Resend a 6-digit email verification code",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification request accepted"
+          }
+        },
+        "tags": [
+          "Customer App - Authentication"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
     "/api/v1/permissions": {
       "post": {
         "operationId": "PermissionsController_create",
-        "summary": "Use Guards",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Create a new permission",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -867,17 +991,19 @@
           }
         },
         "tags": [
-          "permissions"
+          "Admin App - Permissions"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "get": {
         "operationId": "PermissionsController_findAll",
-        "summary": "Use Guards",
+        "summary": "[ADMIN APP] Retrieve all permissions",
         "parameters": [],
         "responses": {
           "200": {
@@ -891,19 +1017,21 @@
           }
         },
         "tags": [
-          "permissions"
+          "Admin App - Permissions"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/permissions/resources": {
       "get": {
         "operationId": "PermissionsController_getAllResources",
-        "summary": "Use Guards",
+        "summary": "[ADMIN APP] Retrieve all resources",
         "parameters": [],
         "responses": {
           "200": {
@@ -917,19 +1045,21 @@
           }
         },
         "tags": [
-          "permissions"
+          "Admin App - Permissions"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/permissions/actions": {
       "get": {
         "operationId": "PermissionsController_getAllActions",
-        "summary": "Use Guards",
+        "summary": "[ADMIN APP] Retrieve all actions",
         "parameters": [],
         "responses": {
           "200": {
@@ -943,19 +1073,21 @@
           }
         },
         "tags": [
-          "permissions"
+          "Admin App - Permissions"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/permissions/by-resource": {
       "get": {
         "operationId": "PermissionsController_findByResource",
-        "summary": "Use Guards",
+        "summary": "[ADMIN APP] Retrieve all permissions by resource",
         "parameters": [
           {
             "name": "resource",
@@ -978,19 +1110,21 @@
           }
         },
         "tags": [
-          "permissions"
+          "Admin App - Permissions"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/permissions/{id}": {
       "get": {
         "operationId": "PermissionsController_findOne",
-        "summary": "Use Guards",
+        "summary": "[ADMIN APP] Retrieve a specific permission",
         "parameters": [
           {
             "name": "id",
@@ -1013,17 +1147,22 @@
           }
         },
         "tags": [
-          "permissions"
+          "Admin App - Permissions"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "patch": {
         "operationId": "PermissionsController_update",
-        "summary": "Use Guards",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Update a specific permission",
         "parameters": [
           {
             "name": "id",
@@ -1056,17 +1195,22 @@
           }
         },
         "tags": [
-          "permissions"
+          "Admin App - Permissions"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "delete": {
         "operationId": "PermissionsController_remove",
-        "summary": "Use Guards",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Use Guards",
         "parameters": [
           {
             "name": "id",
@@ -1089,19 +1233,21 @@
           }
         },
         "tags": [
-          "permissions"
+          "Admin App - Permissions"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/role-permissions/{roleId}": {
       "post": {
         "operationId": "RolePermissionsController_assignPermissions",
-        "summary": "Assign permissions to a role",
+        "summary": "[ADMIN APP] Assign permissions to a role",
         "parameters": [
           {
             "name": "roleId",
@@ -1134,17 +1280,19 @@
           }
         },
         "tags": [
-          "Role Permissions"
+          "Admin App - Role Permissions"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "get": {
         "operationId": "RolePermissionsController_getPermissions",
-        "summary": "Retrieve permissions for a role",
+        "summary": "[ADMIN APP] Retrieve permissions for a role",
         "parameters": [
           {
             "name": "roleId",
@@ -1167,19 +1315,21 @@
           }
         },
         "tags": [
-          "Role Permissions"
+          "Admin App - Role Permissions"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/role-permissions/{roleId}/{permissionId}": {
       "delete": {
         "operationId": "RolePermissionsController_removePermission",
-        "summary": "Remove a permission from a role",
+        "summary": "[ADMIN APP] Remove a permission from a role",
         "parameters": [
           {
             "name": "roleId",
@@ -1210,19 +1360,21 @@
           }
         },
         "tags": [
-          "Role Permissions"
+          "Admin App - Role Permissions"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/admin/pos/catalog": {
       "get": {
         "operationId": "AdminPosController_catalog",
-        "summary": "Get the restaurant-scoped POS catalogue",
+        "summary": "[ADMIN APP] Get the restaurant-scoped POS catalogue",
         "parameters": [],
         "responses": {
           "200": {
@@ -1230,19 +1382,21 @@
           }
         },
         "tags": [
-          "Admin POS"
+          "Admin App - Admin POS"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/admin/pos/orders": {
       "post": {
         "operationId": "AdminPosController_createOrder",
-        "summary": "Create an idempotent dine-in or takeaway order",
+        "summary": "[ADMIN APP] Create an idempotent dine-in or takeaway order",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1260,19 +1414,21 @@
           }
         },
         "tags": [
-          "Admin POS"
+          "Admin App - Admin POS"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/admin/pos/orders/{id}/collect": {
       "post": {
         "operationId": "AdminPosController_collect",
-        "summary": "Collect a walk-in cash or terminal payment",
+        "summary": "[ADMIN APP] Collect a walk-in cash or terminal payment",
         "parameters": [
           {
             "name": "id",
@@ -1299,19 +1455,21 @@
           }
         },
         "tags": [
-          "Admin POS"
+          "Admin App - Admin POS"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/admin/pos/orders/{id}/receipt": {
       "get": {
         "operationId": "AdminPosController_receipt",
-        "summary": "Get a printable order ticket or paid receipt",
+        "summary": "[ADMIN APP] Get a printable order ticket or paid receipt",
         "parameters": [
           {
             "name": "id",
@@ -1328,19 +1486,21 @@
           }
         },
         "tags": [
-          "Admin POS"
+          "Admin App - Admin POS"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/admin/pos/receipts": {
       "get": {
         "operationId": "AdminPosController_receipts",
-        "summary": "List all paid restaurant receipts for reprinting",
+        "summary": "[ADMIN APP] List all paid restaurant receipts for reprinting",
         "parameters": [],
         "responses": {
           "200": {
@@ -1348,20 +1508,23 @@
           }
         },
         "tags": [
-          "Admin POS"
+          "Admin App - Admin POS"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/pricing/calculate": {
       "post": {
         "operationId": "PricingController_calculate",
-        "summary": "Calculate pizza/menu item price",
-        "description": "Calculates the authoritative backend price using the selected menu item, size, options, and quantity.",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Calculate pizza/menu item price",
+        "description": "Audience: Public / Customer App\n\nCalculates the authoritative backend price using the selected menu item, size, options, and quantity.",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1392,14 +1555,16 @@
           }
         },
         "tags": [
-          "Pricing"
-        ]
+          "Customer App - Pricing"
+        ],
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
     "/api/v1/payments/methods": {
       "get": {
         "operationId": "PaymentsController_methods",
-        "summary": "List safe references to owned saved payment methods",
+        "summary": "[CUSTOMER APP] List safe references to owned saved payment methods",
         "parameters": [],
         "responses": {
           "200": {
@@ -1417,19 +1582,21 @@
           }
         },
         "tags": [
-          "Payments"
+          "Customer App - Payments"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/payments/methods/{id}/default": {
       "patch": {
         "operationId": "PaymentsController_makeMethodDefault",
-        "summary": "Make an owned saved payment method the default",
+        "summary": "[CUSTOMER APP] Make an owned saved payment method the default",
         "parameters": [
           {
             "name": "id",
@@ -1453,19 +1620,21 @@
           }
         },
         "tags": [
-          "Payments"
+          "Customer App - Payments"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/payments/methods/{id}": {
       "delete": {
         "operationId": "PaymentsController_archiveMethod",
-        "summary": "Archive an owned saved payment method",
+        "summary": "[CUSTOMER APP] Archive an owned saved payment method",
         "parameters": [
           {
             "name": "id",
@@ -1482,19 +1651,21 @@
           }
         },
         "tags": [
-          "Payments"
+          "Customer App - Payments"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/payments/checkouts": {
       "post": {
         "operationId": "PaymentsController_createCheckout",
-        "summary": "Create or reuse an online SumUp checkout for an owned order",
+        "summary": "[CUSTOMER APP] Create or reuse an online SumUp checkout for an owned order",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1528,19 +1699,21 @@
           }
         },
         "tags": [
-          "Payments"
+          "Customer App - Payments"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/payments/orders/{orderId}/status": {
       "get": {
         "operationId": "PaymentsController_status",
-        "summary": "Get an owned order payment status and optionally refresh SumUp",
+        "summary": "[CUSTOMER APP] Get an owned order payment status and optionally refresh SumUp",
         "parameters": [
           {
             "name": "orderId",
@@ -1572,19 +1745,22 @@
           }
         },
         "tags": [
-          "Payments"
+          "Customer App - Payments"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/payments/webhooks/sumup": {
       "post": {
         "operationId": "PaymentsController_webhook",
-        "summary": "Receive SumUp notifications; state is verified through SumUp",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Receive SumUp notifications; state is verified through SumUp",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1602,19 +1778,21 @@
           }
         },
         "tags": [
-          "Payments"
+          "Customer App - Payments"
         ],
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ]
+        "security": [],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App"
       }
     },
     "/api/v1/payments/orders/{id}/collect": {
       "post": {
         "operationId": "PaymentsController_collect",
-        "summary": "Record cash or external-terminal collection on delivery",
+        "x-required-roles": [
+          "admin",
+          "employee"
+        ],
+        "summary": "[ADMIN APP / EMPLOYEE / DRIVER APP] Record cash or external-terminal collection on delivery",
         "parameters": [
           {
             "name": "id",
@@ -1648,19 +1826,21 @@
           }
         },
         "tags": [
-          "Payments"
+          "Staff Apps - Payments"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App / Employee / Driver App",
+        "x-audience-label": "Admin App / Employee / Driver App"
       }
     },
     "/api/v1/admin/dashboard/summary": {
       "get": {
         "operationId": "AdminDashboardController_summary",
-        "summary": "Get restaurant-scoped operational summary",
+        "summary": "[ADMIN APP] Get restaurant-scoped operational summary",
         "parameters": [],
         "responses": {
           "200": {
@@ -1668,19 +1848,21 @@
           }
         },
         "tags": [
-          "Admin Dashboard"
+          "Admin App - Admin Dashboard"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/audit": {
       "get": {
         "operationId": "AuditController_list",
-        "summary": "List audit activity for the active staff restaurant",
+        "summary": "[ADMIN APP] List audit activity for the active staff restaurant",
         "parameters": [],
         "responses": {
           "200": {
@@ -1688,19 +1870,21 @@
           }
         },
         "tags": [
-          "Audit"
+          "Admin App - Audit"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/restaurants": {
       "get": {
         "operationId": "RestaurantsController_getSingleton",
-        "summary": "Get the configured restaurant",
+        "summary": "[ADMIN APP] Get the configured restaurant",
         "parameters": [],
         "responses": {
           "200": {
@@ -1711,17 +1895,19 @@
           }
         },
         "tags": [
-          "Restaurants"
+          "Admin App - Restaurants"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "patch": {
         "operationId": "RestaurantsController_update",
-        "summary": "Update",
+        "summary": "[ADMIN APP] Update",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1745,19 +1931,21 @@
           }
         },
         "tags": [
-          "Restaurants"
+          "Admin App - Restaurants"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/restaurants/hours": {
       "get": {
         "operationId": "RestaurantsController_listBusinessHours",
-        "summary": "List the configured restaurant business hours",
+        "summary": "[ADMIN APP] List the configured restaurant business hours",
         "parameters": [],
         "responses": {
           "200": {
@@ -1768,17 +1956,19 @@
           }
         },
         "tags": [
-          "Restaurants"
+          "Admin App - Restaurants"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "put": {
         "operationId": "RestaurantsController_upsertBusinessHours",
-        "summary": "Create or replace business hours for a weekday",
+        "summary": "[ADMIN APP] Create or replace business hours for a weekday",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1802,19 +1992,22 @@
           }
         },
         "tags": [
-          "Restaurants"
+          "Admin App - Restaurants"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/restaurant": {
       "get": {
         "operationId": "PublicRestaurantsController_getPublicRestaurant",
-        "summary": "Get the public La Favola location and fulfilment settings",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Get the public La Favola location and fulfilment settings",
         "parameters": [],
         "responses": {
           "200": {
@@ -1822,14 +2015,18 @@
           }
         },
         "tags": [
-          "Restaurant"
-        ]
+          "Customer App - Restaurant"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
     "/api/v1/restaurant/availability": {
       "get": {
         "operationId": "PublicRestaurantsController_getAvailability",
-        "summary": "List server-authoritative La Favola fulfilment time slots",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] List server-authoritative La Favola fulfilment time slots",
         "parameters": [
           {
             "name": "date",
@@ -1854,14 +2051,17 @@
           }
         },
         "tags": [
-          "Restaurant"
-        ]
+          "Customer App - Restaurant"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
     "/api/v1/customers/me/profile": {
       "get": {
         "operationId": "CustomersController_profile",
-        "summary": "Profile",
+        "summary": "[CUSTOMER APP] Profile",
         "parameters": [],
         "responses": {
           "200": {
@@ -1875,17 +2075,19 @@
           }
         },
         "tags": [
-          "Customers"
+          "Customer App - Profile"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       },
       "patch": {
         "operationId": "CustomersController_updateProfile",
-        "summary": "Update Profile",
+        "summary": "[CUSTOMER APP] Update Profile",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1909,19 +2111,21 @@
           }
         },
         "tags": [
-          "Customers"
+          "Customer App - Profile"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/customers/me/preferences": {
       "get": {
         "operationId": "CustomersController_preferences",
-        "summary": "Preferences",
+        "summary": "[CUSTOMER APP] Preferences",
         "parameters": [],
         "responses": {
           "200": {
@@ -1935,17 +2139,19 @@
           }
         },
         "tags": [
-          "Customers"
+          "Customer App - Profile"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       },
       "patch": {
         "operationId": "CustomersController_updatePreferences",
-        "summary": "Update Preferences",
+        "summary": "[CUSTOMER APP] Update Preferences",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1969,19 +2175,21 @@
           }
         },
         "tags": [
-          "Customers"
+          "Customer App - Profile"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/customers/me/security/sessions": {
       "get": {
         "operationId": "CustomersController_securitySessions",
-        "summary": "List refresh sessions owned by the customer",
+        "summary": "[CUSTOMER APP] List refresh sessions owned by the customer",
         "parameters": [],
         "responses": {
           "200": {
@@ -1999,19 +2207,21 @@
           }
         },
         "tags": [
-          "Customers"
+          "Customer App - Profile"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/customers/me/security/sessions/{id}": {
       "delete": {
         "operationId": "CustomersController_revokeSecuritySession",
-        "summary": "Revoke an owned refresh session",
+        "summary": "[CUSTOMER APP] Revoke an owned refresh session",
         "parameters": [
           {
             "name": "id",
@@ -2032,19 +2242,21 @@
           }
         },
         "tags": [
-          "Customers"
+          "Customer App - Profile"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/customers/me/privacy/requests": {
       "get": {
         "operationId": "PrivacyController_requests",
-        "summary": "List the customer privacy-request audit trail",
+        "summary": "[CUSTOMER APP] List the customer privacy-request audit trail",
         "parameters": [],
         "responses": {
           "200": {
@@ -2062,17 +2274,19 @@
           }
         },
         "tags": [
-          "Privacy"
+          "Customer App - Privacy"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       },
       "post": {
         "operationId": "PrivacyController_createRequest",
-        "summary": "Submit an export, correction, deletion or restriction request",
+        "summary": "[CUSTOMER APP] Submit an export, correction, deletion or restriction request",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2090,19 +2304,21 @@
           }
         },
         "tags": [
-          "Privacy"
+          "Customer App - Privacy"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/customers/me/privacy/requests/{id}": {
       "get": {
         "operationId": "PrivacyController_request",
-        "summary": "Get one privacy request owned by the customer",
+        "summary": "[CUSTOMER APP] Get one privacy request owned by the customer",
         "parameters": [
           {
             "name": "id",
@@ -2130,19 +2346,21 @@
           }
         },
         "tags": [
-          "Privacy"
+          "Customer App - Privacy"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/customers/me/privacy/requests/{id}/fulfill": {
       "post": {
         "operationId": "PrivacyController_fulfill",
-        "summary": "Technically fulfill an owned export, restriction or deletion request",
+        "summary": "[CUSTOMER APP] Technically fulfill an owned export, restriction or deletion request",
         "parameters": [
           {
             "name": "id",
@@ -2159,19 +2377,21 @@
           }
         },
         "tags": [
-          "Privacy"
+          "Customer App - Privacy"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/customers/me/privacy/consents": {
       "get": {
         "operationId": "PrivacyController_consents",
-        "summary": "List the customer consent audit trail",
+        "summary": "[CUSTOMER APP] List the customer consent audit trail",
         "parameters": [],
         "responses": {
           "200": {
@@ -2179,17 +2399,19 @@
           }
         },
         "tags": [
-          "Privacy"
+          "Customer App - Privacy"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       },
       "post": {
         "operationId": "PrivacyController_recordConsent",
-        "summary": "Record grant or withdrawal for a policy version",
+        "summary": "[CUSTOMER APP] Record grant or withdrawal for a policy version",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2207,19 +2429,21 @@
           }
         },
         "tags": [
-          "Privacy"
+          "Customer App - Privacy"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/customers/me/addresses": {
       "get": {
         "operationId": "AddressesController_list",
-        "summary": "List",
+        "summary": "[CUSTOMER APP] List",
         "parameters": [],
         "responses": {
           "200": {
@@ -2233,12 +2457,14 @@
           }
         },
         "tags": [
-          "Addresses"
-        ]
+          "Customer App - Addresses"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       },
       "post": {
         "operationId": "AddressesController_create",
-        "summary": "Create",
+        "summary": "[CUSTOMER APP] Create",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2262,14 +2488,16 @@
           }
         },
         "tags": [
-          "Addresses"
-        ]
+          "Customer App - Addresses"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/customers/me/addresses/{id}": {
       "patch": {
         "operationId": "AddressesController_update",
-        "summary": "Update",
+        "summary": "[CUSTOMER APP] Update",
         "parameters": [
           {
             "name": "id",
@@ -2302,12 +2530,14 @@
           }
         },
         "tags": [
-          "Addresses"
-        ]
+          "Customer App - Addresses"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       },
       "delete": {
         "operationId": "AddressesController_remove",
-        "summary": "Remove",
+        "summary": "[CUSTOMER APP] Remove",
         "parameters": [
           {
             "name": "id",
@@ -2330,14 +2560,16 @@
           }
         },
         "tags": [
-          "Addresses"
-        ]
+          "Customer App - Addresses"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/staff": {
       "get": {
         "operationId": "StaffController_list",
-        "summary": "List",
+        "summary": "[ADMIN APP] List",
         "parameters": [
           {
             "name": "restaurantId",
@@ -2360,12 +2592,14 @@
           }
         },
         "tags": [
-          "Staff"
-        ]
+          "Admin App - Staff"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "post": {
         "operationId": "StaffController_create",
-        "summary": "Create",
+        "summary": "[ADMIN APP] Create",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2389,14 +2623,16 @@
           }
         },
         "tags": [
-          "Staff"
-        ]
+          "Admin App - Staff"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/staff/{id}": {
       "patch": {
         "operationId": "StaffController_update",
-        "summary": "Update employment profile fields",
+        "summary": "[ADMIN APP] Update employment profile fields",
         "parameters": [
           {
             "name": "id",
@@ -2426,12 +2662,14 @@
           }
         },
         "tags": [
-          "Staff"
-        ]
+          "Admin App - Staff"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "delete": {
         "operationId": "StaffController_deactivate",
-        "summary": "Deactivate",
+        "summary": "[ADMIN APP] Deactivate",
         "parameters": [
           {
             "name": "id",
@@ -2454,14 +2692,19 @@
           }
         },
         "tags": [
-          "Staff"
-        ]
+          "Admin App - Staff"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/media/admin": {
       "get": {
         "operationId": "MediaController_adminList",
-        "summary": "List media for the active staff restaurant",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] List media for the active staff restaurant",
         "parameters": [],
         "responses": {
           "200": {
@@ -2469,14 +2712,16 @@
           }
         },
         "tags": [
-          "Media"
-        ]
+          "Admin App - Media"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/media/upload": {
       "post": {
         "operationId": "MediaController_upload",
-        "summary": "Upload an image or support file directly to S3",
+        "summary": "[CUSTOMER APP] Upload an image or support file directly to S3",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2525,14 +2770,16 @@
           }
         },
         "tags": [
-          "Media"
-        ]
+          "Customer App - Media"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/media/uploads": {
       "post": {
         "operationId": "MediaController_authorize",
-        "summary": "Authorize a short-lived direct S3 upload",
+        "summary": "[CUSTOMER APP] Authorize a short-lived direct S3 upload",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2557,14 +2804,16 @@
           }
         },
         "tags": [
-          "Media"
-        ]
+          "Customer App - Media"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/media/{id}/finalize": {
       "post": {
         "operationId": "MediaController_finalize",
-        "summary": "Verify uploaded S3 metadata and activate media",
+        "summary": "[CUSTOMER APP] Verify uploaded S3 metadata and activate media",
         "parameters": [
           {
             "name": "id",
@@ -2591,14 +2840,16 @@
           }
         },
         "tags": [
-          "Media"
-        ]
+          "Customer App - Media"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/media/{id}": {
       "delete": {
         "operationId": "MediaController_remove",
-        "summary": "Delete an owned media object using its trusted key",
+        "summary": "[CUSTOMER APP] Delete an owned media object using its trusted key",
         "parameters": [
           {
             "name": "id",
@@ -2615,14 +2866,17 @@
           }
         },
         "tags": [
-          "Media"
-        ]
+          "Customer App - Media"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/categories": {
       "get": {
         "operationId": "CategoriesController_findAll",
-        "summary": "Find All",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Find All",
         "parameters": [],
         "responses": {
           "200": {
@@ -2636,12 +2890,18 @@
           }
         },
         "tags": [
-          "Categories"
-        ]
+          "Customer App - Categories"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       },
       "post": {
         "operationId": "CategoriesController_create",
-        "summary": "Create",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Create",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2665,14 +2925,17 @@
           }
         },
         "tags": [
-          "Categories"
-        ]
+          "Admin App - Categories"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/categories/{id}": {
       "get": {
         "operationId": "CategoriesController_findOne",
-        "summary": "Find One",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Find One",
         "parameters": [
           {
             "name": "id",
@@ -2695,12 +2958,18 @@
           }
         },
         "tags": [
-          "Categories"
-        ]
+          "Customer App - Categories"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       },
       "patch": {
         "operationId": "CategoriesController_update",
-        "summary": "Update",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Update",
         "parameters": [
           {
             "name": "id",
@@ -2733,12 +3002,17 @@
           }
         },
         "tags": [
-          "Categories"
-        ]
+          "Admin App - Categories"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "delete": {
         "operationId": "CategoriesController_remove",
-        "summary": "Remove",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Remove",
         "parameters": [
           {
             "name": "id",
@@ -2761,14 +3035,16 @@
           }
         },
         "tags": [
-          "Categories"
-        ]
+          "Admin App - Categories"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/ingredients": {
       "get": {
         "operationId": "IngredientsController_findAll",
-        "summary": "Find All",
+        "summary": "[ADMIN APP] Find All",
         "parameters": [],
         "responses": {
           "200": {
@@ -2782,12 +3058,17 @@
           }
         },
         "tags": [
-          "Ingredients"
-        ]
+          "Admin App - Ingredients"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "post": {
         "operationId": "IngredientsController_create",
-        "summary": "Create",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Create",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2811,14 +3092,16 @@
           }
         },
         "tags": [
-          "Ingredients"
-        ]
+          "Admin App - Ingredients"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/ingredients/{id}": {
       "get": {
         "operationId": "IngredientsController_findOne",
-        "summary": "Find One",
+        "summary": "[ADMIN APP] Find One",
         "parameters": [
           {
             "name": "id",
@@ -2841,12 +3124,17 @@
           }
         },
         "tags": [
-          "Ingredients"
-        ]
+          "Admin App - Ingredients"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "patch": {
         "operationId": "IngredientsController_update",
-        "summary": "Update",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Update",
         "parameters": [
           {
             "name": "id",
@@ -2879,12 +3167,17 @@
           }
         },
         "tags": [
-          "Ingredients"
-        ]
+          "Admin App - Ingredients"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "delete": {
         "operationId": "IngredientsController_remove",
-        "summary": "Remove",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Remove",
         "parameters": [
           {
             "name": "id",
@@ -2907,14 +3200,17 @@
           }
         },
         "tags": [
-          "Ingredients"
-        ]
+          "Admin App - Ingredients"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/menu": {
       "get": {
         "operationId": "MenuController_list",
-        "summary": "List",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] List",
         "parameters": [
           {
             "name": "restaurantId",
@@ -2937,12 +3233,18 @@
           }
         },
         "tags": [
-          "Menu"
-        ]
+          "Customer App - Menu"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       },
       "post": {
         "operationId": "MenuController_create",
-        "summary": "Create",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Create",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2966,14 +3268,17 @@
           }
         },
         "tags": [
-          "Menu"
-        ]
+          "Admin App - Menu"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/menu/search": {
       "get": {
         "operationId": "MenuController_search",
-        "summary": "Search",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Search",
         "parameters": [
           {
             "name": "restaurantId",
@@ -3004,14 +3309,18 @@
           }
         },
         "tags": [
-          "Menu"
-        ]
+          "Customer App - Menu"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
     "/api/v1/menu/{id}": {
       "get": {
         "operationId": "MenuController_detail",
-        "summary": "Detail",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Detail",
         "parameters": [
           {
             "name": "id",
@@ -3034,12 +3343,18 @@
           }
         },
         "tags": [
-          "Menu"
-        ]
+          "Customer App - Menu"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       },
       "patch": {
         "operationId": "MenuController_update",
-        "summary": "Update",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Update",
         "parameters": [
           {
             "name": "id",
@@ -3072,12 +3387,17 @@
           }
         },
         "tags": [
-          "Menu"
-        ]
+          "Admin App - Menu"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "delete": {
         "operationId": "MenuController_archive",
-        "summary": "Archive",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Archive",
         "parameters": [
           {
             "name": "id",
@@ -3100,14 +3420,16 @@
           }
         },
         "tags": [
-          "Menu"
-        ]
+          "Admin App - Menu"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/option-groups": {
       "get": {
         "operationId": "OptionGroupsController_list",
-        "summary": "List",
+        "summary": "[ADMIN APP] List",
         "parameters": [
           {
             "name": "restaurantId",
@@ -3130,12 +3452,17 @@
           }
         },
         "tags": [
-          "Option Groups"
-        ]
+          "Admin App - Option Groups"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "post": {
         "operationId": "OptionGroupsController_create",
-        "summary": "Create",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Create",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -3159,14 +3486,16 @@
           }
         },
         "tags": [
-          "Option Groups"
-        ]
+          "Admin App - Option Groups"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/option-groups/{id}": {
       "get": {
         "operationId": "OptionGroupsController_detail",
-        "summary": "Detail",
+        "summary": "[ADMIN APP] Detail",
         "parameters": [
           {
             "name": "id",
@@ -3189,12 +3518,17 @@
           }
         },
         "tags": [
-          "Option Groups"
-        ]
+          "Admin App - Option Groups"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "patch": {
         "operationId": "OptionGroupsController_update",
-        "summary": "Update",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Update",
         "parameters": [
           {
             "name": "id",
@@ -3227,12 +3561,17 @@
           }
         },
         "tags": [
-          "Option Groups"
-        ]
+          "Admin App - Option Groups"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "delete": {
         "operationId": "OptionGroupsController_deactivate",
-        "summary": "Deactivate",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Deactivate",
         "parameters": [
           {
             "name": "id",
@@ -3252,14 +3591,19 @@
           }
         },
         "tags": [
-          "Option Groups"
-        ]
+          "Admin App - Option Groups"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/option-groups/{id}/choices": {
       "post": {
         "operationId": "OptionGroupsController_addChoice",
-        "summary": "Add Choice",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Add Choice",
         "parameters": [
           {
             "name": "id",
@@ -3292,14 +3636,19 @@
           }
         },
         "tags": [
-          "Option Groups"
-        ]
+          "Admin App - Option Groups"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/option-groups/{id}/choices/{choiceId}": {
       "patch": {
         "operationId": "OptionGroupsController_updateChoice",
-        "summary": "Update Choice",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Update Choice",
         "parameters": [
           {
             "name": "id",
@@ -3337,12 +3686,17 @@
           }
         },
         "tags": [
-          "Option Groups"
-        ]
+          "Admin App - Option Groups"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "delete": {
         "operationId": "OptionGroupsController_deactivateChoice",
-        "summary": "Deactivate Choice",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Deactivate Choice",
         "parameters": [
           {
             "name": "id",
@@ -3370,14 +3724,19 @@
           }
         },
         "tags": [
-          "Option Groups"
-        ]
+          "Admin App - Option Groups"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/pizza-builder/admin/rules": {
       "get": {
         "operationId": "PizzaBuilderController_listAdmin",
-        "summary": "List restaurant pizza-builder rules",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] List restaurant pizza-builder rules",
         "parameters": [],
         "responses": {
           "200": {
@@ -3385,12 +3744,17 @@
           }
         },
         "tags": [
-          "Pizza Builder"
-        ]
+          "Admin App - Pizza Builder"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "post": {
         "operationId": "PizzaBuilderController_createAdmin",
-        "summary": "Create a restaurant pizza-builder rule",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Create a restaurant pizza-builder rule",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -3408,14 +3772,19 @@
           }
         },
         "tags": [
-          "Pizza Builder"
-        ]
+          "Admin App - Pizza Builder"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/pizza-builder/admin/rules/{id}": {
       "patch": {
         "operationId": "PizzaBuilderController_updateAdmin",
-        "summary": "Update a restaurant pizza-builder rule",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Update a restaurant pizza-builder rule",
         "parameters": [
           {
             "name": "id",
@@ -3442,12 +3811,17 @@
           }
         },
         "tags": [
-          "Pizza Builder"
-        ]
+          "Admin App - Pizza Builder"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "delete": {
         "operationId": "PizzaBuilderController_deactivateAdmin",
-        "summary": "Deactivate a restaurant pizza-builder rule",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Deactivate a restaurant pizza-builder rule",
         "parameters": [
           {
             "name": "id",
@@ -3464,14 +3838,17 @@
           }
         },
         "tags": [
-          "Pizza Builder"
-        ]
+          "Admin App - Pizza Builder"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/pizza-builder/{menuItemId}": {
       "get": {
         "operationId": "PizzaBuilderController_configuration",
-        "summary": "Configuration",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Configuration",
         "parameters": [
           {
             "name": "menuItemId",
@@ -3491,14 +3868,18 @@
           }
         },
         "tags": [
-          "Pizza Builder"
-        ]
+          "Customer App - Pizza Builder"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
     "/api/v1/pizza-builder/build": {
       "post": {
         "operationId": "PizzaBuilderController_build",
-        "summary": "Build",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Build",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -3519,14 +3900,17 @@
           }
         },
         "tags": [
-          "Pizza Builder"
-        ]
+          "Customer App - Pizza Builder"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       }
     },
     "/api/v1/cart": {
       "get": {
         "operationId": "CartsController_detail",
-        "summary": "Detail",
+        "summary": "[CUSTOMER APP] Detail",
         "parameters": [
           {
             "name": "restaurantId",
@@ -3551,12 +3935,14 @@
           }
         },
         "tags": [
-          "Carts"
-        ]
+          "Customer App - Carts"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       },
       "delete": {
         "operationId": "CartsController_clear",
-        "summary": "Clear the authenticated customer cart",
+        "summary": "[CUSTOMER APP] Clear the authenticated customer cart",
         "parameters": [
           {
             "name": "restaurantId",
@@ -3574,14 +3960,16 @@
           }
         },
         "tags": [
-          "Carts"
-        ]
+          "Customer App - Carts"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/cart/items": {
       "post": {
         "operationId": "CartsController_add",
-        "summary": "Add",
+        "summary": "[CUSTOMER APP] Add",
         "parameters": [
           {
             "name": "restaurantId",
@@ -3616,14 +4004,16 @@
           }
         },
         "tags": [
-          "Carts"
-        ]
+          "Customer App - Carts"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/cart/items/{id}": {
       "patch": {
         "operationId": "CartsController_update",
-        "summary": "Update",
+        "summary": "[CUSTOMER APP] Update",
         "parameters": [
           {
             "name": "id",
@@ -3656,12 +4046,14 @@
           }
         },
         "tags": [
-          "Carts"
-        ]
+          "Customer App - Carts"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       },
       "delete": {
         "operationId": "CartsController_remove",
-        "summary": "Remove",
+        "summary": "[CUSTOMER APP] Remove",
         "parameters": [
           {
             "name": "id",
@@ -3684,14 +4076,16 @@
           }
         },
         "tags": [
-          "Carts"
-        ]
+          "Customer App - Carts"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/promotions": {
       "get": {
         "operationId": "PromotionsController_findAll",
-        "summary": "Find All",
+        "summary": "[ADMIN APP] Find All",
         "parameters": [],
         "responses": {
           "200": {
@@ -3705,12 +4099,17 @@
           }
         },
         "tags": [
-          "Promotions"
-        ]
+          "Admin App - Promotions"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "post": {
         "operationId": "PromotionsController_create",
-        "summary": "Create",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Create",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -3734,14 +4133,16 @@
           }
         },
         "tags": [
-          "Promotions"
-        ]
+          "Admin App - Promotions"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/promotions/{id}": {
       "get": {
         "operationId": "PromotionsController_findOne",
-        "summary": "Find One",
+        "summary": "[ADMIN APP] Find One",
         "parameters": [
           {
             "name": "id",
@@ -3764,12 +4165,17 @@
           }
         },
         "tags": [
-          "Promotions"
-        ]
+          "Admin App - Promotions"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "patch": {
         "operationId": "PromotionsController_update",
-        "summary": "Update",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Update",
         "parameters": [
           {
             "name": "id",
@@ -3802,12 +4208,17 @@
           }
         },
         "tags": [
-          "Promotions"
-        ]
+          "Admin App - Promotions"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "delete": {
         "operationId": "PromotionsController_remove",
-        "summary": "Remove",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Remove",
         "parameters": [
           {
             "name": "id",
@@ -3830,14 +4241,16 @@
           }
         },
         "tags": [
-          "Promotions"
-        ]
+          "Admin App - Promotions"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/coupons": {
       "get": {
         "operationId": "CouponsController_findAll",
-        "summary": "Find All",
+        "summary": "[ADMIN APP] Find All",
         "parameters": [],
         "responses": {
           "200": {
@@ -3851,12 +4264,17 @@
           }
         },
         "tags": [
-          "Coupons"
-        ]
+          "Admin App - Coupons"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "post": {
         "operationId": "CouponsController_create",
-        "summary": "Create",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Create",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -3880,14 +4298,16 @@
           }
         },
         "tags": [
-          "Coupons"
-        ]
+          "Admin App - Coupons"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/coupons/{id}": {
       "get": {
         "operationId": "CouponsController_findOne",
-        "summary": "Find One",
+        "summary": "[ADMIN APP] Find One",
         "parameters": [
           {
             "name": "id",
@@ -3910,12 +4330,17 @@
           }
         },
         "tags": [
-          "Coupons"
-        ]
+          "Admin App - Coupons"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "patch": {
         "operationId": "CouponsController_update",
-        "summary": "Update",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Update",
         "parameters": [
           {
             "name": "id",
@@ -3948,12 +4373,17 @@
           }
         },
         "tags": [
-          "Coupons"
-        ]
+          "Admin App - Coupons"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "delete": {
         "operationId": "CouponsController_remove",
-        "summary": "Remove",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Remove",
         "parameters": [
           {
             "name": "id",
@@ -3976,14 +4406,16 @@
           }
         },
         "tags": [
-          "Coupons"
-        ]
+          "Admin App - Coupons"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/checkout": {
       "post": {
         "operationId": "CheckoutController_checkout",
-        "summary": "Checkout",
+        "summary": "[CUSTOMER APP] Checkout",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -4017,14 +4449,16 @@
           }
         },
         "tags": [
-          "Checkout"
-        ]
+          "Customer App - Checkout"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/orders/me": {
       "get": {
         "operationId": "OrdersController_history",
-        "summary": "History",
+        "summary": "[CUSTOMER APP] History",
         "parameters": [],
         "responses": {
           "200": {
@@ -4038,14 +4472,16 @@
           }
         },
         "tags": [
-          "Orders"
-        ]
+          "Customer App - Orders"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/orders/me/{id}": {
       "get": {
         "operationId": "OrdersController_detail",
-        "summary": "Detail",
+        "summary": "[CUSTOMER APP] Detail",
         "parameters": [
           {
             "name": "id",
@@ -4068,14 +4504,16 @@
           }
         },
         "tags": [
-          "Orders"
-        ]
+          "Customer App - Orders"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/orders/me/{id}/receipt": {
       "get": {
         "operationId": "OrdersController_receipt",
-        "summary": "Customer-readable order receipt with authoritative totals",
+        "summary": "[CUSTOMER APP] Customer-readable order receipt with authoritative totals",
         "parameters": [
           {
             "name": "id",
@@ -4092,14 +4530,16 @@
           }
         },
         "tags": [
-          "Orders"
-        ]
+          "Customer App - Orders"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/orders/me/{id}/reorder": {
       "post": {
         "operationId": "OrdersController_reorder",
-        "summary": "Revalidate an earlier order and add it to the active cart",
+        "summary": "[CUSTOMER APP] Revalidate an earlier order and add it to the active cart",
         "parameters": [
           {
             "name": "id",
@@ -4119,14 +4559,16 @@
           }
         },
         "tags": [
-          "Orders"
-        ]
+          "Customer App - Orders"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/orders/me/{id}/cancel": {
       "post": {
         "operationId": "OrdersController_cancel",
-        "summary": "Cancel",
+        "summary": "[CUSTOMER APP] Cancel",
         "parameters": [
           {
             "name": "id",
@@ -4164,14 +4606,19 @@
           }
         },
         "tags": [
-          "Orders"
-        ]
+          "Customer App - Orders"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/orders/admin/list": {
       "get": {
         "operationId": "OrdersController_adminList",
-        "summary": "Admin List",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Admin List",
         "parameters": [
           {
             "name": "status",
@@ -4194,14 +4641,19 @@
           }
         },
         "tags": [
-          "Orders"
-        ]
+          "Admin App - Orders"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/orders/admin/{id}": {
       "get": {
         "operationId": "OrdersController_adminDetail",
-        "summary": "Admin Detail",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Admin Detail",
         "parameters": [
           {
             "name": "id",
@@ -4221,14 +4673,19 @@
           }
         },
         "tags": [
-          "Orders"
-        ]
+          "Admin App - Orders"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/orders/admin/{id}/status": {
       "patch": {
         "operationId": "OrdersController_updateStatus",
-        "summary": "Update Status",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Update Status",
         "parameters": [
           {
             "name": "id",
@@ -4261,14 +4718,19 @@
           }
         },
         "tags": [
-          "Orders"
-        ]
+          "Admin App - Orders"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/refunds/admin": {
       "get": {
         "operationId": "RefundsController_adminList",
-        "summary": "List refunds for the active staff restaurant",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] List refunds for the active staff restaurant",
         "parameters": [],
         "responses": {
           "200": {
@@ -4276,14 +4738,16 @@
           }
         },
         "tags": [
-          "Refunds"
-        ]
+          "Admin App - Refunds"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/refunds": {
       "post": {
         "operationId": "RefundsController_create",
-        "summary": "Create",
+        "summary": "[CUSTOMER APP] Create",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -4307,14 +4771,16 @@
           }
         },
         "tags": [
-          "Refunds"
-        ]
+          "Customer App - Refunds"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/refunds/orders/{orderId}": {
       "get": {
         "operationId": "RefundsController_list",
-        "summary": "List",
+        "summary": "[CUSTOMER APP] List",
         "parameters": [
           {
             "name": "orderId",
@@ -4337,14 +4803,16 @@
           }
         },
         "tags": [
-          "Refunds"
-        ]
+          "Customer App - Refunds"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/refunds/{id}": {
       "get": {
         "operationId": "RefundsController_get",
-        "summary": "Get refund status for an owned order",
+        "summary": "[CUSTOMER APP] Get refund status for an owned order",
         "parameters": [
           {
             "name": "id",
@@ -4361,14 +4829,19 @@
           }
         },
         "tags": [
-          "Refunds"
-        ]
+          "Customer App - Refunds"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/refunds/{id}/approve": {
       "patch": {
         "operationId": "RefundsController_approve",
-        "summary": "Approve",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Approve",
         "parameters": [
           {
             "name": "id",
@@ -4406,14 +4879,19 @@
           }
         },
         "tags": [
-          "Refunds"
-        ]
+          "Admin App - Refunds"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/deliveries/admin": {
       "get": {
         "operationId": "DeliveriesController_adminList",
-        "summary": "List delivery assignments for the active restaurant",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] List delivery assignments for the active restaurant",
         "parameters": [],
         "responses": {
           "200": {
@@ -4421,19 +4899,24 @@
           }
         },
         "tags": [
-          "Deliveries"
+          "Admin App - Deliveries"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/deliveries/admin/dispatch-board": {
       "get": {
         "operationId": "DeliveriesController_dispatchBoard",
-        "summary": "List delivery orders available to dispatch",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] List delivery orders available to dispatch",
         "parameters": [],
         "responses": {
           "200": {
@@ -4441,19 +4924,24 @@
           }
         },
         "tags": [
-          "Deliveries"
+          "Admin App - Deliveries"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/deliveries/drivers": {
       "get": {
         "operationId": "DeliveriesController_drivers",
-        "summary": "List La Favola delivery drivers",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] List La Favola delivery drivers",
         "parameters": [],
         "responses": {
           "200": {
@@ -4461,17 +4949,22 @@
           }
         },
         "tags": [
-          "Deliveries"
+          "Admin App - Deliveries"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "post": {
         "operationId": "DeliveriesController_createDriver",
-        "summary": "Create a driver account and staff profile",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Create a driver account and staff profile",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -4489,19 +4982,24 @@
           }
         },
         "tags": [
-          "Deliveries"
+          "Admin App - Deliveries"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/deliveries/drivers/{id}": {
       "patch": {
         "operationId": "DeliveriesController_updateDriver",
-        "summary": "Update a driver account and staff profile",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Update a driver account and staff profile",
         "parameters": [
           {
             "name": "id",
@@ -4529,17 +5027,22 @@
           }
         },
         "tags": [
-          "Deliveries"
+          "Admin App - Deliveries"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "delete": {
         "operationId": "DeliveriesController_deactivateDriver",
-        "summary": "Deactivate a driver account",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Deactivate a driver account",
         "parameters": [
           {
             "name": "id",
@@ -4557,19 +5060,21 @@
           }
         },
         "tags": [
-          "Deliveries"
+          "Admin App - Deliveries"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/deliveries/orders/{orderId}/tracking": {
       "get": {
         "operationId": "DeliveriesController_tracking",
-        "summary": "Tracking",
+        "summary": "[CUSTOMER APP] Tracking",
         "parameters": [
           {
             "name": "orderId",
@@ -4592,19 +5097,24 @@
           }
         },
         "tags": [
-          "Deliveries"
+          "Customer App - Deliveries"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/deliveries/orders/{orderId}/assign": {
       "post": {
         "operationId": "DeliveriesController_assign",
-        "summary": "Assign",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Assign",
         "parameters": [
           {
             "name": "orderId",
@@ -4637,19 +5147,25 @@
           }
         },
         "tags": [
-          "Deliveries"
+          "Admin App - Deliveries"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/deliveries/orders/{orderId}/assignment": {
       "get": {
         "operationId": "DeliveriesController_assignment",
-        "summary": "Get the assigned driver delivery record",
+        "x-required-roles": [
+          "admin",
+          "employee"
+        ],
+        "summary": "[ADMIN APP / EMPLOYEE / DRIVER APP] Get the assigned driver delivery record",
         "parameters": [
           {
             "name": "orderId",
@@ -4669,19 +5185,25 @@
           }
         },
         "tags": [
-          "Deliveries"
+          "Staff Apps - Deliveries"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App / Employee / Driver App",
+        "x-audience-label": "Admin App / Employee / Driver App"
       }
     },
     "/api/v1/deliveries/orders/{orderId}/status": {
       "patch": {
         "operationId": "DeliveriesController_transition",
-        "summary": "Advance an assigned delivery state",
+        "x-required-roles": [
+          "admin",
+          "employee"
+        ],
+        "summary": "[ADMIN APP / EMPLOYEE / DRIVER APP] Advance an assigned delivery state",
         "parameters": [
           {
             "name": "orderId",
@@ -4717,19 +5239,25 @@
           }
         },
         "tags": [
-          "Deliveries"
+          "Staff Apps - Deliveries"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App / Employee / Driver App",
+        "x-audience-label": "Admin App / Employee / Driver App"
       }
     },
     "/api/v1/deliveries/orders/{orderId}/location": {
       "patch": {
         "operationId": "DeliveriesController_updateLocation",
-        "summary": "Update Location",
+        "x-required-roles": [
+          "admin",
+          "employee"
+        ],
+        "summary": "[ADMIN APP / EMPLOYEE / DRIVER APP] Update Location",
         "parameters": [
           {
             "name": "orderId",
@@ -4762,19 +5290,21 @@
           }
         },
         "tags": [
-          "Deliveries"
+          "Staff Apps - Deliveries"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App / Employee / Driver App",
+        "x-audience-label": "Admin App / Employee / Driver App"
       }
     },
     "/api/v1/notifications": {
       "get": {
         "operationId": "NotificationsController_list",
-        "summary": "List",
+        "summary": "[CUSTOMER APP] List",
         "parameters": [],
         "responses": {
           "200": {
@@ -4788,14 +5318,16 @@
           }
         },
         "tags": [
-          "Notifications"
-        ]
+          "Customer App - Notifications"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/notifications/unread-count": {
       "get": {
         "operationId": "NotificationsController_unread",
-        "summary": "Unread",
+        "summary": "[CUSTOMER APP] Unread",
         "parameters": [],
         "responses": {
           "200": {
@@ -4809,14 +5341,16 @@
           }
         },
         "tags": [
-          "Notifications"
-        ]
+          "Customer App - Notifications"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/notifications/devices": {
       "get": {
         "operationId": "NotificationsController_listDevices",
-        "summary": "List push devices owned by the current user",
+        "summary": "[CUSTOMER APP] List push devices owned by the current user",
         "parameters": [],
         "responses": {
           "200": {
@@ -4824,12 +5358,14 @@
           }
         },
         "tags": [
-          "Notifications"
-        ]
+          "Customer App - Notifications"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       },
       "post": {
         "operationId": "NotificationsController_registerDevice",
-        "summary": "Register Device",
+        "summary": "[CUSTOMER APP] Register Device",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -4853,14 +5389,16 @@
           }
         },
         "tags": [
-          "Notifications"
-        ]
+          "Customer App - Notifications"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/notifications/{id}": {
       "get": {
         "operationId": "NotificationsController_detail",
-        "summary": "Get one owned notification",
+        "summary": "[CUSTOMER APP] Get one owned notification",
         "parameters": [
           {
             "name": "id",
@@ -4883,14 +5421,16 @@
           }
         },
         "tags": [
-          "Notifications"
-        ]
+          "Customer App - Notifications"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/notifications/{id}/read": {
       "patch": {
         "operationId": "NotificationsController_markRead",
-        "summary": "Mark Read",
+        "summary": "[CUSTOMER APP] Mark Read",
         "parameters": [
           {
             "name": "id",
@@ -4913,14 +5453,16 @@
           }
         },
         "tags": [
-          "Notifications"
-        ]
+          "Customer App - Notifications"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/notifications/devices/{id}": {
       "delete": {
         "operationId": "NotificationsController_deactivateDevice",
-        "summary": "Deactivate an owned push device token",
+        "summary": "[CUSTOMER APP] Deactivate an owned push device token",
         "parameters": [
           {
             "name": "id",
@@ -4937,14 +5479,16 @@
           }
         },
         "tags": [
-          "Notifications"
-        ]
+          "Customer App - Notifications"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/notifications/preferences/me": {
       "get": {
         "operationId": "NotificationsController_preferences",
-        "summary": "Preferences",
+        "summary": "[CUSTOMER APP] Preferences",
         "parameters": [],
         "responses": {
           "200": {
@@ -4958,12 +5502,14 @@
           }
         },
         "tags": [
-          "Notifications"
-        ]
+          "Customer App - Notifications"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       },
       "patch": {
         "operationId": "NotificationsController_updatePreferences",
-        "summary": "Update Preferences",
+        "summary": "[CUSTOMER APP] Update Preferences",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -4987,14 +5533,16 @@
           }
         },
         "tags": [
-          "Notifications"
-        ]
+          "Customer App - Notifications"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/favorites": {
       "get": {
         "operationId": "FavoritesController_list",
-        "summary": "List",
+        "summary": "[CUSTOMER APP] List",
         "parameters": [],
         "responses": {
           "200": {
@@ -5008,17 +5556,19 @@
           }
         },
         "tags": [
-          "Favorites"
+          "Customer App - Favorites"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       },
       "post": {
         "operationId": "FavoritesController_create",
-        "summary": "Create",
+        "summary": "[CUSTOMER APP] Create",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -5042,19 +5592,21 @@
           }
         },
         "tags": [
-          "Favorites"
+          "Customer App - Favorites"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/favorites/{id}/cart": {
       "post": {
         "operationId": "FavoritesController_addToCart",
-        "summary": "Validate and add an owned favorite to the active cart",
+        "summary": "[CUSTOMER APP] Validate and add an owned favorite to the active cart",
         "parameters": [
           {
             "name": "id",
@@ -5081,19 +5633,21 @@
           }
         },
         "tags": [
-          "Favorites"
+          "Customer App - Favorites"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/favorites/{id}": {
       "delete": {
         "operationId": "FavoritesController_remove",
-        "summary": "Remove",
+        "summary": "[CUSTOMER APP] Remove",
         "parameters": [
           {
             "name": "id",
@@ -5116,19 +5670,21 @@
           }
         },
         "tags": [
-          "Favorites"
+          "Customer App - Favorites"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/loyalty/balance": {
       "get": {
         "operationId": "LoyaltyController_balance",
-        "summary": "Balance",
+        "summary": "[CUSTOMER APP] Balance",
         "parameters": [],
         "responses": {
           "200": {
@@ -5142,14 +5698,16 @@
           }
         },
         "tags": [
-          "Loyalty"
-        ]
+          "Customer App - Loyalty"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/loyalty/history": {
       "get": {
         "operationId": "LoyaltyController_history",
-        "summary": "History",
+        "summary": "[CUSTOMER APP] History",
         "parameters": [],
         "responses": {
           "200": {
@@ -5163,14 +5721,16 @@
           }
         },
         "tags": [
-          "Loyalty"
-        ]
+          "Customer App - Loyalty"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/loyalty/redeem": {
       "post": {
         "operationId": "LoyaltyController_redeem",
-        "summary": "Redeem",
+        "summary": "[CUSTOMER APP] Redeem",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -5194,14 +5754,16 @@
           }
         },
         "tags": [
-          "Loyalty"
-        ]
+          "Customer App - Loyalty"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/support/tickets": {
       "get": {
         "operationId": "SupportController_list",
-        "summary": "List authenticated customer conversations",
+        "summary": "[CUSTOMER APP] List authenticated customer conversations",
         "parameters": [],
         "responses": {
           "200": {
@@ -5209,12 +5771,14 @@
           }
         },
         "tags": [
-          "Support"
-        ]
+          "Customer App - Support"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       },
       "post": {
         "operationId": "SupportController_create",
-        "summary": "Open a customer support conversation",
+        "summary": "[CUSTOMER APP] Open a customer support conversation",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -5232,14 +5796,16 @@
           }
         },
         "tags": [
-          "Support"
-        ]
+          "Customer App - Support"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/support/tickets/{id}": {
       "get": {
         "operationId": "SupportController_detail",
-        "summary": "Get an authorized conversation and unread count",
+        "summary": "[CUSTOMER APP] Get an authorized conversation and unread count",
         "parameters": [
           {
             "name": "id",
@@ -5256,14 +5822,16 @@
           }
         },
         "tags": [
-          "Support"
-        ]
+          "Customer App - Support"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/support/tickets/{id}/messages": {
       "get": {
         "operationId": "SupportController_history",
-        "summary": "Get paginated chronological conversation messages",
+        "summary": "[CUSTOMER APP] Get paginated chronological conversation messages",
         "parameters": [
           {
             "name": "id",
@@ -5280,12 +5848,14 @@
           }
         },
         "tags": [
-          "Support"
-        ]
+          "Customer App - Support"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       },
       "post": {
         "operationId": "SupportController_message",
-        "summary": "Persist and enqueue a support message",
+        "summary": "[CUSTOMER APP] Persist and enqueue a support message",
         "parameters": [
           {
             "name": "id",
@@ -5312,14 +5882,16 @@
           }
         },
         "tags": [
-          "Support"
-        ]
+          "Customer App - Support"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/support/tickets/{id}/read": {
       "patch": {
         "operationId": "SupportController_markRead",
-        "summary": "Mark the authorized side of a conversation read",
+        "summary": "[CUSTOMER APP] Mark the authorized side of a conversation read",
         "parameters": [
           {
             "name": "id",
@@ -5336,14 +5908,16 @@
           }
         },
         "tags": [
-          "Support"
-        ]
+          "Customer App - Support"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/support/tickets/{id}/realtime-authorization": {
       "get": {
         "operationId": "SupportController_realtimeAuthorization",
-        "summary": "Authorize the authenticated user for a private AppSync conversation channel",
+        "summary": "[CUSTOMER APP] Authorize the authenticated user for a private AppSync conversation channel",
         "parameters": [
           {
             "name": "id",
@@ -5360,14 +5934,20 @@
           }
         },
         "tags": [
-          "Support"
-        ]
+          "Customer App - Support"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/support/agent/queue": {
       "get": {
         "operationId": "SupportController_queue",
-        "summary": "Get filtered, paginated support queue",
+        "x-required-roles": [
+          "admin",
+          "support"
+        ],
+        "summary": "[ADMIN APP / SUPPORT APP] Get filtered, paginated support queue",
         "parameters": [],
         "responses": {
           "200": {
@@ -5375,14 +5955,20 @@
           }
         },
         "tags": [
-          "Support"
-        ]
+          "Customer App - Support"
+        ],
+        "description": "Audience: Admin App / Support App",
+        "x-audience-label": "Admin App / Support App"
       }
     },
     "/api/v1/support/agent/tickets/{id}/claim": {
       "post": {
         "operationId": "SupportController_claim",
-        "summary": "Atomically claim an unassigned support conversation",
+        "x-required-roles": [
+          "admin",
+          "support"
+        ],
+        "summary": "[ADMIN APP / SUPPORT APP] Atomically claim an unassigned support conversation",
         "parameters": [
           {
             "name": "id",
@@ -5399,14 +5985,20 @@
           }
         },
         "tags": [
-          "Support"
-        ]
+          "Customer App - Support"
+        ],
+        "description": "Audience: Admin App / Support App",
+        "x-audience-label": "Admin App / Support App"
       }
     },
     "/api/v1/support/agent/tickets/{id}/status": {
       "patch": {
         "operationId": "SupportController_status",
-        "summary": "Resolve, close, or update an assigned conversation",
+        "x-required-roles": [
+          "admin",
+          "support"
+        ],
+        "summary": "[ADMIN APP / SUPPORT APP] Resolve, close, or update an assigned conversation",
         "parameters": [
           {
             "name": "id",
@@ -5433,14 +6025,17 @@
           }
         },
         "tags": [
-          "Support"
-        ]
+          "Customer App - Support"
+        ],
+        "description": "Audience: Admin App / Support App",
+        "x-audience-label": "Admin App / Support App"
       }
     },
     "/api/v1/faq": {
       "get": {
         "operationId": "FaqController_findAll",
-        "summary": "Find All",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Find All",
         "parameters": [],
         "responses": {
           "200": {
@@ -5454,12 +6049,18 @@
           }
         },
         "tags": [
-          "Faq"
-        ]
+          "Customer App - Faq"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       },
       "post": {
         "operationId": "FaqController_create",
-        "summary": "Create",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Create",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -5483,14 +6084,17 @@
           }
         },
         "tags": [
-          "Faq"
-        ]
+          "Admin App - Faq"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/faq/{id}": {
       "get": {
         "operationId": "FaqController_findOne",
-        "summary": "Find One",
+        "x-audience": "Public / Customer App",
+        "summary": "[PUBLIC / CUSTOMER APP] Find One",
         "parameters": [
           {
             "name": "id",
@@ -5513,12 +6117,18 @@
           }
         },
         "tags": [
-          "Faq"
-        ]
+          "Customer App - Faq"
+        ],
+        "description": "Audience: Public / Customer App",
+        "x-audience-label": "Public / Customer App",
+        "security": []
       },
       "patch": {
         "operationId": "FaqController_update",
-        "summary": "Update",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Update",
         "parameters": [
           {
             "name": "id",
@@ -5551,12 +6161,17 @@
           }
         },
         "tags": [
-          "Faq"
-        ]
+          "Admin App - Faq"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       },
       "delete": {
         "operationId": "FaqController_remove",
-        "summary": "Remove",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] Remove",
         "parameters": [
           {
             "name": "id",
@@ -5579,14 +6194,16 @@
           }
         },
         "tags": [
-          "Faq"
-        ]
+          "Admin App - Faq"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/reports/sales": {
       "get": {
         "operationId": "ReportsController_sales",
-        "summary": "Sales",
+        "summary": "[ADMIN APP] Sales",
         "parameters": [],
         "responses": {
           "200": {
@@ -5600,19 +6217,21 @@
           }
         },
         "tags": [
-          "Reports"
+          "Admin App - Reports"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/reports/daily-revenue": {
       "get": {
         "operationId": "ReportsController_daily",
-        "summary": "Daily recognized and net revenue in minor units",
+        "summary": "[ADMIN APP] Daily recognized and net revenue in minor units",
         "parameters": [],
         "responses": {
           "200": {
@@ -5620,19 +6239,21 @@
           }
         },
         "tags": [
-          "Reports"
+          "Admin App - Reports"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     },
     "/api/v1/reports/popular-items": {
       "get": {
         "operationId": "ReportsController_popular",
-        "summary": "Popular",
+        "summary": "[ADMIN APP] Popular",
         "parameters": [],
         "responses": {
           "200": {
@@ -5646,23 +6267,42 @@
           }
         },
         "tags": [
-          "Reports"
+          "Admin App - Reports"
         ],
         "security": [
           {
             "JWT-auth": []
           }
-        ]
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
       }
     }
   },
   "info": {
     "title": "La Favola Pizza Restaurant API",
-    "description": "Customer ordering, pizza customization, checkout, payments, delivery tracking, promotions, support, and restaurant administration API",
+    "description": "Routes are grouped by audience. Customer app developers should use sections prefixed \"Customer App\" and \"Audience: Public / Customer App\". Administrative and staff operations declare their required roles in their Audience tag and x-required-roles metadata.",
     "version": "1.0",
     "contact": {}
   },
-  "tags": [],
+  "tags": [
+    {
+      "name": "Audience: Public / Customer App",
+      "description": "No login required"
+    },
+    {
+      "name": "Audience: Admin App",
+      "description": "Requires the admin role"
+    },
+    {
+      "name": "Audience: Support App",
+      "description": "Requires the support role"
+    },
+    {
+      "name": "Audience: Employee / Driver App",
+      "description": "Requires the employee/driver role"
+    }
+  ],
   "servers": [],
   "components": {
     "securitySchemes": {
@@ -5915,15 +6555,54 @@
       },
       "PasswordResetDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "customer@example.com"
+          }
+        },
+        "required": [
+          "email"
+        ]
       },
       "ResetPasswordDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "123456",
+            "pattern": "^\\d{6}$",
+            "minLength": 6,
+            "maxLength": 6,
+            "description": "Single-use code sent by email"
+          },
+          "password": {
+            "type": "string",
+            "example": "NewSecurePass1",
+            "minLength": 8,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "code",
+          "password"
+        ]
       },
-      "VerifyTokenDto": {
+      "VerifyEmailCodeDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "123456",
+            "pattern": "^\\d{6}$",
+            "minLength": 6,
+            "maxLength": 6,
+            "description": "Single-use email verification code"
+          }
+        },
+        "required": [
+          "code"
+        ]
       },
       "CreatePermissionDto": {
         "type": "object",

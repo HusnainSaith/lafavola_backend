@@ -23,7 +23,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-@ApiTags('Notifications')
+@ApiTags('Customer App - Notifications')
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
 export class NotificationsController {

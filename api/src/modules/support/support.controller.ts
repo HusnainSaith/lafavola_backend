@@ -27,7 +27,7 @@ import { CreateSupportTicketDto } from './dto/create-support-ticket.dto';
 import { UpdateSupportTicketDto } from './dto/update-support-ticket.dto';
 import { SupportService } from './support.service';
 
-@ApiTags('Support')
+@ApiTags('Customer App - Support')
 @Controller('support')
 @UseGuards(JwtAuthGuard)
 export class SupportController {

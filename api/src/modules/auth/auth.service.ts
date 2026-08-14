@@ -12,13 +12,13 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
-import { createHash, randomBytes } from 'crypto';
-import { DataSource, Repository } from 'typeorm';
+import { createHash, randomBytes, randomInt } from 'crypto';
+import { DataSource, IsNull, QueryFailedError, Repository } from 'typeorm';
 import {
   MAIL_PROVIDER,
   MailProvider,
 } from '../../integrations/mail/mail.interface';
-import { linkTemplate } from '../../integrations/mail/templates/template.util';
+import { escapeHtml } from '../../integrations/mail/templates/template.util';
 import { Role } from '../roles/entities/role.entity';
 import { RoleEnum } from '../roles/role.enum';
 import { UserStatus } from '../users/enums/user-status.enum';
@@ -86,6 +86,7 @@ export class AuthService {
       password: dto.password,
       fullName: dto.fullName,
       roleId: customerRole.id,
+      status: UserStatus.PENDING_VERIFICATION,
     });
 
     if (response.data.email) {
@@ -109,12 +110,19 @@ export class AuthService {
     });
     if (
       !user ||
-      user.status !== UserStatus.ACTIVE ||
       user.archivedAt ||
       !user.password ||
       !(await bcrypt.compare(dto.password, user.password))
     ) {
       throw new UnauthorizedException('Invalid email or password');
+    }
+    if (!user.emailVerifiedAt) {
+      throw new UnauthorizedException(
+        'Please verify your email before signing in',
+      );
+    }
+    if (user.status !== UserStatus.ACTIVE) {
+      throw new UnauthorizedException('This account cannot sign in');
     }
 
     const accessToken = await this.signAccessToken(user.id, user.email);
@@ -285,18 +293,21 @@ export class AuthService {
   async requestPasswordReset(dto: PasswordResetDto) {
     const user = await this.usersService.findByEmail(dto.email);
     if (user && user.status !== UserStatus.DELETED && !user.archivedAt) {
-      const rawToken = randomBytes(32).toString('base64url');
-      await this.verificationTokens.save(
-        this.verificationTokens.create({
-          userId: user.id,
-          type: 'password_reset',
-          tokenHash: this.digest(rawToken),
-          attempts: 0,
-          expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-        }),
+      await this.verificationTokens
+        .createQueryBuilder()
+        .update(VerificationToken)
+        .set({ consumedAt: new Date() })
+        .where('user_id = :userId', { userId: user.id })
+        .andWhere('type = :type', { type: 'password_reset' })
+        .andWhere('consumed_at IS NULL')
+        .execute();
+      const resetCode = await this.createSixDigitCode(
+        user.id,
+        'password_reset',
+        15 * 60 * 1000,
       );
       try {
-        await this.resetDelivery.sendPasswordReset(user.email, rawToken);
+        await this.resetDelivery.sendPasswordReset(user.email, resetCode);
       } catch {
         // Preserve the same public response for known and unknown accounts.
         // The provider logs its sanitized failure without recipient or token data.
@@ -307,25 +318,30 @@ export class AuthService {
   }
 
   async resetPassword(dto: ResetPasswordDto) {
-    const tokenHash = this.digest(dto.token);
-    await this.dataSource.transaction(async (manager) => {
-      const token = await manager.getRepository(VerificationToken).findOne({
-        where: { tokenHash, type: 'password_reset' },
+    const tokenHash = this.digest(dto.code);
+    const changed = await this.dataSource.transaction(async (manager) => {
+      const repository = manager.getRepository(VerificationToken);
+      const token = await repository.findOne({
+        where: { tokenHash, type: 'password_reset', consumedAt: IsNull() },
         lock: { mode: 'pessimistic_write' },
       });
-      if (!token || token.consumedAt || token.expiresAt <= new Date()) {
-        throw new UnauthorizedException('Invalid or expired reset token');
+      if (!token || token.expiresAt <= new Date() || token.attempts >= 5) {
+        return false;
       }
       const password = await bcrypt.hash(dto.password, 12);
       await manager.update('users', { id: token.userId }, { password });
       token.consumedAt = new Date();
-      await manager.save(token);
+      await repository.save(token);
       await manager.update(
         RefreshToken,
         { userId: token.userId, isRevoked: false },
         { isRevoked: true, revokedAt: new Date() },
       );
+      return true;
     });
+    if (!changed) {
+      throw new UnauthorizedException('Invalid or expired reset code');
+    }
     return { success: true, message: 'Password has been changed successfully' };
   }
 
@@ -342,7 +358,9 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email);
     if (
       user &&
-      user.status === UserStatus.ACTIVE &&
+      [UserStatus.PENDING_VERIFICATION, UserStatus.ACTIVE].includes(
+        user.status as UserStatus,
+      ) &&
       !user.archivedAt &&
       !user.emailVerifiedAt &&
       user.email
@@ -352,22 +370,25 @@ export class AuthService {
     return { success: true, message: 'Verification request accepted' };
   }
 
-  async verifyEmail(rawToken: string) {
-    const tokenHash = this.digest(rawToken);
+  async verifyEmail(code: string) {
+    const tokenHash = this.digest(code);
     await this.dataSource.transaction(async (manager) => {
       const token = await manager.getRepository(VerificationToken).findOne({
-        where: { tokenHash, type: 'email_verify' },
+        where: { tokenHash, type: 'email_verify', consumedAt: IsNull() },
         lock: { mode: 'pessimistic_write' },
       });
       if (!token || token.consumedAt || token.expiresAt <= new Date()) {
         throw new UnauthorizedException(
-          'Invalid or expired verification token',
+          'Invalid or expired verification code',
         );
       }
       await manager.update(
         'users',
         { id: token.userId },
-        { emailVerifiedAt: new Date() },
+        {
+          emailVerifiedAt: new Date(),
+          status: UserStatus.ACTIVE,
+        },
       );
       token.consumedAt = new Date();
       await manager.save(token);
@@ -435,27 +456,24 @@ export class AuthService {
         );
       }
     }
-    const rawToken = randomBytes(32).toString('base64url');
-    await this.verificationTokens.save(
-      this.verificationTokens.create({
-        userId,
-        type: 'email_verify',
-        tokenHash: this.digest(rawToken),
-        attempts: 0,
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      }),
+    await this.verificationTokens
+      .createQueryBuilder()
+      .update(VerificationToken)
+      .set({ consumedAt: new Date() })
+      .where('user_id = :userId', { userId })
+      .andWhere('type = :type', { type: 'email_verify' })
+      .andWhere('consumed_at IS NULL')
+      .execute();
+    const code = await this.createSixDigitCode(
+      userId,
+      'email_verify',
+      24 * 60 * 60 * 1000,
     );
-    const url = new URL(
-      this.config.getOrThrow<string>('EMAIL_VERIFICATION_URL'),
-    );
-    url.searchParams.set('token', rawToken);
-    const template = linkTemplate({
-      heading: 'Verify your La Favola email',
-      introduction: 'Confirm this email address for your account.',
-      linkLabel: 'Verify email',
-      url: url.toString(),
-      expiration: 'This link expires in 24 hours and can be used once.',
-    });
+    const safeCode = escapeHtml(code);
+    const template = {
+      text: `Verify your La Favola email\n\nYour email verification code is: ${code}\n\nThis code expires in 24 hours and can be used once.`,
+      html: `<h1>Verify your La Favola email</h1><p>Your email verification code is:</p><p style="font-size:32px;font-weight:bold;letter-spacing:8px"><code>${safeCode}</code></p><p>This code expires in 24 hours and can be used once.</p>`,
+    };
     try {
       await this.mail.send({
         to: email,
@@ -471,5 +489,35 @@ export class AuthService {
 
   private digest(token: string): string {
     return createHash('sha256').update(token, 'utf8').digest('hex');
+  }
+
+  private async createSixDigitCode(
+    userId: string,
+    type: 'email_verify' | 'password_reset',
+    ttlMilliseconds: number,
+  ): Promise<string> {
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      const code = randomInt(100000, 1000000).toString();
+      try {
+        await this.verificationTokens.save(
+          this.verificationTokens.create({
+            userId,
+            type,
+            tokenHash: this.digest(code),
+            attempts: 0,
+            expiresAt: new Date(Date.now() + ttlMilliseconds),
+          }),
+        );
+        return code;
+      } catch (error) {
+        const databaseError = error as QueryFailedError & {
+          driverError?: { code?: string };
+        };
+        if (databaseError.driverError?.code !== '23505') throw error;
+      }
+    }
+    throw new InternalServerErrorException(
+      'Unable to allocate a verification code',
+    );
   }
 }

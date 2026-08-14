@@ -26,7 +26,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-@ApiTags('Orders')
+@ApiTags('Customer App - Orders')
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
 export class OrdersController {
