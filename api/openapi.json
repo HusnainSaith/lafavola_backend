@@ -2122,6 +2122,58 @@
         "x-audience-label": "Customer App"
       }
     },
+    "/api/v1/customers/me/profile/avatar": {
+      "post": {
+        "operationId": "CustomersController_uploadProfilePhoto",
+        "summary": "[CUSTOMER APP] Upload Profile Photo",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JPEG, PNG, or WebP image (maximum 5 MB)"
+                  },
+                  "altText": {
+                    "type": "string",
+                    "maxLength": 255
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Profile photo uploaded"
+          },
+          "400": {
+            "description": "Invalid or missing image file"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": [
+          "Customer App - Profile"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
+      }
+    },
     "/api/v1/customers/me/preferences": {
       "get": {
         "operationId": "CustomersController_preferences",
@@ -2440,6 +2492,180 @@
         "x-audience-label": "Customer App"
       }
     },
+    "/api/v1/media/admin": {
+      "get": {
+        "operationId": "MediaController_adminList",
+        "x-required-roles": [
+          "admin"
+        ],
+        "summary": "[ADMIN APP] List media for the active staff restaurant",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Paginated media library"
+          }
+        },
+        "tags": [
+          "Admin App - Media"
+        ],
+        "description": "Audience: Admin App",
+        "x-audience-label": "Admin App"
+      }
+    },
+    "/api/v1/media/upload": {
+      "post": {
+        "operationId": "MediaController_upload",
+        "summary": "[CUSTOMER APP] Upload an image or support file directly to S3",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "purpose"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "enum": [
+                      "menu_image",
+                      "avatar",
+                      "support_attachment",
+                      "category_image",
+                      "ingredient_image"
+                    ]
+                  },
+                  "restaurantId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "targetId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "altText": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer App - Media"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
+      }
+    },
+    "/api/v1/media/uploads": {
+      "post": {
+        "operationId": "MediaController_authorize",
+        "summary": "[CUSTOMER APP] Authorize a short-lived direct S3 upload",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUploadUrlDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadAuthorizationResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Customer App - Media"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
+      }
+    },
+    "/api/v1/media/{id}/finalize": {
+      "post": {
+        "operationId": "MediaController_finalize",
+        "summary": "[CUSTOMER APP] Verify uploaded S3 metadata and activate media",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinalizeUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer App - Media"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
+      }
+    },
+    "/api/v1/media/{id}": {
+      "delete": {
+        "operationId": "MediaController_remove",
+        "summary": "[CUSTOMER APP] Delete an owned media object using its trusted key",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer App - Media"
+        ],
+        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
+      }
+    },
     "/api/v1/customers/me/addresses": {
       "get": {
         "operationId": "AddressesController_list",
@@ -2696,180 +2922,6 @@
         ],
         "description": "Audience: Admin App",
         "x-audience-label": "Admin App"
-      }
-    },
-    "/api/v1/media/admin": {
-      "get": {
-        "operationId": "MediaController_adminList",
-        "x-required-roles": [
-          "admin"
-        ],
-        "summary": "[ADMIN APP] List media for the active staff restaurant",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Paginated media library"
-          }
-        },
-        "tags": [
-          "Admin App - Media"
-        ],
-        "description": "Audience: Admin App",
-        "x-audience-label": "Admin App"
-      }
-    },
-    "/api/v1/media/upload": {
-      "post": {
-        "operationId": "MediaController_upload",
-        "summary": "[CUSTOMER APP] Upload an image or support file directly to S3",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "file",
-                  "purpose"
-                ],
-                "properties": {
-                  "file": {
-                    "type": "string",
-                    "format": "binary"
-                  },
-                  "purpose": {
-                    "type": "string",
-                    "enum": [
-                      "menu_image",
-                      "avatar",
-                      "support_attachment",
-                      "category_image",
-                      "ingredient_image"
-                    ]
-                  },
-                  "restaurantId": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "targetId": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "altText": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Customer App - Media"
-        ],
-        "description": "Audience: Customer App",
-        "x-audience-label": "Customer App"
-      }
-    },
-    "/api/v1/media/uploads": {
-      "post": {
-        "operationId": "MediaController_authorize",
-        "summary": "[CUSTOMER APP] Authorize a short-lived direct S3 upload",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUploadUrlDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UploadAuthorizationResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Customer App - Media"
-        ],
-        "description": "Audience: Customer App",
-        "x-audience-label": "Customer App"
-      }
-    },
-    "/api/v1/media/{id}/finalize": {
-      "post": {
-        "operationId": "MediaController_finalize",
-        "summary": "[CUSTOMER APP] Verify uploaded S3 metadata and activate media",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FinalizeUploadDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Customer App - Media"
-        ],
-        "description": "Audience: Customer App",
-        "x-audience-label": "Customer App"
-      }
-    },
-    "/api/v1/media/{id}": {
-      "delete": {
-        "operationId": "MediaController_remove",
-        "summary": "[CUSTOMER APP] Delete an owned media object using its trusted key",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Customer App - Media"
-        ],
-        "description": "Audience: Customer App",
-        "x-audience-label": "Customer App"
       }
     },
     "/api/v1/categories": {
@@ -7005,22 +7057,6 @@
         "type": "object",
         "properties": {}
       },
-      "CreateAddressDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "UpdateAddressDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "CreateStaffMemberDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "UpdateStaffMemberDto": {
-        "type": "object",
-        "properties": {}
-      },
       "CreateUploadUrlDto": {
         "type": "object",
         "properties": {
@@ -7076,6 +7112,22 @@
             "type": "number"
           }
         }
+      },
+      "CreateAddressDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateAddressDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateStaffMemberDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateStaffMemberDto": {
+        "type": "object",
+        "properties": {}
       },
       "CreateCategoryDto": {
         "type": "object",
