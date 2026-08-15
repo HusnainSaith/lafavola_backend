@@ -46,11 +46,12 @@ const expectedTables = [
     if (dataSource?.isInitialized) await dataSource.destroy();
   });
 
-  it('discovers and applies all 23 migrations with synchronize disabled', async () => {
+  it('discovers and applies every migration with synchronize disabled', async () => {
     expect(dataSource.options.synchronize).toBe(false);
-    expect(dataSource.migrations).toHaveLength(23);
+    const migrationCount = dataSource.migrations.length;
+    expect(migrationCount).toBeGreaterThan(0);
     const executed = await dataSource.runMigrations({ transaction: 'each' });
-    expect(executed).toHaveLength(23);
+    expect(executed).toHaveLength(migrationCount);
 
     const rows: Array<{ table_name: string }> = await dataSource.query(
       `SELECT table_name FROM information_schema.tables

@@ -54,8 +54,16 @@ function findValue(value: unknown, key: string): unknown {
 
       [{ id: restaurantId }] = await database.query(
         `INSERT INTO restaurants
-         (name,slug,default_delivery_minutes,tax_rate_basis_points,tax_behavior,delivery_fee_minor)
-         VALUES ('Client Journey','client-journey',30,1000,'excluded',250) RETURNING id`,
+           (name,slug,default_delivery_minutes,tax_rate_basis_points,tax_behavior,delivery_fee_minor,is_active)
+         VALUES ('Client Journey','la-favola-restaurant',30,1000,'excluded',250,true)
+         ON CONFLICT (slug) DO UPDATE
+         SET name=EXCLUDED.name,
+             default_delivery_minutes=EXCLUDED.default_delivery_minutes,
+             tax_rate_basis_points=EXCLUDED.tax_rate_basis_points,
+             tax_behavior=EXCLUDED.tax_behavior,
+             delivery_fee_minor=EXCLUDED.delivery_fee_minor,
+             is_active=EXCLUDED.is_active
+         RETURNING id`,
       );
       [{ id: categoryId }] = await database.query(
         `INSERT INTO menu_categories (restaurant_id,name,slug)
@@ -101,6 +109,14 @@ function findValue(value: unknown, key: string): unknown {
         .expect(201);
       customerId = String(findValue(registration.body, 'id'));
       expect(customerId).toMatch(/^[0-9a-f-]{36}$/i);
+      // Email-code verification is covered by auth.database.spec.ts. This
+      // broader customer journey starts from the resulting verified state.
+      await database.query(
+        `UPDATE users
+         SET email_verified_at=NOW(), status='active'
+         WHERE id=$1`,
+        [customerId],
+      );
 
       await request(app.getHttpServer())
         .post('/auth/register')
