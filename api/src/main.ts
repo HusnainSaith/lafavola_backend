@@ -1,4 +1,4 @@
-import { ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -157,5 +157,15 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3001;
   await app.listen(port);
+
+  const configuredOrigin = process.env.API_PUBLIC_URL?.trim().replace(
+    /\/$/,
+    '',
+  );
+  const serverOrigin =
+    configuredOrigin || `http://localhost:${String(port)}`;
+  Logger.log(`Server URL:     ${serverOrigin}`, 'Bootstrap');
+  Logger.log(`API base URL:   ${serverOrigin}/api/v1`, 'Bootstrap');
+  Logger.log(`Swagger UI URL: ${serverOrigin}/api/v1/docs`, 'Bootstrap');
 }
-bootstrap();
+void bootstrap();
