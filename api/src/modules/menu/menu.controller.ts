@@ -65,7 +65,11 @@ export class MenuController {
 
   @Get(':id')
   @Public()
-  @ApiOperation({ summary: 'Detail' })
+  @ApiOperation({
+    summary: 'Product Detail',
+    description:
+      'Returns the product configuration and admin-defined fulfilment pricing. Delivery has the configured fee; pickup is always free.',
+  })
   @ApiParam({ name: 'id', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Successful response' })
   @ApiResponse({

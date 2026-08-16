@@ -25,7 +25,7 @@ export class MenuService {
     return this.items.searchActive(restaurantId, query.trim());
   }
 
-  async detail(id: string): Promise<MenuItem> {
+  async detail(id: string) {
     const item = await this.items.findOne({
       where: { id, isActive: true },
       relations: {
@@ -44,7 +44,31 @@ export class MenuService {
     ) {
       throw new NotFoundException('Menu item not found');
     }
-    return requireEntity(item, 'Menu item not found');
+    const availableItem = requireEntity(item, 'Menu item not found');
+    const deliveryFeeMinor = Number(
+      availableItem.restaurant.deliveryFeeMinor ?? 0,
+    );
+
+    return {
+      ...availableItem,
+      fulfilment: {
+        currency: availableItem.restaurant.currency,
+        minimumOrderMinor: Number(
+          availableItem.restaurant.minimumOrderMinor ?? 0,
+        ),
+        delivery: {
+          enabled: true,
+          feeMinor: deliveryFeeMinor,
+          estimatedMinutes: Number(
+            availableItem.restaurant.defaultDeliveryMinutes,
+          ),
+        },
+        pickup: {
+          enabled: true,
+          feeMinor: 0,
+        },
+      },
+    };
   }
 
   async create(dto: CreateMenuItemDto, actorUserId: string): Promise<MenuItem> {

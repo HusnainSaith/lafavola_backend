@@ -17,6 +17,9 @@ import { RoleEnum } from '../roles/role.enum';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderHistoryQueryDto } from './dto/order-history-query.dto';
 import { OrdersService } from './orders.service';
+import { CheckoutService } from '../checkout/checkout.service';
+import { CheckoutDto } from '../checkout/dto/checkout.dto';
+import { CheckoutResultDto } from '../checkout/dto/checkout-result.dto';
 
 import {
   ApiBody,
@@ -30,7 +33,30 @@ import {
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
 export class OrdersController {
-  constructor(private readonly service: OrdersService) {}
+  constructor(
+    private readonly service: OrdersService,
+    private readonly checkoutService: CheckoutService,
+  ) {}
+
+  @Post('place')
+  @ApiOperation({
+    summary: 'Place Order',
+    description:
+      'Converts the authenticated customer cart into an order. The server reloads current prices and applies the admin delivery fee only when orderType is delivery. Pickup has no delivery fee.',
+  })
+  @ApiBody({ type: CheckoutDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Order created with authoritative totals',
+    type: CheckoutResultDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid or empty cart' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Delivery address not found' })
+  @ApiResponse({ status: 409, description: 'Idempotency key conflict' })
+  placeOrder(@CurrentUser() user: AuthenticatedUser, @Body() dto: CheckoutDto) {
+    return this.checkoutService.checkout(user.id, dto);
+  }
 
   @Get('me')
   @ApiOperation({ summary: 'History' })

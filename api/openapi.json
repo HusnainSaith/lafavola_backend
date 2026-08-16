@@ -1907,7 +1907,8 @@
       },
       "patch": {
         "operationId": "RestaurantsController_update",
-        "summary": "[ADMIN APP] Update",
+        "summary": "[ADMIN APP] Update Restaurant and Delivery Fee",
+        "description": "Audience: Admin App\n\nAdmin configuration endpoint. Set deliveryFeeMinor in currency minor units (for EUR, 250 means EUR 2.50). Pickup remains free.",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1938,7 +1939,6 @@
             "JWT-auth": []
           }
         ],
-        "description": "Audience: Admin App",
         "x-audience-label": "Admin App"
       }
     },
@@ -3372,7 +3372,8 @@
       "get": {
         "operationId": "MenuController_detail",
         "x-audience": "Public / Customer App",
-        "summary": "[PUBLIC / CUSTOMER APP] Detail",
+        "summary": "[PUBLIC / CUSTOMER APP] Product Detail",
+        "description": "Audience: Public / Customer App\n\nReturns the product configuration and admin-defined fulfilment pricing. Delivery has the configured fee; pickup is always free.",
         "parameters": [
           {
             "name": "id",
@@ -3397,7 +3398,6 @@
         "tags": [
           "Customer App - Menu"
         ],
-        "description": "Audience: Public / Customer App",
         "x-audience-label": "Public / Customer App",
         "security": []
       },
@@ -4467,7 +4467,9 @@
     "/api/v1/checkout": {
       "post": {
         "operationId": "CheckoutController_checkout",
-        "summary": "[CUSTOMER APP] Checkout",
+        "summary": "[CUSTOMER APP] Checkout (legacy order-placement route)",
+        "description": "Audience: Customer App\n\nEquivalent to POST /orders/place. Retained for existing clients.",
+        "deprecated": true,
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -4503,7 +4505,52 @@
         "tags": [
           "Customer App - Checkout"
         ],
-        "description": "Audience: Customer App",
+        "x-audience-label": "Customer App"
+      }
+    },
+    "/api/v1/orders/place": {
+      "post": {
+        "operationId": "OrdersController_placeOrder",
+        "summary": "[CUSTOMER APP] Place Order",
+        "description": "Audience: Customer App\n\nConverts the authenticated customer cart into an order. The server reloads current prices and applies the admin delivery fee only when orderType is delivery. Pickup has no delivery fee.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order created with authoritative totals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckoutResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or empty cart"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Delivery address not found"
+          },
+          "409": {
+            "description": "Idempotency key conflict"
+          }
+        },
+        "tags": [
+          "Customer App - Orders"
+        ],
         "x-audience-label": "Customer App"
       }
     },

@@ -60,7 +60,11 @@ export class RestaurantsController {
 
   @Patch()
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Update' })
+  @ApiOperation({
+    summary: 'Update Restaurant and Delivery Fee',
+    description:
+      'Admin configuration endpoint. Set deliveryFeeMinor in currency minor units (for EUR, 250 means EUR 2.50). Pickup remains free.',
+  })
   @ApiBody({ type: UpdateRestaurantDto })
   @ApiResponse({ status: 200, description: 'Successful response' })
   @ApiResponse({

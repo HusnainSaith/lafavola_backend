@@ -195,6 +195,20 @@ function findValue(value: unknown, key: string): unknown {
         .expect(200);
       expect(JSON.stringify(menu.body)).toContain('Margherita');
       await request(app.getHttpServer())
+        .get(`/menu/${menuItemId}`)
+        .expect(200)
+        .expect(({ body }) => {
+          expect(findValue(body, 'currency')).toBe('EUR');
+          expect(findValue(body, 'delivery')).toMatchObject({
+            enabled: true,
+            feeMinor: 250,
+          });
+          expect(findValue(body, 'pickup')).toMatchObject({
+            enabled: true,
+            feeMinor: 0,
+          });
+        });
+      await request(app.getHttpServer())
         .get('/menu/search')
         .query({ restaurantId, q: 'Margherita' })
         .expect(200)
@@ -232,7 +246,7 @@ function findValue(value: unknown, key: string): unknown {
         .expect(200);
 
       const checkout = await request(app.getHttpServer())
-        .post('/checkout')
+        .post('/orders/place')
         .set(auth())
         .send({
           cartId,

@@ -14,7 +14,12 @@ export class CheckoutController {
   constructor(private readonly service: CheckoutService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Checkout' })
+  @ApiOperation({
+    summary: 'Checkout (legacy order-placement route)',
+    description:
+      'Equivalent to POST /orders/place. Retained for existing clients.',
+    deprecated: true,
+  })
   @ApiBody({ type: CheckoutDto })
   @ApiResponse({
     status: 201,

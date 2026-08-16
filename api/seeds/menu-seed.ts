@@ -1,5 +1,11 @@
 import { AppDataSource } from '../src/config/data-source';
 
+// EUR minor units: 250 = EUR 2.50. The fee belongs to the restaurant rather
+// than individual products, so every product detail exposes the same current
+// admin-configured fee and checkout applies it once per delivery order.
+const TEST_DELIVERY_FEE_MINOR = 250;
+const TEST_DELIVERY_MINUTES = 30;
+
 type SeedItem = {
   category: string;
   name: string;
@@ -162,6 +168,15 @@ async function seedMenu() {
     const restaurantId = restaurants[0].id as string;
     const categoryIds = new Map<string, string>();
 
+    await manager.query(
+      `UPDATE restaurants
+       SET delivery_fee_minor=$1,
+           default_delivery_minutes=$2,
+           updated_at=CURRENT_TIMESTAMP
+       WHERE id=$3`,
+      [TEST_DELIVERY_FEE_MINOR, TEST_DELIVERY_MINUTES, restaurantId],
+    );
+
     for (const [name, slug, description, order] of categories) {
       const [row] = await manager.query(
         `INSERT INTO menu_categories (restaurant_id,name,slug,description,display_order,is_active)
@@ -220,7 +235,7 @@ async function seedMenu() {
     }
 
     console.log(
-      `Seeded ${categories.length} categories and ${items.length} menu items for ${restaurants[0].name}.`,
+      `Seeded ${categories.length} categories and ${items.length} menu items for ${restaurants[0].name}; delivery fee is EUR ${(TEST_DELIVERY_FEE_MINOR / 100).toFixed(2)} and pickup is free.`,
     );
   });
 }
