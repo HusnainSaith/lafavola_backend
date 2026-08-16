@@ -80,6 +80,8 @@ export class OutboxWorker {
       return this.handleSupport(event);
     if (event.eventType === 'delivery.status_changed')
       return this.handleDelivery(event);
+    if (event.eventType === 'delivery.assigned')
+      return this.handleDeliveryAssignment(event);
     if (['order.confirmed', 'order.status_changed'].includes(event.eventType))
       return this.handleOrder(event);
   }
@@ -99,6 +101,25 @@ export class OutboxWorker {
       'Driver arriving',
       'Your driver is approaching the delivery address.',
       { orderId, status: 'arriving' },
+    );
+  }
+
+  private async handleDeliveryAssignment(event: OutboxEvent) {
+    const assignmentId = String(event.payload.assignmentId ?? '');
+    if (!assignmentId) return;
+    const rows = await this.dataSource.query(
+      `SELECT driver_user_id AS "driverUserId",order_id AS "orderId"
+       FROM delivery_assignments WHERE id=$1`,
+      [assignmentId],
+    );
+    if (!rows[0]?.driverUserId) return;
+    await this.persistAndPush(
+      rows[0].driverUserId,
+      event.id,
+      'delivery_assigned',
+      'New delivery assigned',
+      'A delivery order has been assigned to you.',
+      { orderId: rows[0].orderId, assignmentId },
     );
   }
 
@@ -134,6 +155,23 @@ export class OutboxWorker {
         data: { ticketId },
         occurredAt: new Date().toISOString(),
       });
+      const recipients = row.agentId
+        ? [{ userId: row.agentId }]
+        : await this.dataSource.query(
+            `SELECT DISTINCT u.id AS "userId"
+             FROM users u JOIN roles r ON r.id=u.role_id
+             WHERE u.status='active' AND r.name IN ('admin','support')`,
+          );
+      for (const recipient of recipients) {
+        await this.persistAndPush(
+          recipient.userId,
+          event.id,
+          'support_customer_message',
+          'Customer support message',
+          'A customer sent a new support message.',
+          { ticketId },
+        );
+      }
     }
     if (
       event.eventType === 'support.message.created' &&
@@ -146,6 +184,26 @@ export class OutboxWorker {
         'support_reply',
         'Support replied',
         'You have a new support message',
+        { ticketId },
+      );
+    }
+    if (event.eventType === 'support.ticket.status_changed' && row.customerId) {
+      await this.persistAndPush(
+        row.customerId,
+        event.id,
+        'support_status_changed',
+        'Support ticket updated',
+        `Your support ticket is now ${String(event.payload.status ?? 'updated').replace(/_/g, ' ')}.`,
+        { ticketId, status: String(event.payload.status ?? '') },
+      );
+    }
+    if (event.eventType === 'support.ticket.assigned' && row.agentId) {
+      await this.persistAndPush(
+        row.agentId,
+        event.id,
+        'support_ticket_assigned',
+        'Support ticket assigned',
+        'A support ticket has been assigned to you.',
         { ticketId },
       );
     }
@@ -175,9 +233,8 @@ export class OutboxWorker {
         ...template,
       });
     }
-    if (!order.userId) return;
     const mapped = this.orderNotification(order.status, event.eventType);
-    if (mapped)
+    if (order.userId && mapped)
       await this.persistAndPush(
         order.userId,
         event.id,
@@ -187,6 +244,31 @@ export class OutboxWorker {
         { orderId, status: order.status },
         false,
       );
+
+    if (event.eventType === 'order.confirmed' || order.status === 'cancelled') {
+      const staff = await this.dataSource.query(
+        `SELECT DISTINCT u.id AS "userId"
+         FROM orders o
+         JOIN staff_members sm ON sm.restaurant_id=o.restaurant_id AND sm.is_active=true
+         JOIN users u ON u.id=sm.user_id AND u.status='active'
+         JOIN roles r ON r.id=u.role_id
+         WHERE o.id=$1 AND r.name IN ('admin','employee')`,
+        [orderId],
+      );
+      for (const recipient of staff) {
+        const cancelled = order.status === 'cancelled';
+        await this.persistAndPush(
+          recipient.userId,
+          event.id,
+          cancelled ? 'order_cancelled_admin' : 'new_order_admin',
+          cancelled ? 'Order cancelled' : 'New order received',
+          cancelled
+            ? `Order ${order.orderNumber} was cancelled.`
+            : `Order ${order.orderNumber} is ready for processing.`,
+          { orderId, status: order.status },
+        );
+      }
+    }
   }
 
   private async persistAndPush(
@@ -202,7 +284,15 @@ export class OutboxWorker {
     let notification = await repo.findOne({ where: { userId, eventKey } });
     if (!notification)
       notification = await repo.save(
-        repo.create({ userId, eventKey, type, title, body, payload }),
+        repo.create({
+          userId,
+          eventKey,
+          type,
+          title,
+          body,
+          payload,
+          orderId: payload.orderId || undefined,
+        }),
       );
     const pref = await this.dataSource
       .getRepository(NotificationPreference)
@@ -266,6 +356,30 @@ export class OutboxWorker {
         title: 'Pizza preparing',
         body: 'Your pizza is being prepared.',
       };
+    if (status === 'accepted')
+      return {
+        type: 'order_accepted',
+        title: 'Order accepted',
+        body: 'The restaurant accepted your order.',
+      };
+    if (status === 'baking')
+      return {
+        type: 'order_baking',
+        title: 'Pizza baking',
+        body: 'Your pizza is in the oven.',
+      };
+    if (status === 'packing')
+      return {
+        type: 'order_packing',
+        title: 'Order packing',
+        body: 'Your order is being packed.',
+      };
+    if (status === 'ready')
+      return {
+        type: 'order_ready',
+        title: 'Order ready',
+        body: 'Your order is ready for pickup or delivery.',
+      };
     if (status === 'out_for_delivery')
       return {
         type: 'order_out_for_delivery',
@@ -277,6 +391,18 @@ export class OutboxWorker {
         type: 'order_delivered',
         title: 'Order delivered',
         body: 'Your order has been delivered.',
+      };
+    if (status === 'closed')
+      return {
+        type: 'order_completed',
+        title: 'Order completed',
+        body: 'Your order has been completed.',
+      };
+    if (status === 'cancelled' || status === 'rejected')
+      return {
+        type: `order_${status}`,
+        title: status === 'cancelled' ? 'Order cancelled' : 'Order rejected',
+        body: `Your order was ${status}.`,
       };
     return null;
   }

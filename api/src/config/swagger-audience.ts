@@ -14,11 +14,7 @@ const ADMIN_TAGS = new Set([
   'permissions',
 ]);
 
-const CUSTOMER_TAGS = new Set([
-  'Deliveries',
-  'Media',
-  'Refunds',
-]);
+const CUSTOMER_TAGS = new Set(['Deliveries', 'Media', 'Refunds']);
 
 const HTTP_METHODS = new Set([
   'get',
@@ -59,6 +55,9 @@ function sectionTag(tags: string[], audience: string): string {
     /^(Customer App|Admin App|Support App|Staff Apps?)\s*-\s*/,
     '',
   );
+  if (audience.includes('Customer App') && audience.includes('Admin App')) {
+    return `Shared Apps - ${section}`;
+  }
   if (audience.includes('Admin App') && audience.includes('Employee')) {
     return `Staff Apps - ${section}`;
   }

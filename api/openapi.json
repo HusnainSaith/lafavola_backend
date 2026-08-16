@@ -5403,7 +5403,8 @@
     "/api/v1/notifications": {
       "get": {
         "operationId": "NotificationsController_list",
-        "summary": "[CUSTOMER APP] List",
+        "summary": "[CUSTOMER APP / ADMIN APP / SUPPORT APP / EMPLOYEE / DRIVER APP] List My Notifications",
+        "description": "Audience: Customer App / Admin App / Support App / Employee / Driver App\n\nAvailable to every authenticated customer, admin, employee, support agent, and delivery user. Returns only notifications owned by the current user.",
         "parameters": [],
         "responses": {
           "200": {
@@ -5417,16 +5418,15 @@
           }
         },
         "tags": [
-          "Customer App - Notifications"
+          "Shared Apps - Shared - Notifications"
         ],
-        "description": "Audience: Customer App",
-        "x-audience-label": "Customer App"
+        "x-audience-label": "Customer App / Admin App / Support App / Employee / Driver App"
       }
     },
     "/api/v1/notifications/unread-count": {
       "get": {
         "operationId": "NotificationsController_unread",
-        "summary": "[CUSTOMER APP] Unread",
+        "summary": "[CUSTOMER APP / ADMIN APP / SUPPORT APP / EMPLOYEE / DRIVER APP] Unread",
         "parameters": [],
         "responses": {
           "200": {
@@ -5440,16 +5440,16 @@
           }
         },
         "tags": [
-          "Customer App - Notifications"
+          "Shared Apps - Shared - Notifications"
         ],
-        "description": "Audience: Customer App",
-        "x-audience-label": "Customer App"
+        "description": "Audience: Customer App / Admin App / Support App / Employee / Driver App",
+        "x-audience-label": "Customer App / Admin App / Support App / Employee / Driver App"
       }
     },
     "/api/v1/notifications/devices": {
       "get": {
         "operationId": "NotificationsController_listDevices",
-        "summary": "[CUSTOMER APP] List push devices owned by the current user",
+        "summary": "[CUSTOMER APP / ADMIN APP / SUPPORT APP / EMPLOYEE / DRIVER APP] List push devices owned by the current user",
         "parameters": [],
         "responses": {
           "200": {
@@ -5457,14 +5457,14 @@
           }
         },
         "tags": [
-          "Customer App - Notifications"
+          "Shared Apps - Shared - Notifications"
         ],
-        "description": "Audience: Customer App",
-        "x-audience-label": "Customer App"
+        "description": "Audience: Customer App / Admin App / Support App / Employee / Driver App",
+        "x-audience-label": "Customer App / Admin App / Support App / Employee / Driver App"
       },
       "post": {
         "operationId": "NotificationsController_registerDevice",
-        "summary": "[CUSTOMER APP] Register Device",
+        "summary": "[CUSTOMER APP / ADMIN APP / SUPPORT APP / EMPLOYEE / DRIVER APP] Register Device",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -5488,16 +5488,16 @@
           }
         },
         "tags": [
-          "Customer App - Notifications"
+          "Shared Apps - Shared - Notifications"
         ],
-        "description": "Audience: Customer App",
-        "x-audience-label": "Customer App"
+        "description": "Audience: Customer App / Admin App / Support App / Employee / Driver App",
+        "x-audience-label": "Customer App / Admin App / Support App / Employee / Driver App"
       }
     },
     "/api/v1/notifications/{id}": {
       "get": {
         "operationId": "NotificationsController_detail",
-        "summary": "[CUSTOMER APP] Get one owned notification",
+        "summary": "[CUSTOMER APP / ADMIN APP / SUPPORT APP / EMPLOYEE / DRIVER APP] Get one owned notification",
         "parameters": [
           {
             "name": "id",
@@ -5520,16 +5520,16 @@
           }
         },
         "tags": [
-          "Customer App - Notifications"
+          "Shared Apps - Shared - Notifications"
         ],
-        "description": "Audience: Customer App",
-        "x-audience-label": "Customer App"
+        "description": "Audience: Customer App / Admin App / Support App / Employee / Driver App",
+        "x-audience-label": "Customer App / Admin App / Support App / Employee / Driver App"
       }
     },
     "/api/v1/notifications/{id}/read": {
       "patch": {
         "operationId": "NotificationsController_markRead",
-        "summary": "[CUSTOMER APP] Mark Read",
+        "summary": "[CUSTOMER APP / ADMIN APP / SUPPORT APP / EMPLOYEE / DRIVER APP] Mark Read",
         "parameters": [
           {
             "name": "id",
@@ -5552,16 +5552,16 @@
           }
         },
         "tags": [
-          "Customer App - Notifications"
+          "Shared Apps - Shared - Notifications"
         ],
-        "description": "Audience: Customer App",
-        "x-audience-label": "Customer App"
+        "description": "Audience: Customer App / Admin App / Support App / Employee / Driver App",
+        "x-audience-label": "Customer App / Admin App / Support App / Employee / Driver App"
       }
     },
     "/api/v1/notifications/devices/{id}": {
       "delete": {
         "operationId": "NotificationsController_deactivateDevice",
-        "summary": "[CUSTOMER APP] Deactivate an owned push device token",
+        "summary": "[CUSTOMER APP / ADMIN APP / SUPPORT APP / EMPLOYEE / DRIVER APP] Deactivate an owned push device token",
         "parameters": [
           {
             "name": "id",
@@ -5578,16 +5578,16 @@
           }
         },
         "tags": [
-          "Customer App - Notifications"
+          "Shared Apps - Shared - Notifications"
         ],
-        "description": "Audience: Customer App",
-        "x-audience-label": "Customer App"
+        "description": "Audience: Customer App / Admin App / Support App / Employee / Driver App",
+        "x-audience-label": "Customer App / Admin App / Support App / Employee / Driver App"
       }
     },
     "/api/v1/notifications/preferences/me": {
       "get": {
         "operationId": "NotificationsController_preferences",
-        "summary": "[CUSTOMER APP] Preferences",
+        "summary": "[CUSTOMER APP / ADMIN APP / SUPPORT APP / EMPLOYEE / DRIVER APP] Preferences",
         "parameters": [],
         "responses": {
           "200": {
@@ -5601,14 +5601,14 @@
           }
         },
         "tags": [
-          "Customer App - Notifications"
+          "Shared Apps - Shared - Notifications"
         ],
-        "description": "Audience: Customer App",
-        "x-audience-label": "Customer App"
+        "description": "Audience: Customer App / Admin App / Support App / Employee / Driver App",
+        "x-audience-label": "Customer App / Admin App / Support App / Employee / Driver App"
       },
       "patch": {
         "operationId": "NotificationsController_updatePreferences",
-        "summary": "[CUSTOMER APP] Update Preferences",
+        "summary": "[CUSTOMER APP / ADMIN APP / SUPPORT APP / EMPLOYEE / DRIVER APP] Update Preferences",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -5632,10 +5632,10 @@
           }
         },
         "tags": [
-          "Customer App - Notifications"
+          "Shared Apps - Shared - Notifications"
         ],
-        "description": "Audience: Customer App",
-        "x-audience-label": "Customer App"
+        "description": "Audience: Customer App / Admin App / Support App / Employee / Driver App",
+        "x-audience-label": "Customer App / Admin App / Support App / Employee / Driver App"
       }
     },
     "/api/v1/favorites": {

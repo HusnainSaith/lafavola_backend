@@ -18,19 +18,31 @@ import { NotificationsService } from './notifications.service';
 
 import {
   ApiBody,
+  ApiExtension,
   ApiOperation,
   ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-@ApiTags('Customer App - Notifications')
+@ApiTags(
+  'Shared - Notifications',
+  'Audience: Customer App / Admin App / Support App / Employee / Driver App',
+)
+@ApiExtension(
+  'x-audience',
+  'Customer App / Admin App / Support App / Employee / Driver App',
+)
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
 export class NotificationsController {
   constructor(private readonly service: NotificationsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'List' })
+  @ApiOperation({
+    summary: 'List My Notifications',
+    description:
+      'Available to every authenticated customer, admin, employee, support agent, and delivery user. Returns only notifications owned by the current user.',
+  })
   @ApiResponse({ status: 200, description: 'Successful response' })
   @ApiResponse({
     status: 400,

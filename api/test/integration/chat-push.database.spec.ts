@@ -145,8 +145,20 @@ const enabled = process.env.RUN_DB_TESTS === 'true';
         `SELECT COUNT(*)::int count FROM notifications WHERE user_id=$1 AND type='support_reply'`,
         [customerId],
       );
+      const [{ staffCount }] = await dataSource.query(
+        `SELECT COUNT(*)::int AS "staffCount" FROM notifications
+         WHERE user_id IN ($1,$2) AND type='support_customer_message'`,
+        [agentA, agentB],
+      );
+      const [{ statusCount }] = await dataSource.query(
+        `SELECT COUNT(*)::int AS "statusCount" FROM notifications
+         WHERE user_id=$1 AND type='support_status_changed'`,
+        [customerId],
+      );
       expect(token.is_active).toBe(false);
       expect(count).toBe(2);
+      expect(staffCount).toBeGreaterThan(0);
+      expect(statusCount).toBeGreaterThan(0);
       expect(push.sendToDevice).toHaveBeenCalledTimes(1);
     });
   },
