@@ -12,11 +12,13 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RoleEnum } from '../roles/role.enum';
+import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
 import { CouponsService } from './coupons.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
+import { ValidateCouponDto } from './dto/validate-coupon.dto';
 
 import {
   ApiBody,
@@ -40,6 +42,36 @@ export class CouponsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   findAll() {
     return this.service.findAll();
+  }
+
+  @Post('validate')
+  @Public()
+  @ApiOperation({
+    summary: 'Validate a coupon code and preview its discount',
+    description:
+      'Customer-facing coupon validation. Accepts a code (and optional cart subtotal/restaurant) and returns whether the code is valid and the discount it will apply, mirroring checkout rules.',
+  })
+  @ApiBody({ type: ValidateCouponDto })
+  @ApiResponse({ status: 201, description: 'Coupon validated successfully' })
+  @ApiResponse({
+    status: 400,
+    description: 'Coupon is invalid, expired or out of its active window',
+  })
+  validate(@Body() dto: ValidateCouponDto) {
+    return this.service.validate(dto);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'List coupons available to the authenticated customer',
+    description:
+      'Customer coupon inbox. Returns coupons that are currently active, in their time window and not exhausted by total/per-customer usage limits.',
+  })
+  @ApiResponse({ status: 200, description: 'List of redeemable coupons' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  listForCustomer(@CurrentUser() user: AuthenticatedUser) {
+    return this.service.listForCustomer(user.id);
   }
 
   @Get(':id')

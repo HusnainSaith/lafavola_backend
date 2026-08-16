@@ -3,13 +3,15 @@ import {
   IsDefined,
   IsEnum,
   IsIn,
+  IsInt,
   IsOptional,
   IsString,
   IsUUID,
   MaxLength,
+  Min,
   ValidateIf,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PaymentMethodType } from '../../payments/enums/payment-method-type.enum';
 
 export class CheckoutDto {
@@ -34,6 +36,17 @@ export class CheckoutDto {
   @IsString()
   @MaxLength(80)
   couponCode?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Number of loyalty points the customer wants to redeem against this order.',
+    example: 250,
+    minimum: 1,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  loyaltyPointsToRedeem?: number;
 
   @IsOptional()
   @IsString()

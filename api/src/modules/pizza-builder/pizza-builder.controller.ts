@@ -1,4 +1,11 @@
-﻿import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+﻿import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
 import { BuildPizzaDto } from './dto/build-pizza.dto';
 import { Delete, Patch, UseGuards } from '@nestjs/common';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -51,7 +58,7 @@ export class PizzaBuilderController {
   @ApiOperation({ summary: 'Update a restaurant pizza-builder rule' })
   updateAdmin(
     @CurrentUser() user: AuthenticatedUser,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() dto: UpdatePizzaBuilderRuleDto,
   ) {
     return this.service.updateAdmin(user.id, id, dto);
@@ -63,7 +70,7 @@ export class PizzaBuilderController {
   @ApiOperation({ summary: 'Deactivate a restaurant pizza-builder rule' })
   deactivateAdmin(
     @CurrentUser() user: AuthenticatedUser,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
     return this.service.deactivateAdmin(user.id, id);
   }
@@ -77,7 +84,10 @@ export class PizzaBuilderController {
     status: 400,
     description: 'Validation or business-rule error',
   })
-  configuration(@Param('menuItemId') menuItemId: string) {
+  configuration(
+    @Param('menuItemId', new ParseUUIDPipe({ version: '4' }))
+    menuItemId: string,
+  ) {
     return this.service.getConfiguration(menuItemId);
   }
 
